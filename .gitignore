@@ -1,0 +1,27 @@
+# FVM Version Cache
+.fvm/
+
+# Directories
+docs/
+
+# IDEs
+.idea/
+.vscode/
+
+# Claude Code (config locale à la machine, pas à versionner)
+.claude/settings.local.json
+
+# Fichiers parasites Windows/WSL (métadonnée ajoutée par l'explorateur
+# Windows aux fichiers téléchargés/copiés)
+*:Zone.Identifier
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets / signature Android (à activer dès qu'ils existeront)
+android/key.properties
+android/app/*.jks
+android/app/*.keystore
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
