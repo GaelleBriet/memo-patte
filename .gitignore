@@ -7,6 +7,15 @@ docs/
 # IDEs
 .idea/
 .vscode/
+*.iml
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
 
 # Claude Code (config locale à la machine, pas à versionner)
 .claude/settings.local.json
