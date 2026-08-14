@@ -39,6 +39,14 @@ fvm flutter pub get
 fvm flutter run
 ```
 
+## Conventions
+
+Les messages de commit suivent [Conventional
+Commits](https://www.conventionalcommits.org/fr/) (`feat:`, `fix:`,
+`chore:`...). Les releases (versionnement + changelog) sont
+automatisées par [release-please](https://github.com/googleapis/release-please)
+à partir de ces commits.
+
 ## À propos
 
 Projet portfolio développé en solo, de la recherche produit à la
