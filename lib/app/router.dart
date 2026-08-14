@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/animals/presentation/animals_list_screen.dart';
 import '../features/animals/presentation/create_animal_screen.dart';
 
 /// Router minimal de l'app.
@@ -18,9 +19,16 @@ final appRouter = GoRouter(
       builder: (context, state) => const _HomePlaceholder(),
       routes: [
         GoRoute(
-          path: 'animals/new',
-          name: 'createAnimal',
-          builder: (context, state) => const CreateAnimalScreen(),
+          path: 'animals',
+          name: 'animalsList',
+          builder: (context, state) => const AnimalsListScreen(),
+          routes: [
+            GoRoute(
+              path: 'new',
+              name: 'createAnimal',
+              builder: (context, state) => const CreateAnimalScreen(),
+            ),
+          ],
         ),
       ],
     ),
@@ -35,14 +43,13 @@ class _HomePlaceholder extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('MémoPatte')),
       body: const Center(child: Text('Écran d\'accueil à venir')),
-      // Point d'entrée temporaire vers l'écran de création de profil
-      // (ticket 1.2) pour pouvoir le tester en conditions réelles tant que
-      // le vrai écran d'accueil (ticket 6.2) et l'écran liste (ticket 1.3)
-      // n'existent pas encore. À retirer quand l'un des deux le remplace.
+      // Point d'entrée temporaire vers l'écran liste des animaux (ticket
+      // 1.3), qui a lui-même son propre bouton "+" vers la création. À
+      // retirer quand le vrai écran d'accueil (ticket 6.2) le remplace.
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.goNamed('createAnimal'),
-        tooltip: 'Créer un profil animal',
-        child: const Icon(Icons.add),
+        onPressed: () => context.goNamed('animalsList'),
+        tooltip: 'Voir mes animaux',
+        child: const Icon(Icons.pets),
       ),
     );
   }

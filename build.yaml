@@ -1,0 +1,12 @@
+# Force drift_dev à générer AVANT riverpod_generator.
+#
+# Sans ça, un @riverpod provider dont le type de retour référence une
+# classe générée par Drift (ex. Stream<List<Animal>>) peut échouer avec
+# "InvalidTypeException: The type is invalid and cannot be converted to
+# code" — riverpod_generator tente de résoudre le type avant que Drift
+# ne l'ait produit. Bug connu de l'écosystème, pas propre à ce projet :
+# https://github.com/rrousselGit/riverpod/issues/4370
+global_options:
+  drift_dev:
+    runs_before:
+      - riverpod_generator

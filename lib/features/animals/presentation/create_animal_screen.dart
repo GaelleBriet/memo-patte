@@ -115,17 +115,13 @@ class _CreateAnimalScreenState extends ConsumerState<CreateAnimalScreen> {
             Text('Espèce *', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             SegmentedButton<AnimalSpecies>(
-              segments: const [
-                ButtonSegment(
-                  value: AnimalSpecies.dog,
-                  label: Text('Chien'),
-                  icon: Icon(Icons.pets),
-                ),
-                ButtonSegment(
-                  value: AnimalSpecies.cat,
-                  label: Text('Chat'),
-                  icon: Icon(Icons.pets),
-                ),
+              segments: [
+                for (final species in AnimalSpecies.values)
+                  ButtonSegment(
+                    value: species,
+                    label: Text(species.label),
+                    icon: const Icon(Icons.pets),
+                  ),
               ],
               selected: _species == null ? const {} : {_species!},
               emptySelectionAllowed: true,
