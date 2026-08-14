@@ -1,0 +1,14 @@
+# Changelog
+
+## [1.1.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.0.0...memo_patte-v1.1.0) (2026-08-14)
+
+
+### ✨ Fonctionnalités
+
+* add AnimalRepositoryProvider for managing animal data ([8d75d6e](https://github.com/GaelleBriet/memo-patte/commit/8d75d6edb6490dd27851636252876817ebffbc76))
+* add AnimalsListScreen and provider for displaying animal list ([6c4bb16](https://github.com/GaelleBriet/memo-patte/commit/6c4bb162940a5b867e364aea123f738e5c8d2542))
+* add AppDatabase provider for managing SQLite connections ([71cc7a2](https://github.com/GaelleBriet/memo-patte/commit/71cc7a2f9e12516560656ff9788373b55628e3ee))
+* add CreateAnimalScreen for animal profile creation ([07f05e6](https://github.com/GaelleBriet/memo-patte/commit/07f05e6eae766353c822aa0b36c8a92def3777a4))
+* add routing for CreateAnimalScreen and temporary entry point ([00126a9](https://github.com/GaelleBriet/memo-patte/commit/00126a91b4f0c57d9e96e2c6b3c93bfa5d45d191))
+* configure build.yaml to ensure drift_dev runs before riverpod_generator ([e6cde0c](https://github.com/GaelleBriet/memo-patte/commit/e6cde0c901ccadddc83c6672d05af6426a2f4193))
+* update animal species handling and routing for animal screens ([63dcc00](https://github.com/GaelleBriet/memo-patte/commit/63dcc000fd65705f5f31ec57cca98e7c61017418))
