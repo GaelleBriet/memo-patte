@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Reproduit localement les checks de la CI (.github/workflows/ci.yml)
+# avant de push, pour ne pas attendre le retour de GitHub Actions —
+# formatage, analyse statique, tests.
+# Activé via `git config core.hooksPath .githooks` (cf.
+# docs/technical/00-setup-environnement.md).
+#
+# Pour pousser quand même malgré un échec (déconseillé) :
+#   git push --no-verify
+
+FLUTTER="flutter"
+DART="dart"
+if command -v fvm >/dev/null 2>&1; then
+  FLUTTER="fvm flutter"
+  DART="fvm dart"
+fi
+
+if ! command -v ${FLUTTER%% *} >/dev/null 2>&1; then
+  echo "⚠️  '$FLUTTER' introuvable dans le PATH — checks pre-push sautés."
+  exit 0
+fi
+
+echo "→ Vérification du formatage..."
+if ! $DART format --output=none --set-exit-if-changed .; then
+  echo "❌ Formatage invalide. Lance '$DART format .' puis re-commit (normalement déjà géré par le hook pre-commit, sauf commit fait avec --no-verify)."
+  exit 1
+fi
+
+echo "→ Analyse statique ($FLUTTER analyze)..."
+if ! $FLUTTER analyze; then
+  echo "❌ $FLUTTER analyze a trouvé des problèmes à corriger avant de push."
+  exit 1
+fi
+
+echo "→ Tests ($FLUTTER test)..."
+if ! $FLUTTER test; then
+  echo "❌ Des tests échouent, à corriger avant de push."
+  exit 1
+fi
+
+echo "✓ Tous les checks locaux passent (formatage, analyze, test)."
+exit 0

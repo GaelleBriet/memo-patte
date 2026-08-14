@@ -2,6 +2,8 @@
 
 <!-- Qu'est-ce que ce PR change et pourquoi ? -->
 
+Closes #<numéro du ticket>
+
 ## Type de changement
 
 - [ ] `feat` — nouvelle fonctionnalité

@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Formate automatiquement les fichiers Dart stagés avant chaque commit,
+# pour ne plus jamais se faire recaler par le check "Vérifier le
+# formatage" de la CI (dart format --set-exit-if-changed, voir
+# .github/workflows/ci.yml).
+# Activé via `git config core.hooksPath .githooks` (cf.
+# docs/technical/00-setup-environnement.md).
+
+DART="dart"
+command -v fvm >/dev/null 2>&1 && DART="fvm dart"
+
+mapfile -d '' staged_dart_files < <(
+  git diff --cached --name-only --diff-filter=ACMR -z -- '*.dart'
+)
+
+if [[ ${#staged_dart_files[@]} -eq 0 ]]; then
+  exit 0
+fi
+
+if ! command -v ${DART%% *} >/dev/null 2>&1; then
+  echo "⚠️  '$DART' introuvable dans le PATH — formatage sauté, pense à lancer '$DART format .' toi-même avant de commit."
+  exit 0
+fi
+
+$DART format "${staged_dart_files[@]}"
+
+# Re-stage les fichiers que dart format vient potentiellement de modifier.
+git add "${staged_dart_files[@]}"
+
+exit 0
