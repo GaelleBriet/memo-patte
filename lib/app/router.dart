@@ -26,9 +26,7 @@ class _HomePlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('MémoPatte')),
-      body: const Center(
-        child: Text('Écran d\'accueil à venir'),
-      ),
+      body: const Center(child: Text('Écran d\'accueil à venir')),
     );
   }
 }
