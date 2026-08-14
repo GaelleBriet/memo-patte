@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # Dépendances Dart/Flutter (pubspec.yaml)
+  - package-ecosystem: "pub"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Actions utilisées dans les workflows GitHub
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(ci)"
