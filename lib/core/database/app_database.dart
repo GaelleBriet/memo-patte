@@ -2,21 +2,16 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../features/animals/data/animal_table.dart';
+// Import direct requis : le code généré par Drift dans
+// app_database.g.dart référence AnimalSpecies (via intEnum<T>()) et a
+// besoin de ce type dans la portée de CETTE librairie, pas seulement
+// dans celle d'animal_table.dart (les imports ne sont pas transitifs).
+import '../../features/animals/domain/animal_species.dart';
+
 part 'app_database.g.dart';
 
-/// Table technique temporaire, sans valeur métier.
-///
-/// Drift exige au moins une table déclarée pour accepter de générer du
-/// code. Cette table n'est là que pour satisfaire cette contrainte tant
-/// qu'aucune table métier n'existe. À supprimer dès que la première vraie
-/// table (`Animal`, ticket 1.1) est ajoutée à la base.
-/// (Classe volontairement publique : une table privée fait générer par
-/// Drift des membres privés non utilisés, ce que l'analyzer signale.)
-class SchemaBootstrap extends Table {
-  IntColumn get id => integer().autoIncrement()();
-}
-
-@DriftDatabase(tables: [SchemaBootstrap])
+@DriftDatabase(tables: [Animals])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
