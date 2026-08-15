@@ -15,6 +15,11 @@ part 'app_database.g.dart';
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  /// Pour les tests unitaires (ticket 1.5) : permet d'injecter une base en
+  /// mémoire (`NativeDatabase.memory()`) plutôt que la vraie connexion
+  /// fichier de [AppDatabase.new], pour des tests rapides et isolés.
+  AppDatabase.forTesting(super.executor);
+
   @override
   int get schemaVersion => 1;
 

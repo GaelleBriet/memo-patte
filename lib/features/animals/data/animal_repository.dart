@@ -37,8 +37,13 @@ class AnimalRepository {
     );
   }
 
+  // `nullToAbsent: false` est nécessaire ici (et pas `true`, l'erreur
+  // commise au ticket 1.1, trouvée par le test du ticket 1.5) : `true`
+  // convertit les champs null en `Value.absent()`, donc "ne pas y
+  // toucher" — l'inverse de ce qu'on veut pour une édition qui doit
+  // pouvoir effacer un champ facultatif (repasser breed à null, etc.).
   Future<bool> updateAnimal(Animal animal) =>
-      _dao.updateAnimal(animal.toCompanion(true));
+      _dao.updateAnimal(animal.toCompanion(false));
 
   Future<int> deleteAnimal(int id) => _dao.deleteAnimal(id);
 }
