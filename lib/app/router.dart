@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/animals/presentation/animal_profile_screen.dart';
 import '../features/animals/presentation/animals_list_screen.dart';
 import '../features/animals/presentation/create_animal_screen.dart';
 
@@ -27,6 +28,17 @@ final appRouter = GoRouter(
               path: 'new',
               name: 'createAnimal',
               builder: (context, state) => const CreateAnimalScreen(),
+            ),
+            GoRoute(
+              // Segment statique 'new' testé avant ':id' par go_router
+              // (les routes littérales priment sur les routes
+              // dynamiques au même niveau) — pas d'ambiguïté entre
+              // /animals/new et /animals/<id>.
+              path: ':id',
+              name: 'animalProfile',
+              builder: (context, state) => AnimalProfileScreen(
+                animalId: int.parse(state.pathParameters['id']!),
+              ),
             ),
           ],
         ),
