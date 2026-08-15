@@ -13,8 +13,9 @@ class AnimalDao extends DatabaseAccessor<AppDatabase> with _$AnimalDaoMixin {
   /// (défaut du sélecteur de l'accueil, ticket 6.2) doit être
   /// déterministe — un simple `select(...).watch()` sans `orderBy` ne
   /// garantit aucun ordre précis en toute rigueur SQL.
-  Stream<List<Animal>> watchAll() =>
-      (select(animals)..orderBy([(a) => OrderingTerm.asc(a.createdAt)])).watch();
+  Stream<List<Animal>> watchAll() => (select(
+    animals,
+  )..orderBy([(a) => OrderingTerm.asc(a.createdAt)])).watch();
 
   Future<Animal?> getById(int id) =>
       (select(animals)..where((a) => a.id.equals(id))).getSingleOrNull();

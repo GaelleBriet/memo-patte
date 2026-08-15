@@ -123,7 +123,9 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
 
   Widget _buildReadMode(BuildContext context) {
     final animal = widget.animal;
-    final vaccinationsAsync = ref.watch(vaccinationsListProvider(widget.animalId));
+    final vaccinationsAsync = ref.watch(
+      vaccinationsListProvider(widget.animalId),
+    );
     final animalsAsync = ref.watch(animalsListProvider);
 
     return ListView(
@@ -144,7 +146,10 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
             selectedAnimalId: widget.animalId,
             onSelect: (id) {
               ref.read(selectedAnimalIdProvider.notifier).state = id;
-              context.goNamed('animalProfile', pathParameters: {'id': id.toString()});
+              context.goNamed(
+                'animalProfile',
+                pathParameters: {'id': id.toString()},
+              );
             },
             onAdd: () => context.goNamed('createAnimal'),
           ),
@@ -298,18 +303,19 @@ List<Vaccination> _dueVaccinations(List<Vaccination> vaccinations) {
 /// puis aux plus récents — plafonné à 3 lignes, la liste complète reste
 /// à un tap ("Voir tout").
 List<Vaccination> _preview(List<Vaccination> vaccinations) {
-  final sorted = [...vaccinations]..sort((a, b) {
-    int rank(Vaccination v) => switch (VaccinationStatus.fromNextDueDate(
-      v.nextDueDate,
-      DateTime.now(),
-    )) {
-      VaccinationStatus.overdue => 0,
-      VaccinationStatus.dueSoon => 1,
-      VaccinationStatus.upToDate => 2,
-    };
-    final byStatus = rank(a).compareTo(rank(b));
-    return byStatus != 0 ? byStatus : b.date.compareTo(a.date);
-  });
+  final sorted = [...vaccinations]
+    ..sort((a, b) {
+      int rank(Vaccination v) => switch (VaccinationStatus.fromNextDueDate(
+        v.nextDueDate,
+        DateTime.now(),
+      )) {
+        VaccinationStatus.overdue => 0,
+        VaccinationStatus.dueSoon => 1,
+        VaccinationStatus.upToDate => 2,
+      };
+      final byStatus = rank(a).compareTo(rank(b));
+      return byStatus != 0 ? byStatus : b.date.compareTo(a.date);
+    });
   return sorted.take(3).toList();
 }
 

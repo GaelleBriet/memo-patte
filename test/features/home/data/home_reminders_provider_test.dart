@@ -61,9 +61,9 @@ void main() {
     addTearDown(database.close);
   });
 
-  Future<int> createAnimal(String name) => AnimalRepository(
-    AnimalDao(database),
-  ).createAnimal(name: name, species: AnimalSpecies.dog);
+  Future<int> createAnimal(String name) =>
+      AnimalRepository(AnimalDao(database))
+          .createAnimal(name: name, species: AnimalSpecies.dog);
 
   /// Attend qu'un provider `Stream`/`AsyncValue` sorte de l'état
   /// `AsyncLoading`, par polling plutôt que `container.read(provider.future)`.
@@ -196,28 +196,31 @@ void main() {
     expect(reminders.map((r) => r.detail), ['Typhus', 'Rage']);
   });
 
-  test('scopé à l\'animal demandé : n\'inclut pas les vaccins des autres', () async {
-    final milo = await createAnimal('Milo');
-    final luna = await createAnimal('Luna');
-    final repository = container.read(vaccinationRepositoryProvider);
+  test(
+    'scopé à l\'animal demandé : n\'inclut pas les vaccins des autres',
+    () async {
+      final milo = await createAnimal('Milo');
+      final luna = await createAnimal('Luna');
+      final repository = container.read(vaccinationRepositoryProvider);
 
-    await repository.createVaccination(
-      animalId: milo,
-      name: 'Rage',
-      date: DateTime.now(),
-      nextDueDate: DateTime.now().add(const Duration(days: 5)),
-    );
-    await repository.createVaccination(
-      animalId: luna,
-      name: 'Typhus',
-      date: DateTime.now(),
-      nextDueDate: DateTime.now().add(const Duration(days: 5)),
-    );
+      await repository.createVaccination(
+        animalId: milo,
+        name: 'Rage',
+        date: DateTime.now(),
+        nextDueDate: DateTime.now().add(const Duration(days: 5)),
+      );
+      await repository.createVaccination(
+        animalId: luna,
+        name: 'Typhus',
+        date: DateTime.now(),
+        nextDueDate: DateTime.now().add(const Duration(days: 5)),
+      );
 
-    final miloReminders = await readReminders(milo);
-    expect(miloReminders.map((r) => r.detail), ['Rage']);
+      final miloReminders = await readReminders(milo);
+      expect(miloReminders.map((r) => r.detail), ['Rage']);
 
-    final lunaReminders = await readReminders(luna);
-    expect(lunaReminders.map((r) => r.detail), ['Typhus']);
-  });
+      final lunaReminders = await readReminders(luna);
+      expect(lunaReminders.map((r) => r.detail), ['Typhus']);
+    },
+  );
 }

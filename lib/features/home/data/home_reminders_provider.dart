@@ -34,7 +34,10 @@ final homeRemindersProvider =
       final vaccinationsAsync = ref.watch(vaccinationsListProvider(animalId));
       if (!vaccinationsAsync.hasValue) {
         return vaccinationsAsync.hasError
-            ? AsyncError(vaccinationsAsync.error!, vaccinationsAsync.stackTrace!)
+            ? AsyncError(
+                vaccinationsAsync.error!,
+                vaccinationsAsync.stackTrace!,
+              )
             : const AsyncLoading();
       }
 
@@ -43,7 +46,10 @@ final homeRemindersProvider =
         final dueDate = vaccination.nextDueDate;
         if (dueDate == null) continue;
 
-        final status = VaccinationStatus.fromNextDueDate(dueDate, DateTime.now());
+        final status = VaccinationStatus.fromNextDueDate(
+          dueDate,
+          DateTime.now(),
+        );
         if (status == VaccinationStatus.upToDate) continue;
 
         reminders.add(

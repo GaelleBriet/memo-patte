@@ -114,10 +114,8 @@ class _HomeContent extends ConsumerWidget {
                         ),
                     ],
                   ),
-            loading: () =>
-                const Center(child: CircularProgressIndicator()),
-            error: (error, stackTrace) =>
-                Text('Erreur de chargement : $error'),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stackTrace) => Text('Erreur de chargement : $error'),
           ),
         ),
         Padding(
@@ -169,9 +167,8 @@ class _HomeHero extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 'Bonjour',
-                style: Theme.of(
-                  context,
-                ).textTheme.headlineLarge?.copyWith(color: Colors.white),
+                style: Theme.of(context).textTheme.headlineLarge
+                    ?.copyWith(color: Colors.white),
               ),
             ],
           ),

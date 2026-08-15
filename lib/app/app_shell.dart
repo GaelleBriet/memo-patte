@@ -43,7 +43,10 @@ class AppShell extends ConsumerWidget {
     // (`AnimalDao.watchAll`) : `.first` = "le premier animal créé", le
     // même défaut que l'accueil (`home_screen.dart`).
     final selectedId = ref.read(selectedAnimalIdProvider) ?? animals.first.id;
-    context.goNamed('animalProfile', pathParameters: {'id': selectedId.toString()});
+    context.goNamed(
+      'animalProfile',
+      pathParameters: {'id': selectedId.toString()},
+    );
   }
 
   @override
