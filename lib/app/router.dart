@@ -1,44 +1,59 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../core/widgets/gradient_app_bar.dart';
 import '../features/animals/presentation/animal_profile_screen.dart';
-import '../features/animals/presentation/animals_list_screen.dart';
 import '../features/animals/presentation/create_animal_screen.dart';
-import '../features/notifications/presentation/notification_permission_banner.dart';
+import '../features/home/presentation/home_screen.dart';
 import '../features/vaccinations/presentation/vaccination_form_screen.dart';
 import '../features/vaccinations/presentation/vaccinations_list_screen.dart';
+import 'app_shell.dart';
 
-/// Router minimal de l'app.
+/// Router de l'app, avec coquille de navigation persistante (ticket 6.0,
+/// `StatefulShellRoute.indexedStack` de go_router) : 2 onglets — Accueil,
+/// Carnet — voir `app_shell.dart` pour pourquoi pas les 4 de la maquette
+/// `docs/design/PetCare - Ma Vision`.
 ///
-/// Le vrai écran d'accueil (vue consolidée multi-animaux, différenciant
-/// n°2) arrive au ticket 6.2, dans `features/home/`. `_HomePlaceholder`
-/// n'est qu'un jalon de navigation en attendant — volontairement gardé
-/// hors de `features/` pour ne pas empiéter sur le ticket 0.4 (structure
-/// de dossiers `features/`), et à supprimer quand 6.2 le remplace.
+/// Pas d'écran "liste des animaux" (`AnimalsListScreen`, ticket 1.3) :
+/// supprimé le 2026-08-15, la branche Carnet mène directement au profil
+/// de l'animal courant (`selectedAnimalIdProvider`) — voir
+/// `app_shell.dart` pour comment l'onglet du bas résout cette route
+/// dynamiquement. `/animals/new` (création) et `/animals/:id` (profil)
+/// restent deux routes soeurs, plus de racine `/animals` commune entre
+/// elles.
+///
+/// Chaque branche garde sa propre pile de navigation (routes imbriquées
+/// incluses) : ouvrir le profil d'un animal depuis l'onglet Carnet, puis
+/// basculer sur Accueil et revenir sur Carnet, retrouve l'écran de
+/// profil tel qu'on l'a laissé — comportement standard d'une bottom nav,
+/// pas quelque chose codé à la main ici.
 final appRouter = GoRouter(
   routes: [
-    GoRoute(
-      path: '/',
-      name: 'home',
-      builder: (context, state) => const _HomePlaceholder(),
-      routes: [
-        GoRoute(
-          path: 'animals',
-          name: 'animalsList',
-          builder: (context, state) => const AnimalsListScreen(),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) =>
+          AppShell(navigationShell: navigationShell),
+      branches: [
+        StatefulShellBranch(
           routes: [
             GoRoute(
-              path: 'new',
+              path: '/',
+              name: 'home',
+              builder: (context, state) => const HomeScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/animals/new',
               name: 'createAnimal',
               builder: (context, state) => const CreateAnimalScreen(),
             ),
             GoRoute(
-              // Segment statique 'new' testé avant ':id' par go_router
-              // (les routes littérales priment sur les routes
-              // dynamiques au même niveau) — pas d'ambiguïté entre
-              // /animals/new et /animals/<id>.
-              path: ':id',
+              // Route soeur de `/animals/new` ci-dessus (même niveau,
+              // pas imbriquée dessous) : le segment littéral 'new' prime
+              // sur ':id' dans la résolution de go_router, donc pas
+              // d'ambiguïté entre /animals/new et /animals/<id> malgré
+              // l'absence de racine `/animals` commune.
+              path: '/animals/:id',
               name: 'animalProfile',
               builder: (context, state) => AnimalProfileScreen(
                 animalId: int.parse(state.pathParameters['id']!),
@@ -76,44 +91,12 @@ final appRouter = GoRouter(
             ),
           ],
         ),
-        // L'écran de priming (ticket 2.2) n'a plus de route nommée : son
-        // vrai point d'entrée est le formulaire vaccin (ticket 3.2), qui
-        // le pousse directement via Navigator pour en attendre le
-        // résultat — voir `VaccinationFormScreen`.
       ],
     ),
+    // L'écran de priming (ticket 2.2) n'a pas de route nommée : son vrai
+    // point d'entrée est le formulaire vaccin (ticket 3.2), qui le
+    // pousse directement via `Navigator.of(context, rootNavigator: true)`
+    // pour en attendre le résultat sans passer par la coquille de nav
+    // (ticket 6.0) — voir `VaccinationFormScreen`.
   ],
 );
-
-class _HomePlaceholder extends StatelessWidget {
-  const _HomePlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      // Le bouton d'aperçu temporaire du priming (ajouté au ticket 2.2)
-      // a été retiré : le ticket 3.2 fournit le vrai point d'entrée
-      // (création du premier vaccin), comme prévu.
-      appBar: const GradientAppBar(title: Text('MémoPatte')),
-      // Le bandeau de statut (ticket 2.3) s'affiche seulement si la
-      // permission de notifications a été refusée — `SizedBox.shrink()`
-      // sinon, voir `NotificationPermissionBanner`.
-      body: Column(
-        children: [
-          const NotificationPermissionBanner(),
-          const Expanded(
-            child: Center(child: Text('Écran d\'accueil à venir')),
-          ),
-        ],
-      ),
-      // Point d'entrée temporaire vers l'écran liste des animaux (ticket
-      // 1.3), qui a lui-même son propre bouton "+" vers la création. À
-      // retirer quand le vrai écran d'accueil (ticket 6.2) le remplace.
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.goNamed('animalsList'),
-        tooltip: 'Voir mes animaux',
-        child: const Icon(Icons.pets),
-      ),
-    );
-  }
-}
