@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/widgets/gradient_app_bar.dart';
 import '../features/animals/presentation/animal_profile_screen.dart';
 import '../features/animals/presentation/animals_list_screen.dart';
 import '../features/animals/presentation/create_animal_screen.dart';
 import '../features/notifications/presentation/notification_permission_banner.dart';
-import '../features/notifications/presentation/notification_priming_screen.dart';
+import '../features/vaccinations/presentation/vaccination_form_screen.dart';
+import '../features/vaccinations/presentation/vaccinations_list_screen.dart';
 
 /// Router minimal de l'app.
 ///
@@ -41,20 +43,43 @@ final appRouter = GoRouter(
               builder: (context, state) => AnimalProfileScreen(
                 animalId: int.parse(state.pathParameters['id']!),
               ),
+              routes: [
+                GoRoute(
+                  path: 'vaccinations',
+                  name: 'vaccinationsList',
+                  builder: (context, state) => VaccinationsListScreen(
+                    animalId: int.parse(state.pathParameters['id']!),
+                  ),
+                  routes: [
+                    GoRoute(
+                      path: 'new',
+                      name: 'createVaccination',
+                      builder: (context, state) => VaccinationFormScreen(
+                        animalId: int.parse(state.pathParameters['id']!),
+                      ),
+                    ),
+                    GoRoute(
+                      // Même remarque 'new' avant ':vaccinationId' que
+                      // pour /animals ci-dessus.
+                      path: ':vaccinationId',
+                      name: 'editVaccination',
+                      builder: (context, state) => VaccinationFormScreen(
+                        animalId: int.parse(state.pathParameters['id']!),
+                        vaccinationId: int.parse(
+                          state.pathParameters['vaccinationId']!,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
-        GoRoute(
-          // Pas encore appelée automatiquement nulle part (voir le
-          // commentaire de classe de `NotificationPrimingScreen`) : les
-          // tickets 3.2/4.2 qui doivent la déclencher n'existent pas
-          // encore. Route nommée exposée dès maintenant pour que ces
-          // tickets-là n'aient qu'à naviguer dessus, et pour permettre un
-          // aperçu manuel via le bouton temporaire de `_HomePlaceholder`.
-          path: 'notifications/priming',
-          name: 'notificationPriming',
-          builder: (context, state) => const NotificationPrimingScreen(),
-        ),
+        // L'écran de priming (ticket 2.2) n'a plus de route nommée : son
+        // vrai point d'entrée est le formulaire vaccin (ticket 3.2), qui
+        // le pousse directement via Navigator pour en attendre le
+        // résultat — voir `VaccinationFormScreen`.
       ],
     ),
   ],
@@ -66,21 +91,10 @@ class _HomePlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('MémoPatte'),
-        actions: [
-          // Aperçu manuel temporaire de l'écran de priming (ticket 2.2),
-          // pour pouvoir le tester sur téléphone avant que les tickets
-          // 3.2/4.2 (création vaccin/traitement) ne le déclenchent pour
-          // de vrai. À retirer quand l'un de ces tickets fournit le vrai
-          // point d'entrée.
-          IconButton(
-            onPressed: () => context.goNamed('notificationPriming'),
-            tooltip: 'Aperçu : demande de permission notifications',
-            icon: const Icon(Icons.notifications_outlined),
-          ),
-        ],
-      ),
+      // Le bouton d'aperçu temporaire du priming (ajouté au ticket 2.2)
+      // a été retiré : le ticket 3.2 fournit le vrai point d'entrée
+      // (création du premier vaccin), comme prévu.
+      appBar: const GradientAppBar(title: Text('MémoPatte')),
       // Le bandeau de statut (ticket 2.3) s'affiche seulement si la
       // permission de notifications a été refusée — `SizedBox.shrink()`
       // sinon, voir `NotificationPermissionBanner`.
