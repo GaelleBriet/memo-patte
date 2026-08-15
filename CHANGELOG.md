@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.4.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.3.0...memo_patte-v1.4.0) (2026-08-15)
+
+
+### ✨ Fonctionnalités
+
+* add vaccination form screen and related tests ([c890a35](https://github.com/GaelleBriet/memo-patte/commit/c890a3561a0028c784e0587c107e1538a4e94873))
+* add vaccination status enum and related tests ([625b477](https://github.com/GaelleBriet/memo-patte/commit/625b47717727bb63cdf0cebba3fd51440e8d44ea))
+* add vaccinations table and related data access logic ([65a9f56](https://github.com/GaelleBriet/memo-patte/commit/65a9f567cb27b535d665f23e193d71ba26bbbede))
+* enhance animal profile and list screens with gradient app bar and surface cards ([1612569](https://github.com/GaelleBriet/memo-patte/commit/1612569250d9bab47a1e78f4b0d56d0a6d3a5454))
+* implement vaccination data access and repository logic ([7d89c57](https://github.com/GaelleBriet/memo-patte/commit/7d89c57f7b36ee168a58c9c59a54a7cd12c93e7e))
+
 ## [1.3.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.2.0...memo_patte-v1.3.0) (2026-08-15)
 
 
