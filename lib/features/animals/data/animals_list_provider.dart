@@ -12,6 +12,14 @@ import 'animal_repository_provider.dart';
 /// https://github.com/rrousselGit/riverpod/issues/4363
 /// `StreamNotifierProvider` écrit à la main = contournement recommandé par
 /// le mainteneur, sans perte de fonctionnalité par rapport au codegen.
+///
+/// Piège constaté en écrivant les tests du ticket 6.1
+/// (`home_reminders_provider_test.dart`) : `container.read(animalsListProvider.future)`
+/// ne se résout jamais (bloque indéfiniment), probablement apparenté au
+/// même bug côté runtime plutôt qu'un défaut d'usage — `container.listen`
+/// puis `container.read` en boucle jusqu'à sortie de `AsyncLoading`
+/// fonctionne, lui. Voir le helper `settle` dans ce fichier de test pour
+/// le contournement.
 final animalsListProvider =
     StreamNotifierProvider<AnimalsListNotifier, List<Animal>>(
       AnimalsListNotifier.new,
