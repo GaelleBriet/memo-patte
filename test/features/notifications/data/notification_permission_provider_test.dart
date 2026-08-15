@@ -105,25 +105,22 @@ void main() {
   });
 
   group('refresh', () {
-    test(
-      'relit le statut sans passer par une demande de permission',
-      () async {
-        fakeService.granted = false;
-        await container.read(notificationPermissionStatusProvider.future);
+    test('relit le statut sans passer par une demande de permission', () async {
+      fakeService.granted = false;
+      await container.read(notificationPermissionStatusProvider.future);
 
-        // Simule une réactivation manuelle dans les réglages système,
-        // hors du contrôle de l'app.
-        fakeService.granted = true;
-        await container
-            .read(notificationPermissionStatusProvider.notifier)
-            .refresh();
+      // Simule une réactivation manuelle dans les réglages système,
+      // hors du contrôle de l'app.
+      fakeService.granted = true;
+      await container
+          .read(notificationPermissionStatusProvider.notifier)
+          .refresh();
 
-        expect(
-          container.read(notificationPermissionStatusProvider).value,
-          isTrue,
-        );
-        expect(fakeService.requestPermissionCallCount, 0);
-      },
-    );
+      expect(
+        container.read(notificationPermissionStatusProvider).value,
+        isTrue,
+      );
+      expect(fakeService.requestPermissionCallCount, 0);
+    });
   });
 }

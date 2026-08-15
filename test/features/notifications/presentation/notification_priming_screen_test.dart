@@ -67,9 +67,7 @@ void main() {
     return key.currentState!;
   }
 
-  testWidgets('explique pourquoi l\'app demande la permission', (
-    tester,
-  ) async {
+  testWidgets('explique pourquoi l\'app demande la permission', (tester) async {
     final fake = _FakeNotificationService();
     await pumpCaller(tester, fake);
     await tester.tap(find.text('Ouvrir la demande de permission'));
@@ -85,36 +83,32 @@ void main() {
     expect(fake.requestPermissionCallCount, 0);
   });
 
-  testWidgets(
-    'tap sur "Activer les rappels" déclenche la vraie demande OS et '
-    'renvoie le résultat à l\'appelant',
-    (tester) async {
-      final fake = _FakeNotificationService()..requestResult = true;
-      final caller = await pumpCaller(tester, fake);
-      await tester.tap(find.text('Ouvrir la demande de permission'));
-      await tester.pumpAndSettle();
+  testWidgets('tap sur "Activer les rappels" déclenche la vraie demande OS et '
+      'renvoie le résultat à l\'appelant', (tester) async {
+    final fake = _FakeNotificationService()..requestResult = true;
+    final caller = await pumpCaller(tester, fake);
+    await tester.tap(find.text('Ouvrir la demande de permission'));
+    await tester.pumpAndSettle();
 
-      await tester.tap(find.widgetWithText(FilledButton, 'Activer les rappels'));
-      await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Activer les rappels'));
+    await tester.pumpAndSettle();
 
-      expect(fake.requestPermissionCallCount, 1);
-      expect(caller.poppedValue, isTrue);
-    },
-  );
+    expect(fake.requestPermissionCallCount, 1);
+    expect(caller.poppedValue, isTrue);
+  });
 
-  testWidgets(
-    'tap sur "Plus tard" ferme l\'écran sans appeler l\'OS',
-    (tester) async {
-      final fake = _FakeNotificationService();
-      final caller = await pumpCaller(tester, fake);
-      await tester.tap(find.text('Ouvrir la demande de permission'));
-      await tester.pumpAndSettle();
+  testWidgets('tap sur "Plus tard" ferme l\'écran sans appeler l\'OS', (
+    tester,
+  ) async {
+    final fake = _FakeNotificationService();
+    final caller = await pumpCaller(tester, fake);
+    await tester.tap(find.text('Ouvrir la demande de permission'));
+    await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Plus tard'));
-      await tester.pumpAndSettle();
+    await tester.tap(find.text('Plus tard'));
+    await tester.pumpAndSettle();
 
-      expect(fake.requestPermissionCallCount, 0);
-      expect(caller.poppedValue, isFalse);
-    },
-  );
+    expect(fake.requestPermissionCallCount, 0);
+    expect(caller.poppedValue, isFalse);
+  });
 }

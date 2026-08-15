@@ -40,18 +40,14 @@ void main() {
     expect(find.text(_bannerText), findsNothing);
   });
 
-  testWidgets('montre le bandeau si la permission est refusée', (
-    tester,
-  ) async {
+  testWidgets('montre le bandeau si la permission est refusée', (tester) async {
     await tester.pumpWidget(_wrap(_FakeNotificationService(false)));
     await tester.pumpAndSettle();
 
     expect(find.text(_bannerText), findsOneWidget);
   });
 
-  testWidgets('tap sur le bandeau ouvre les réglages système', (
-    tester,
-  ) async {
+  testWidgets('tap sur le bandeau ouvre les réglages système', (tester) async {
     final fake = _FakeNotificationService(false);
     await tester.pumpWidget(_wrap(fake));
     await tester.pumpAndSettle();
