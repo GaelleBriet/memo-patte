@@ -44,6 +44,67 @@ quantité de fonctionnalités.
   explicitement hors scope
 - `docs/product/decisions-log.md` : journal chronologique des
   décisions produit importantes
+- `docs/design/PetCare - Ma Vision` : maquette de référence pour le
+  style visuel (couleurs, typo, composants) — voir la section
+  "Design & UI" ci-dessous avant de styliser un nouvel écran.
+
+## Design & UI — composants à réutiliser, pièges déjà réglés
+Référence de style : `docs/design/PetCare - Ma Vision`. C'est une
+référence de style, pas un plan de fonctionnalités — Documents,
+Finances et l'export PDF qu'elle montre sont explicitement hors
+scope v1 (`decisions-log.md`, 2026-08-13 et 2026-08-15).
+
+**Ne pas redessiner un composant qui existe déjà** — avant de
+styliser un nouvel écran, regarder s'il est déjà couvert par :
+- `lib/app/theme.dart` (`AppTheme`) : palette, dégradé d'en-tête
+  (`headerGradient`), ombre de carte (`cardShadow`), hauteur de hero
+  partagée (`heroBodyHeight` — tous les heros à dégradé doivent faire
+  la même hauteur, décision du 2026-08-16).
+- `lib/core/widgets/surface_card.dart` : `SurfaceCard` (carte blanche
+  arrondie standard), `IconChip` (pastille d'icône menthe).
+- `lib/core/widgets/gradient_app_bar.dart` : `GradientAppBar`, pour
+  tout écran avec AppBar + dégradé.
+- `lib/core/widgets/straddling_hero.dart` : `StraddlingHero`, pour
+  poser un sélecteur de chips à cheval sur le bord bas d'un hero.
+- `lib/core/widgets/light_status_bar.dart` : `LightStatusBar`, pour
+  tout écran à hero sombre sans AppBar.
+- `lib/features/animals/presentation/animal_chip_selector.dart` :
+  `AnimalChipSelector` (sélecteur d'animaux en chips, contour coloré
+  si actif, contour clair sinon) — partagé entre l'accueil et le
+  Carnet de santé, pas deux implémentations qui pourraient diverger.
+- `lib/features/vaccinations/presentation/vaccination_card.dart` :
+  `VaccinationCard` (ligne de vaccin avec statut visuel) — même
+  logique à suivre pour les traitements (épic 4) le moment venu.
+
+**Pièges Flutter/Android déjà rencontrés** (temps perdu dessus le
+2026-08-16 en corrigeant le rendu du hero/de la nav — éviter de
+recommencer) :
+- Un hero à dégradé qui doit couvrir la barre de statut a besoin de
+  DEUX choses, pas une seule : `padding: EdgeInsets.zero` explicite
+  sur la `ListView`/`ScrollView` qui le contient (sinon elle s'ajoute
+  toute seule un padding haut = `MediaQuery.padding.top`, invisible
+  tant qu'on ne sait pas que ça existe — `ScrollView.buildSlivers`
+  dans le SDK Flutter), ET le hero lui-même qui gère cet inset via
+  `MediaQuery.paddingOf`.
+- Un `Stack` utilisé pour faire chevaucher un élément (ex. chips à
+  cheval sur un hero, `StraddlingHero`) doit passer
+  `fit: StackFit.passthrough` — sinon la contrainte de largeur
+  transmise à l'enfant non positionné est relâchée (`StackFit.loose`,
+  le défaut), qui peut alors se réduire à la largeur de son contenu
+  au lieu de remplir l'écran.
+- `SafeArea(minimum: ...)` prend le MAXIMUM entre la valeur donnée et
+  l'inset système, pas leur somme — pour garantir une marge visible
+  *en plus* de l'inset système (ex. barre de nav du bas au-dessus de
+  la zone de geste), utiliser un `Padding` qui additionne
+  explicitement (`MediaQuery.paddingOf(context).bottom + marge`), pas
+  `SafeArea`.
+- Ce projet cible Android API 36 (`flutter.targetSdkVersion`) : à
+  partir de l'API 35/36, `SystemUiOverlayStyle.statusBarColor` n'a
+  plus aucun effet (edge-to-edge forcé par l'OS, aucun moyen de s'en
+  exclure) — seul ce que l'app peint réellement derrière la barre de
+  statut compte visuellement. `statusBarIconBrightness` reste, lui,
+  fonctionnel (couleur des icônes système) — voir `LightStatusBar` et
+  `GradientAppBar.systemOverlayStyle`.
 
 ## Règles pour Claude
 - Ne pas proposer de stack technique, d'architecture ou de code

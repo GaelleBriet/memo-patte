@@ -84,6 +84,15 @@ class AppTheme {
     BoxShadow(color: Color(0x0D141414), blurRadius: 12, offset: Offset(0, 4)),
   ];
 
+  /// Hauteur du contenu des heros à dégradé (accueil, Carnet de santé),
+  /// sous l'inset de la barre de statut — volontairement identique sur
+  /// les deux écrans (signalé le 2026-08-16 : des heros de hauteurs
+  /// différentes rendent le passage de l'un à l'autre perturbant).
+  /// Calée sur le Carnet de santé (bouton retour + ligne avatar, le
+  /// contenu le plus haut des deux) ; l'accueil (deux lignes de texte)
+  /// est celui qui s'étire pour correspondre, pas l'inverse.
+  static const heroBodyHeight = 152.0;
+
   static ThemeData light() {
     final colorScheme =
         ColorScheme.fromSeed(
