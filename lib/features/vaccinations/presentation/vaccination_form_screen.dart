@@ -151,7 +151,12 @@ class _VaccinationFormBodyState
             notificationPermissionStatusProvider.future,
           );
           if (!granted && mounted) {
-            await Navigator.of(context).push<bool>(
+            // `rootNavigator: true` : ce formulaire vit dans la pile
+            // interne de la branche "Carnet" de la coquille de nav
+            // (ticket 6.0) — un push "normal" resterait sous la bottom
+            // nav bar. Ici on veut un écran plein cadre, au-dessus de
+            // toute la coquille.
+            await Navigator.of(context, rootNavigator: true).push<bool>(
               MaterialPageRoute(
                 builder: (_) => const NotificationPrimingScreen(),
               ),
