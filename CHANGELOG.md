@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.2.0...memo_patte-v1.3.0) (2026-08-15)
+
+
+### ✨ Fonctionnalités
+
+* add notification permission banner and associated tests ([a655a54](https://github.com/GaelleBriet/memo-patte/commit/a655a548b44a49a371685e671ac946322e3ecc84))
+* add notification permission handling and settings access ([a68c9f8](https://github.com/GaelleBriet/memo-patte/commit/a68c9f8347072ff9c05b748f26d3834a51318623))
+* add notification priming screen and permission banner to router ([b87eb40](https://github.com/GaelleBriet/memo-patte/commit/b87eb40b0a5d24f0eea78cac5174dc209399b64d))
+* implement notification permission provider and priming screen ([717ef51](https://github.com/GaelleBriet/memo-patte/commit/717ef5183193c814a2cd5e2826822da0ab9efb0c))
+
 ## [1.2.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.1.0...memo_patte-v1.2.0) (2026-08-15)
 
 
