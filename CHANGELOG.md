@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.1.0...memo_patte-v1.2.0) (2026-08-15)
+
+
+### ✨ Fonctionnalités
+
+* add AnimalFormFields and AnimalProfileScreen for animal profile management ([7e9d05d](https://github.com/GaelleBriet/memo-patte/commit/7e9d05dfb29be7419eda53ec53237ccad0214aa2))
+* add unit tests for animal repository CRUD operations ([4504b36](https://github.com/GaelleBriet/memo-patte/commit/4504b3638f20a84b96552f29b83f8be8eb889b98))
+* implement animal profile navigation and refactor animal creation form ([d8835cc](https://github.com/GaelleBriet/memo-patte/commit/d8835cc441bac70b48388ce909d3331c1a2528e0))
+* implement PreToolUse guard to restrict dangerous commands in Bash ([cc7e52d](https://github.com/GaelleBriet/memo-patte/commit/cc7e52d1aaf3b2da4f51daba6ea36c5b93be2602))
+* update animal repository to allow null values for optional fields in updates ([14a80df](https://github.com/GaelleBriet/memo-patte/commit/14a80df2b7daca0e05f755b9e1b88164c5c77add))
+
 ## [1.1.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.0.0...memo_patte-v1.1.0) (2026-08-14)
 
 
