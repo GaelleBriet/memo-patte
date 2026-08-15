@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/widgets/gradient_app_bar.dart';
+import '../../../core/widgets/surface_card.dart';
 import '../data/animal_provider.dart';
 import '../data/animal_repository_provider.dart';
 import '../domain/animal_species.dart';
@@ -22,7 +26,7 @@ class AnimalProfileScreen extends ConsumerWidget {
     final animalAsync = ref.watch(animalProvider(animalId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil animal')),
+      appBar: const GradientAppBar(title: Text('Profil animal')),
       body: animalAsync.when(
         data: (animal) => animal == null
             ? const Center(child: Text('Animal introuvable.'))
@@ -90,21 +94,64 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
     final animal = widget.animal;
     return ListView(
       children: [
-        Text(animal.name, style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: 16),
-        _ProfileRow(label: 'Espèce', value: animal.species.label),
-        _ProfileRow(label: 'Race', value: animal.breed ?? 'Non renseignée'),
-        _ProfileRow(
-          label: 'Date de naissance',
-          value: animal.birthDate == null
-              ? 'Non renseignée'
-              : '${animal.birthDate!.day}/${animal.birthDate!.month}/${animal.birthDate!.year}',
+        Row(
+          children: [
+            const IconChip(icon: Icons.pets, size: 48),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                animal.name,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+            ),
+          ],
         ),
-        _ProfileRow(
-          label: 'Poids initial',
-          value: animal.initialWeightKg == null
-              ? 'Non renseigné'
-              : '${animal.initialWeightKg} kg',
+        const SizedBox(height: 16),
+        SurfaceCard(
+          child: Column(
+            children: [
+              _ProfileRow(label: 'Espèce', value: animal.species.label),
+              _ProfileRow(
+                label: 'Race',
+                value: animal.breed ?? 'Non renseignée',
+              ),
+              _ProfileRow(
+                label: 'Date de naissance',
+                value: animal.birthDate == null
+                    ? 'Non renseignée'
+                    : '${animal.birthDate!.day}/${animal.birthDate!.month}/${animal.birthDate!.year}',
+              ),
+              _ProfileRow(
+                label: 'Poids initial',
+                value: animal.initialWeightKg == null
+                    ? 'Non renseigné'
+                    : '${animal.initialWeightKg} kg',
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Entrée vers le carnet de vaccins (ticket 3.3). Les traitements
+        // (épic 4) et le poids (épic 5) viendront s'ajouter ici sous la
+        // même forme.
+        SurfaceCard(
+          onTap: () => context.goNamed(
+            'vaccinationsList',
+            pathParameters: {'id': widget.animalId.toString()},
+          ),
+          child: const Row(
+            children: [
+              IconChip(icon: Icons.vaccines_outlined),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Vaccins',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                ),
+              ),
+              Icon(Icons.chevron_right, color: AppTheme.textSecondary),
+            ],
+          ),
         ),
         const SizedBox(height: 24),
         FilledButton.icon(
