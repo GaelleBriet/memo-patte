@@ -1,9 +1,22 @@
 # Projet : Carnet de santé animaux (nom provisoire)
 
 ## Statut actuel
-Phase de préparation produit. Aucun code n'existe encore.
-Ne pas proposer de stack technique ni générer de code tant que
-`docs/product/06-mvp-scope.md` n'est pas rempli et validé par Gaelle.
+Phase de développement actif, ticket par ticket. Le gate initial ("pas
+de stack/code avant scope validé") est levé : `06-mvp-scope.md` est
+validé depuis le 2026-08-11, l'architecture technique
+(`docs/technical/01-architecture.md`) depuis le 2026-08-14.
+
+Découpage en tickets détaillé dans `docs/technical/02-tickets-v1.md`.
+Pour savoir précisément ce qui est fait/en cours, se fier aux
+issues/PRs/Project du repo GitHub (`GaelleBriet/memo-patte`) plutôt
+qu'à une liste figée ici, qui deviendrait vite fausse.
+
+> `docs/` est volontairement gitignoré (repo public, contient des
+> notes d'entretiens avec de vraies personnes) — il n'existe que sur
+> les machines où il a été créé localement, pas sur un clone frais.
+> Les fichiers `docs/product/*.md` référencés dans ce document (ci-
+> dessous) peuvent donc être absents selon la machine ; les
+> issues/PRs GitHub, elles, sont toujours accessibles.
 
 ## Contexte
 Projet portfolio pour appuyer une transition vers le freelance.
@@ -40,3 +53,36 @@ quantité de fonctionnalités.
 - Ne pas halluciner de contenu dans les fiches concurrents : si une
   info n'est pas dans la fiche, dire qu'elle manque plutôt que de
   l'inventer.
+
+## Garde-fous — interdictions strictes pour Claude
+Valables quel que soit le mode de permission actif (y compris
+`bypassPermissions`, aucune confirmation demandée). Certaines sont
+bloquées techniquement, le reste est une discipline sans exception —
+pas de garde-fou automatique fiable possible pour ces cas-là.
+
+**Bloqué techniquement** (`.claude/settings.json` +
+`.claude/hooks/guard.py`, hook `PreToolUse` sur `Bash`) :
+- `git commit`, `git push`, `git reset --hard`, `git clean`
+- `rm -rf` (ou équivalent) en dehors du dossier du projet, du cache
+  Gradle (`~/.gradle/caches`) et de `/tmp`
+
+**Discipline stricte, sans exception** :
+- **Git** : jamais de commit ni de push, sous quelque forme — Gaelle
+  gère seule le dépôt de bout en bout. Toujours une branche dédiée,
+  jamais de travail direct sur `main` (depuis le commit initial du
+  2026-08-13).
+- **GitHub** : proposer et attendre l'accord avant toute action qui
+  change un état visible (fermer une issue, éditer un label, etc.).
+  Interdit sans exception, même avec accord implicite : supprimer le
+  repo, changer sa visibilité, supprimer une issue/PR, modifier la
+  protection de branche.
+- **Téléphone physique** (tests) : jamais de reset usine,
+  d'effacement de données d'une autre app que MémoPatte, ou de
+  désinstallation d'une app qui n'est pas MémoPatte.
+- **Argent / publication** : jamais d'achat réel, de saisie de moyen
+  de paiement, ou de soumission Play Store — y compris le premier
+  upload en test interne — sans feu vert explicite de Gaelle pour
+  cette action précise.
+- **Secrets** : jamais afficher, logger ou committer une clé de
+  service Firebase, un keystore de signature, un `.env`, ou tout
+  fichier ressemblant à un secret.

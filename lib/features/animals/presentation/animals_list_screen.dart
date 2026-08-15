@@ -8,11 +8,7 @@ import '../domain/animal_species.dart';
 
 /// Écran "Liste des animaux" (ticket 1.3).
 ///
-/// Sélectionner un animal n'ouvre pas encore de vrai profil — l'écran
-/// "Profil animal" (lecture/édition) arrive au ticket 1.4. En attendant,
-/// le tap affiche juste une confirmation visuelle plutôt que de router
-/// vers un écran qui n'existe pas, pour garder l'app entièrement
-/// fonctionnelle à chaque ticket (pas d'état intermédiaire cassé).
+/// Sélectionner un animal ouvre son profil (lecture/édition, ticket 1.4).
 class AnimalsListScreen extends ConsumerWidget {
   const AnimalsListScreen({super.key});
 
@@ -55,13 +51,10 @@ class _AnimalsList extends StatelessWidget {
           leading: const CircleAvatar(child: Icon(Icons.pets)),
           title: Text(animal.name),
           subtitle: Text(animal.species.label),
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Profil détaillé à venir (ticket 1.4).'),
-              ),
-            );
-          },
+          onTap: () => context.goNamed(
+            'animalProfile',
+            pathParameters: {'id': animal.id.toString()},
+          ),
         );
       },
     );
