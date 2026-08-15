@@ -182,4 +182,69 @@ class NotificationService {
     await init();
     await _plugin.cancel(id: id);
   }
+
+  /// Indique si la permission de notifications est accordée *sans*
+  /// déclencher de demande — contrairement à [requestPermission]. Consommé
+  /// par le bandeau de statut (ticket 2.3) pour savoir s'il doit
+  /// s'afficher, et par l'écran de priming (ticket 2.2) pour éviter de
+  /// re-proposer la demande si elle a déjà été accordée.
+  ///
+  /// `false` sur les plateformes hors scope v1 (desktop, web), comme
+  /// [requestPermission].
+  Future<bool> arePermissionsGranted() async {
+    await init();
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      final enabled = await _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.areNotificationsEnabled();
+      return enabled ?? false;
+    }
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      final status = await _plugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >()
+          ?.checkPermissions();
+      return status?.isEnabled ?? false;
+    }
+
+    return false;
+  }
+
+  /// Ouvre l'écran des réglages système de notifications de l'app —
+  /// utilisé par le lien du bandeau de statut (ticket 2.3) quand la
+  /// permission a été refusée. Sur iOS, une fois la permission refusée, une
+  /// redirection vers les réglages est le seul moyen d'y revenir (pas de
+  /// reprompt possible via [requestPermission]) ; Android le permet aussi
+  /// en théorie mais on garde le même chemin sur les deux OS pour un
+  /// comportement cohérent.
+  ///
+  /// Retourne si l'écran a pu être ouvert.
+  Future<bool> openNotificationSettings() async {
+    await init();
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      final opened = await _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.openAppNotificationSettings();
+      return opened ?? false;
+    }
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      final opened = await _plugin
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >()
+          ?.openAppNotificationSettings();
+      return opened ?? false;
+    }
+
+    return false;
+  }
 }
