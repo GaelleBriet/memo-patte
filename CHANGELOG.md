@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.5.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.4.0...memo_patte-v1.5.0) (2026-08-15)
+
+
+### ✨ Fonctionnalités
+
+* add HomeReminder model for upcoming vaccination reminders ([48ae0ea](https://github.com/GaelleBriet/memo-patte/commit/48ae0ea6c557dd3b0f54df7e1b480a31c1559c13))
+* add LightStatusBar and StraddlingHero widgets for improved UI layout ([d162083](https://github.com/GaelleBriet/memo-patte/commit/d162083d1e29d9b38956ae89382ff1f01d6d6c8c))
+* add unit tests for home reminders provider functionality ([175737b](https://github.com/GaelleBriet/memo-patte/commit/175737b43d9626b1fd476eec5979c3f352930cfe))
+* implement home reminders provider for upcoming and overdue vaccinations ([efbdec0](https://github.com/GaelleBriet/memo-patte/commit/efbdec007ba3bff8e0ba49c43f06fd38fcda4afb))
+* implement persistent navigation shell with home and animal profile tabs ([12b11dd](https://github.com/GaelleBriet/memo-patte/commit/12b11dd471d053808af3873d893e20a8e992836a))
+* redesign animal profile screen with health record features and improved navigation ([d132aff](https://github.com/GaelleBriet/memo-patte/commit/d132aff2dd1e46bc804338663b8ba6ab49f92a24))
+* refactor code for improved readability and formatting in multiple files ([b789597](https://github.com/GaelleBriet/memo-patte/commit/b789597fb89be7cb41764b3fd44844b19eed47c5))
+* refactor vaccination screens to use VaccinationCard component ([4f5199f](https://github.com/GaelleBriet/memo-patte/commit/4f5199f89b184da47e6342344742ddc32a37d1e6))
+* update design guidelines and reusable components documentation ([208343d](https://github.com/GaelleBriet/memo-patte/commit/208343de4f1b9a6f769441c9bb2d9e3f46e5d358))
+
 ## [1.4.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.3.0...memo_patte-v1.4.0) (2026-08-15)
 
 
