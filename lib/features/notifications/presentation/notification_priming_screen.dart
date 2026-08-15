@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/widgets/gradient_app_bar.dart';
+import '../../../core/widgets/surface_card.dart';
 import '../data/notification_permission_provider.dart';
 
 /// Écran de "priming" (ticket 2.2) : explique pourquoi l'app demande la
@@ -8,13 +10,10 @@ import '../data/notification_permission_provider.dart';
 /// système, plutôt que de la griller au lancement à froid. Décision actée
 /// le 2026-08-14 dans `decisions-log.md`.
 ///
-/// Doit être affiché juste avant la création du premier vaccin ou
-/// traitement (pas au lancement à froid) — mais les écrans qui créent ces
-/// entités n'existent pas encore (tickets 3.2/4.2, épics postérieures à
-/// celle-ci dans l'ordre de séquencement de `02-tickets-v1.md`). Ce sont
-/// ces tickets-là qui pousseront cet écran (`Navigator.push` ou route
-/// nommée `notificationPriming`) avant la première sauvegarde ; ce ticket
-/// se limite à livrer l'écran lui-même, prêt à être appelé.
+/// Affiché juste avant la création du premier vaccin ou traitement (pas
+/// au lancement à froid) : poussé via `Navigator.push` par le formulaire
+/// vaccin (`VaccinationFormScreen`, ticket 3.2), et à terme par le
+/// formulaire traitement (ticket 4.2) sur le même modèle.
 ///
 /// `Navigator.pop` renvoie `true` si la permission a été accordée, `false`
 /// sinon (refus, ou fermeture via "Plus tard" sans interagir avec l'OS).
@@ -42,20 +41,14 @@ class _NotificationPrimingScreenState
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Activer les rappels')),
+      appBar: const GradientAppBar(title: Text('Activer les rappels')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.notifications_active_outlined,
-              size: 64,
-              color: colorScheme.primary,
-            ),
+            const IconChip(icon: Icons.notifications_active_outlined, size: 88),
             const SizedBox(height: 24),
             Text(
               'Ne rate plus jamais un rappel',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/theme.dart';
 import '../../../core/notifications/notification_service_provider.dart';
 import '../data/notification_permission_provider.dart';
 
@@ -57,28 +58,29 @@ class _NotificationPermissionBannerState
       return const SizedBox.shrink();
     }
 
-    final colorScheme = Theme.of(context).colorScheme;
+    // Accent "action requise" du design (`AppTheme.alertRed`) sur fond
+    // teinté, plutôt que le rouge Material par défaut.
     return Material(
-      color: colorScheme.errorContainer,
+      color: AppTheme.alertRed.withValues(alpha: 0.12),
       child: InkWell(
         onTap: () =>
             ref.read(notificationServiceProvider).openNotificationSettings(),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              Icon(
-                Icons.notifications_off_outlined,
-                color: colorScheme.onErrorContainer,
-              ),
-              const SizedBox(width: 12),
+              Icon(Icons.notifications_off_outlined, color: AppTheme.alertRed),
+              SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Rappels désactivés — active-les dans les réglages',
-                  style: TextStyle(color: colorScheme.onErrorContainer),
+                  style: TextStyle(
+                    color: AppTheme.alertRed,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              Icon(Icons.chevron_right, color: colorScheme.onErrorContainer),
+              Icon(Icons.chevron_right, color: AppTheme.alertRed),
             ],
           ),
         ),

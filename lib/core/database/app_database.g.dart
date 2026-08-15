@@ -523,15 +523,518 @@ class AnimalsCompanion extends UpdateCompanion<Animal> {
   }
 }
 
+class $VaccinationsTable extends Vaccinations
+    with TableInfo<$VaccinationsTable, Vaccination> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VaccinationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _animalIdMeta = const VerificationMeta(
+    'animalId',
+  );
+  @override
+  late final GeneratedColumn<int> animalId = GeneratedColumn<int>(
+    'animal_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES animals (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 100,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nextDueDateMeta = const VerificationMeta(
+    'nextDueDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> nextDueDate = GeneratedColumn<DateTime>(
+    'next_due_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _notificationIdMeta = const VerificationMeta(
+    'notificationId',
+  );
+  @override
+  late final GeneratedColumn<int> notificationId = GeneratedColumn<int>(
+    'notification_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    animalId,
+    name,
+    date,
+    nextDueDate,
+    notificationId,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'vaccinations';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Vaccination> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('animal_id')) {
+      context.handle(
+        _animalIdMeta,
+        animalId.isAcceptableOrUnknown(data['animal_id']!, _animalIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_animalIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('next_due_date')) {
+      context.handle(
+        _nextDueDateMeta,
+        nextDueDate.isAcceptableOrUnknown(
+          data['next_due_date']!,
+          _nextDueDateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notification_id')) {
+      context.handle(
+        _notificationIdMeta,
+        notificationId.isAcceptableOrUnknown(
+          data['notification_id']!,
+          _notificationIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Vaccination map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Vaccination(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      animalId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}animal_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      )!,
+      nextDueDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}next_due_date'],
+      ),
+      notificationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}notification_id'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $VaccinationsTable createAlias(String alias) {
+    return $VaccinationsTable(attachedDatabase, alias);
+  }
+}
+
+class Vaccination extends DataClass implements Insertable<Vaccination> {
+  final int id;
+
+  /// Suppression en cascade si le profil animal disparaît : pas de
+  /// vaccins orphelins. Nécessite `PRAGMA foreign_keys = ON`, activé dans
+  /// `beforeOpen` de `AppDatabase`. Attention (hors scope v1, aucun écran
+  /// ne supprime un animal) : une cascade ne passe pas par le repository,
+  /// donc n'annulerait pas les notifications programmées des lignes
+  /// supprimées.
+  final int animalId;
+
+  /// Libellé du vaccin tel que noté sur le carnet (ex. "Rage", "CHPPiL").
+  final String name;
+
+  /// Date d'administration. Peut être antérieure à aujourd'hui : la
+  /// saisie rétroactive est un pain point identifié
+  /// (`docs/product/03-pain-points.md`), explicitement couverte par le
+  /// ticket 3.2.
+  final DateTime date;
+
+  /// Prochaine échéance donnée par le vétérinaire. Facultative : un
+  /// vaccin peut ne pas avoir de rappel prévu (dernière injection d'un
+  /// protocole, par exemple).
+  final DateTime? nextDueDate;
+
+  /// Identifiant de la notification locale programmée pour [nextDueDate],
+  /// `null` si aucune ne l'est (pas d'échéance, échéance passée...).
+  /// Géré exclusivement par `VaccinationRepository` (ticket 3.4), jamais
+  /// par les écrans.
+  final int? notificationId;
+  final DateTime createdAt;
+  const Vaccination({
+    required this.id,
+    required this.animalId,
+    required this.name,
+    required this.date,
+    this.nextDueDate,
+    this.notificationId,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['animal_id'] = Variable<int>(animalId);
+    map['name'] = Variable<String>(name);
+    map['date'] = Variable<DateTime>(date);
+    if (!nullToAbsent || nextDueDate != null) {
+      map['next_due_date'] = Variable<DateTime>(nextDueDate);
+    }
+    if (!nullToAbsent || notificationId != null) {
+      map['notification_id'] = Variable<int>(notificationId);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  VaccinationsCompanion toCompanion(bool nullToAbsent) {
+    return VaccinationsCompanion(
+      id: Value(id),
+      animalId: Value(animalId),
+      name: Value(name),
+      date: Value(date),
+      nextDueDate: nextDueDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextDueDate),
+      notificationId: notificationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notificationId),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory Vaccination.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Vaccination(
+      id: serializer.fromJson<int>(json['id']),
+      animalId: serializer.fromJson<int>(json['animalId']),
+      name: serializer.fromJson<String>(json['name']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      nextDueDate: serializer.fromJson<DateTime?>(json['nextDueDate']),
+      notificationId: serializer.fromJson<int?>(json['notificationId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'animalId': serializer.toJson<int>(animalId),
+      'name': serializer.toJson<String>(name),
+      'date': serializer.toJson<DateTime>(date),
+      'nextDueDate': serializer.toJson<DateTime?>(nextDueDate),
+      'notificationId': serializer.toJson<int?>(notificationId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  Vaccination copyWith({
+    int? id,
+    int? animalId,
+    String? name,
+    DateTime? date,
+    Value<DateTime?> nextDueDate = const Value.absent(),
+    Value<int?> notificationId = const Value.absent(),
+    DateTime? createdAt,
+  }) => Vaccination(
+    id: id ?? this.id,
+    animalId: animalId ?? this.animalId,
+    name: name ?? this.name,
+    date: date ?? this.date,
+    nextDueDate: nextDueDate.present ? nextDueDate.value : this.nextDueDate,
+    notificationId: notificationId.present
+        ? notificationId.value
+        : this.notificationId,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  Vaccination copyWithCompanion(VaccinationsCompanion data) {
+    return Vaccination(
+      id: data.id.present ? data.id.value : this.id,
+      animalId: data.animalId.present ? data.animalId.value : this.animalId,
+      name: data.name.present ? data.name.value : this.name,
+      date: data.date.present ? data.date.value : this.date,
+      nextDueDate: data.nextDueDate.present
+          ? data.nextDueDate.value
+          : this.nextDueDate,
+      notificationId: data.notificationId.present
+          ? data.notificationId.value
+          : this.notificationId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Vaccination(')
+          ..write('id: $id, ')
+          ..write('animalId: $animalId, ')
+          ..write('name: $name, ')
+          ..write('date: $date, ')
+          ..write('nextDueDate: $nextDueDate, ')
+          ..write('notificationId: $notificationId, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    animalId,
+    name,
+    date,
+    nextDueDate,
+    notificationId,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Vaccination &&
+          other.id == this.id &&
+          other.animalId == this.animalId &&
+          other.name == this.name &&
+          other.date == this.date &&
+          other.nextDueDate == this.nextDueDate &&
+          other.notificationId == this.notificationId &&
+          other.createdAt == this.createdAt);
+}
+
+class VaccinationsCompanion extends UpdateCompanion<Vaccination> {
+  final Value<int> id;
+  final Value<int> animalId;
+  final Value<String> name;
+  final Value<DateTime> date;
+  final Value<DateTime?> nextDueDate;
+  final Value<int?> notificationId;
+  final Value<DateTime> createdAt;
+  const VaccinationsCompanion({
+    this.id = const Value.absent(),
+    this.animalId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.date = const Value.absent(),
+    this.nextDueDate = const Value.absent(),
+    this.notificationId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  VaccinationsCompanion.insert({
+    this.id = const Value.absent(),
+    required int animalId,
+    required String name,
+    required DateTime date,
+    this.nextDueDate = const Value.absent(),
+    this.notificationId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  }) : animalId = Value(animalId),
+       name = Value(name),
+       date = Value(date);
+  static Insertable<Vaccination> custom({
+    Expression<int>? id,
+    Expression<int>? animalId,
+    Expression<String>? name,
+    Expression<DateTime>? date,
+    Expression<DateTime>? nextDueDate,
+    Expression<int>? notificationId,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (animalId != null) 'animal_id': animalId,
+      if (name != null) 'name': name,
+      if (date != null) 'date': date,
+      if (nextDueDate != null) 'next_due_date': nextDueDate,
+      if (notificationId != null) 'notification_id': notificationId,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  VaccinationsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? animalId,
+    Value<String>? name,
+    Value<DateTime>? date,
+    Value<DateTime?>? nextDueDate,
+    Value<int?>? notificationId,
+    Value<DateTime>? createdAt,
+  }) {
+    return VaccinationsCompanion(
+      id: id ?? this.id,
+      animalId: animalId ?? this.animalId,
+      name: name ?? this.name,
+      date: date ?? this.date,
+      nextDueDate: nextDueDate ?? this.nextDueDate,
+      notificationId: notificationId ?? this.notificationId,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (animalId.present) {
+      map['animal_id'] = Variable<int>(animalId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (nextDueDate.present) {
+      map['next_due_date'] = Variable<DateTime>(nextDueDate.value);
+    }
+    if (notificationId.present) {
+      map['notification_id'] = Variable<int>(notificationId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VaccinationsCompanion(')
+          ..write('id: $id, ')
+          ..write('animalId: $animalId, ')
+          ..write('name: $name, ')
+          ..write('date: $date, ')
+          ..write('nextDueDate: $nextDueDate, ')
+          ..write('notificationId: $notificationId, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $AnimalsTable animals = $AnimalsTable(this);
+  late final $VaccinationsTable vaccinations = $VaccinationsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [animals];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [animals, vaccinations];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'animals',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('vaccinations', kind: UpdateKind.delete)],
+    ),
+  ]);
 }
 
 typedef $$AnimalsTableCreateCompanionBuilder = AnimalsCompanion Function({
@@ -554,6 +1057,29 @@ typedef $$AnimalsTableUpdateCompanionBuilder = AnimalsCompanion Function({
   Value<String?> photoPath,
   Value<DateTime> createdAt,
 });
+
+final class $$AnimalsTableReferences
+    extends BaseReferences<_$AppDatabase, $AnimalsTable, Animal> {
+  $$AnimalsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$VaccinationsTable, List<Vaccination>>
+  _vaccinationsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.vaccinations,
+    aliasName: 'animals__id__vaccinations__animal_id',
+  );
+
+  $$VaccinationsTableProcessedTableManager get vaccinationsRefs {
+    final manager = $$VaccinationsTableTableManager(
+      $_db,
+      $_db.vaccinations,
+    ).filter((f) => f.animalId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_vaccinationsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
 
 class $$AnimalsTableFilterComposer
     extends Composer<_$AppDatabase, $AnimalsTable> {
@@ -604,6 +1130,31 @@ class $$AnimalsTableFilterComposer
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
   );
+
+  Expression<bool> vaccinationsRefs(
+    Expression<bool> Function($$VaccinationsTableFilterComposer f) f,
+  ) {
+    final $$VaccinationsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vaccinations,
+      getReferencedColumn: (t) => t.animalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VaccinationsTableFilterComposer(
+            $db: $db,
+            $table: $db.vaccinations,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$AnimalsTableOrderingComposer
@@ -690,6 +1241,31 @@ class $$AnimalsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  Expression<T> vaccinationsRefs<T extends Object>(
+    Expression<T> Function($$VaccinationsTableAnnotationComposer a) f,
+  ) {
+    final $$VaccinationsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.vaccinations,
+      getReferencedColumn: (t) => t.animalId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$VaccinationsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.vaccinations,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$AnimalsTableTableManager
@@ -703,9 +1279,9 @@ class $$AnimalsTableTableManager
           $$AnimalsTableAnnotationComposer,
           $$AnimalsTableCreateCompanionBuilder,
           $$AnimalsTableUpdateCompanionBuilder,
-          (Animal, BaseReferences<_$AppDatabase, $AnimalsTable, Animal>),
+          (Animal, $$AnimalsTableReferences),
           Animal,
-          PrefetchHooks Function()
+          PrefetchHooks Function({bool vaccinationsRefs})
         > {
   $$AnimalsTableTableManager(_$AppDatabase db, $AnimalsTable table)
     : super(
@@ -759,9 +1335,42 @@ class $$AnimalsTableTableManager
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$AnimalsTableReferences(db, table, e),
+                ),
+              )
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({vaccinationsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (vaccinationsRefs) db.vaccinations],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (vaccinationsRefs)
+                    await $_getPrefetchedData<
+                      Animal,
+                      $AnimalsTable,
+                      Vaccination
+                    >(
+                      currentTable: table,
+                      referencedTable: $$AnimalsTableReferences
+                          ._vaccinationsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$AnimalsTableReferences(
+                        db,
+                        table,
+                        p0,
+                      ).vaccinationsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.animalId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
         ),
       );
 }
@@ -776,9 +1385,360 @@ typedef $$AnimalsTableProcessedTableManager =
       $$AnimalsTableAnnotationComposer,
       $$AnimalsTableCreateCompanionBuilder,
       $$AnimalsTableUpdateCompanionBuilder,
-      (Animal, BaseReferences<_$AppDatabase, $AnimalsTable, Animal>),
+      (Animal, $$AnimalsTableReferences),
       Animal,
-      PrefetchHooks Function()
+      PrefetchHooks Function({bool vaccinationsRefs})
+    >;
+typedef $$VaccinationsTableCreateCompanionBuilder =
+    VaccinationsCompanion Function({
+      Value<int> id,
+      required int animalId,
+      required String name,
+      required DateTime date,
+      Value<DateTime?> nextDueDate,
+      Value<int?> notificationId,
+      Value<DateTime> createdAt,
+    });
+typedef $$VaccinationsTableUpdateCompanionBuilder =
+    VaccinationsCompanion Function({
+      Value<int> id,
+      Value<int> animalId,
+      Value<String> name,
+      Value<DateTime> date,
+      Value<DateTime?> nextDueDate,
+      Value<int?> notificationId,
+      Value<DateTime> createdAt,
+    });
+
+final class $$VaccinationsTableReferences
+    extends BaseReferences<_$AppDatabase, $VaccinationsTable, Vaccination> {
+  $$VaccinationsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $AnimalsTable _animalIdTable(_$AppDatabase db) =>
+      db.animals.createAlias('vaccinations__animal_id__animals__id');
+
+  $$AnimalsTableProcessedTableManager get animalId {
+    final $_column = $_itemColumn<int>('animal_id')!;
+
+    final manager = $$AnimalsTableTableManager(
+      $_db,
+      $_db.animals,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_animalIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$VaccinationsTableFilterComposer
+    extends Composer<_$AppDatabase, $VaccinationsTable> {
+  $$VaccinationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get nextDueDate => $composableBuilder(
+    column: $table.nextDueDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get notificationId => $composableBuilder(
+    column: $table.notificationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$AnimalsTableFilterComposer get animalId {
+    final $$AnimalsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableFilterComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VaccinationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $VaccinationsTable> {
+  $$VaccinationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get nextDueDate => $composableBuilder(
+    column: $table.nextDueDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get notificationId => $composableBuilder(
+    column: $table.notificationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$AnimalsTableOrderingComposer get animalId {
+    final $$AnimalsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableOrderingComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VaccinationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $VaccinationsTable> {
+  $$VaccinationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get nextDueDate => $composableBuilder(
+    column: $table.nextDueDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get notificationId => $composableBuilder(
+    column: $table.notificationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$AnimalsTableAnnotationComposer get animalId {
+    final $$AnimalsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.animalId,
+      referencedTable: $db.animals,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AnimalsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.animals,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$VaccinationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $VaccinationsTable,
+          Vaccination,
+          $$VaccinationsTableFilterComposer,
+          $$VaccinationsTableOrderingComposer,
+          $$VaccinationsTableAnnotationComposer,
+          $$VaccinationsTableCreateCompanionBuilder,
+          $$VaccinationsTableUpdateCompanionBuilder,
+          (Vaccination, $$VaccinationsTableReferences),
+          Vaccination,
+          PrefetchHooks Function({bool animalId})
+        > {
+  $$VaccinationsTableTableManager(_$AppDatabase db, $VaccinationsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VaccinationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VaccinationsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VaccinationsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> animalId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<DateTime?> nextDueDate = const Value.absent(),
+                Value<int?> notificationId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => VaccinationsCompanion(
+                id: id,
+                animalId: animalId,
+                name: name,
+                date: date,
+                nextDueDate: nextDueDate,
+                notificationId: notificationId,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int animalId,
+                required String name,
+                required DateTime date,
+                Value<DateTime?> nextDueDate = const Value.absent(),
+                Value<int?> notificationId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => VaccinationsCompanion.insert(
+                id: id,
+                animalId: animalId,
+                name: name,
+                date: date,
+                nextDueDate: nextDueDate,
+                notificationId: notificationId,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$VaccinationsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({animalId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (animalId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.animalId,
+                        referencedTable: $$VaccinationsTableReferences
+                            ._animalIdTable(db),
+                        referencedColumn: $$VaccinationsTableReferences
+                            ._animalIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$VaccinationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $VaccinationsTable,
+      Vaccination,
+      $$VaccinationsTableFilterComposer,
+      $$VaccinationsTableOrderingComposer,
+      $$VaccinationsTableAnnotationComposer,
+      $$VaccinationsTableCreateCompanionBuilder,
+      $$VaccinationsTableUpdateCompanionBuilder,
+      (Vaccination, $$VaccinationsTableReferences),
+      Vaccination,
+      PrefetchHooks Function({bool animalId})
     >;
 
 class $AppDatabaseManager {
@@ -786,4 +1746,6 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$AnimalsTableTableManager get animals =>
       $$AnimalsTableTableManager(_db, _db.animals);
+  $$VaccinationsTableTableManager get vaccinations =>
+      $$VaccinationsTableTableManager(_db, _db.vaccinations);
 }
