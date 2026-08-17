@@ -8,11 +8,15 @@ import '../../features/animals/data/animal_table.dart';
 // besoin de ce type dans la portée de CETTE librairie, pas seulement
 // dans celle d'animal_table.dart (les imports ne sont pas transitifs).
 import '../../features/animals/domain/animal_species.dart';
+import '../../features/treatments/data/treatment_table.dart';
+// Même remarque que pour AnimalSpecies ci-dessus, cette fois pour
+// TreatmentFrequency (intEnum<T>() dans treatment_table.dart).
+import '../../features/treatments/domain/treatment_frequency.dart';
 import '../../features/vaccinations/data/vaccination_table.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Animals, Vaccinations])
+@DriftDatabase(tables: [Animals, Vaccinations, Treatments])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -21,9 +25,9 @@ class AppDatabase extends _$AppDatabase {
   /// fichier de [AppDatabase.new], pour des tests rapides et isolés.
   AppDatabase.forTesting(super.executor);
 
-  /// v2 : ajout de la table [Vaccinations] (ticket 3.1).
+  /// v3 : ajout de la table [Treatments] (ticket 4.1).
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -34,6 +38,9 @@ class AppDatabase extends _$AppDatabase {
     onUpgrade: (m, from, to) async {
       if (from < 2) {
         await m.createTable(vaccinations);
+      }
+      if (from < 3) {
+        await m.createTable(treatments);
       }
     },
     // Sqlite n'applique PAS les clés étrangères par défaut : sans ce

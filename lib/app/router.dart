@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import '../features/animals/presentation/animal_profile_screen.dart';
 import '../features/animals/presentation/create_animal_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/treatments/presentation/treatment_form_screen.dart';
+import '../features/treatments/presentation/treatments_list_screen.dart';
 import '../features/vaccinations/presentation/vaccination_form_screen.dart';
 import '../features/vaccinations/presentation/vaccinations_list_screen.dart';
 import 'app_shell.dart';
@@ -82,6 +84,42 @@ final appRouter = GoRouter(
                         animalId: int.parse(state.pathParameters['id']!),
                         vaccinationId: int.parse(
                           state.pathParameters['vaccinationId']!,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                GoRoute(
+                  // Route soeur de 'vaccinations' ci-dessus, même
+                  // gabarit (ticket 4.1-4.3).
+                  path: 'treatments',
+                  name: 'treatmentsList',
+                  builder: (context, state) => TreatmentsListScreen(
+                    animalId: int.parse(state.pathParameters['id']!),
+                  ),
+                  routes: [
+                    GoRoute(
+                      path: 'new',
+                      name: 'createTreatment',
+                      builder: (context, state) => TreatmentFormScreen(
+                        animalId: int.parse(state.pathParameters['id']!),
+                        // Raccourci "Antiparasitaire" de l'accueil
+                        // (ticket 6.2/4.2) : préremplit le nom via un
+                        // paramètre de requête plutôt qu'un flag dédié,
+                        // pas de champ supplémentaire à porter partout
+                        // pour un seul cas d'usage.
+                        initialName: state.uri.queryParameters['name'],
+                      ),
+                    ),
+                    GoRoute(
+                      // Même remarque 'new' avant ':treatmentId' que
+                      // pour /animals ci-dessus.
+                      path: ':treatmentId',
+                      name: 'editTreatment',
+                      builder: (context, state) => TreatmentFormScreen(
+                        animalId: int.parse(state.pathParameters['id']!),
+                        treatmentId: int.parse(
+                          state.pathParameters['treatmentId']!,
                         ),
                       ),
                     ),
