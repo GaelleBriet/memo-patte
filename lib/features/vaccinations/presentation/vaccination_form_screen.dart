@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/widgets/gradient_app_bar.dart';
+import '../../notifications/data/first_reminder_source.dart';
 import '../../notifications/data/notification_permission_provider.dart';
 import '../../notifications/presentation/notification_priming_screen.dart';
 import '../data/vaccination_provider.dart';
@@ -137,16 +138,13 @@ class _VaccinationFormBodyState
       final vaccination = widget.vaccination;
 
       if (vaccination == null) {
-        // Priming avant la création du *premier* vaccin (décision du
-        // 2026-08-14) : uniquement si aucun vaccin n'existe encore et que
-        // la permission n'est pas déjà accordée. Quoi que réponde
+        // Priming avant la création du *premier* vaccin ou traitement
+        // (décision du 2026-08-14) : uniquement si rien n'existe encore
+        // et que la permission n'est pas déjà accordée. Quoi que réponde
         // l'utilisateur (refus OS ou "Plus tard"), la création se
         // poursuit — l'app ne bloque jamais sur cette permission ; en cas
         // de refus, le bandeau de l'accueil (ticket 2.3) prend le relais.
-        // Le ticket 4.2 (traitements) devra étendre ce "premier" aux deux
-        // tables confondues.
-        final isFirst = !await repository.hasAnyVaccinations();
-        if (isFirst) {
+        if (await isFirstReminderSource(ref)) {
           final granted = await ref.read(
             notificationPermissionStatusProvider.future,
           );
