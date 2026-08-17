@@ -142,25 +142,27 @@ class TreatmentRepository {
   /// annulations sont faites systématiquement, la fréquence ayant pu
   /// changer de famille entre-temps (ex. mensuel → 2 fois par jour).
   ///
-  /// [notificationId], [reminderNotificationIds] et [nextDueDate] portés
-  /// par [treatment] sont ignorés et recalculés/réécrits ici — même
-  /// logique que `notificationId` déjà pour l'ancienne version de cette
-  /// méthode, étendue par cohérence à tout ce que cette méthode peut
-  /// désormais déterminer elle-même à partir de `frequency`/`date`/
-  /// `reminderTimes`.
+  /// [notificationId] et [reminderNotificationIds] portés par [treatment]
+  /// sont ignorés et réécrits ici (même logique que l'ancienne version de
+  /// cette méthode pour [notificationId] seul). [nextDueDate] en
+  /// revanche est pris tel quel, PAS recalculé : contrairement à
+  /// [createTreatment] (toujours une création "à blanc"), l'appelant
+  /// peut avoir une raison précise de faire porter à [treatment] une
+  /// échéance différente de "`date` + `frequency` appliqués une fois" —
+  /// notamment [reconcileOverdueTreatments], qui avance `nextDueDate` de
+  /// plusieurs cycles sans toucher à `date`. Recalculer ici écraserait
+  /// silencieusement ce travail (bug constaté le 2026-08-17 en ajoutant
+  /// les fréquences à heure(s) fixe(s) : la réconciliation multi-cycles
+  /// des cycles longs cessait d'avancer `nextDueDate`). Le formulaire
+  /// (`TreatmentFormScreen._submit`) calcule donc lui-même la bonne
+  /// valeur avant d'appeler cette méthode, pour les deux familles de
+  /// fréquence.
   Future<bool> updateTreatment(Treatment treatment) async {
     final previous = await _dao.getById(treatment.id);
     if (previous?.notificationId != null) {
       await _notificationService.cancelNotification(previous!.notificationId!);
     }
     await _cancelReminderTimes(previous?.reminderNotificationIds);
-
-    final reminderTimes = decodeReminderTimes(treatment.reminderTimes);
-    final nextDueDate = _computeNextDueDate(
-      frequency: treatment.frequency,
-      date: treatment.date,
-      reminderTimes: reminderTimes,
-    );
 
     int? notificationId;
     String? reminderNotificationIdsCsv;
@@ -169,7 +171,7 @@ class TreatmentRepository {
         treatmentId: treatment.id,
         animalId: treatment.animalId,
         name: treatment.name,
-        reminderTimes: reminderTimes,
+        reminderTimes: decodeReminderTimes(treatment.reminderTimes),
       );
       reminderNotificationIdsCsv = ids.isEmpty ? null : _encodeIds(ids);
     } else {
@@ -177,7 +179,7 @@ class TreatmentRepository {
         treatmentId: treatment.id,
         animalId: treatment.animalId,
         name: treatment.name,
-        nextDueDate: nextDueDate,
+        nextDueDate: treatment.nextDueDate,
       );
     }
 
@@ -188,7 +190,6 @@ class TreatmentRepository {
     return _dao.updateTreatment(
       treatment
           .copyWith(
-            nextDueDate: nextDueDate,
             notificationId: Value(notificationId),
             reminderNotificationIds: Value(reminderNotificationIdsCsv),
           )

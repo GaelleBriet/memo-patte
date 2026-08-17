@@ -228,11 +228,16 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
                   ? encodeReminderTimes(_reminderTimes)
                   : null,
             ),
-            // `nextDueDate` : pas passée ici, elle est recalculée par le
-            // repository à partir de `frequency`/`date`/`reminderTimes`
-            // (voir `TreatmentRepository.updateTreatment`) — la valeur
-            // portée par `treatment` avant cet appel n'a pas besoin
-            // d'être à jour.
+            // Toujours recalculée à partir de la saisie courante, jamais
+            // laissée telle quelle : modifier la date, la fréquence ou
+            // les heures de rappel doit faire glisser la prochaine
+            // échéance en conséquence. `TreatmentRepository.updateTreatment`
+            // fait confiance à cette valeur (contrairement à
+            // `notificationId`/`reminderNotificationIds`) — voir son
+            // commentaire pour pourquoi (la réconciliation en dépend).
+            nextDueDate: _frequency.usesReminderTimes
+                ? nextReminderDateTime(_reminderTimes, DateTime.now())
+                : _frequency.nextOccurrenceAfter(_date),
           ),
         );
         ref.invalidate(treatmentProvider(treatment.id));

@@ -1,6 +1,6 @@
 import 'package:drift/native.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show AndroidScheduleMode;
+    show AndroidScheduleMode, DateTimeComponents;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memo_patte/core/database/app_database.dart';
 import 'package:memo_patte/core/notifications/notification_service.dart';
@@ -18,6 +18,7 @@ typedef _ScheduledCall = ({
   String title,
   String body,
   DateTime scheduledDate,
+  DateTimeComponents? matchDateTimeComponents,
 });
 
 /// Fake de [NotificationService] — même principe que
@@ -39,12 +40,14 @@ class _FakeNotificationService extends NotificationService {
     String? payload,
     AndroidScheduleMode androidScheduleMode =
         AndroidScheduleMode.inexactAllowWhileIdle,
+    DateTimeComponents? matchDateTimeComponents,
   }) async {
     scheduled.add((
       id: id,
       title: title,
       body: body,
       scheduledDate: scheduledDate,
+      matchDateTimeComponents: matchDateTimeComponents,
     ));
   }
 
