@@ -6,6 +6,7 @@ import '../../../core/domain/due_status.dart';
 import '../../../core/widgets/delete_confirmation_sheet.dart';
 import '../../../core/widgets/due_status_badge.dart';
 import '../../../core/widgets/surface_card.dart';
+import '../domain/reminder_times.dart';
 
 /// Carte d'un traitement, style "Traitement en cours" de
 /// `docs/design/PetCare - Ma Vision` : nom + pilule de statut en tête,
@@ -80,7 +81,7 @@ class TreatmentCard extends StatelessWidget {
                 style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
               ),
               Text(
-                _dueInLabel(treatment.nextDueDate, now),
+                _dueInLabel(treatment, now),
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -104,22 +105,42 @@ class TreatmentCard extends StatelessWidget {
   }
 }
 
-/// Avancement entre la dernière administration ([Treatment.date]) et la
-/// prochaine dose ([Treatment.nextDueDate]) — la barre de la maquette se
-/// remplit au fil du cycle, pas juste "fait/pas fait".
+/// Avancement vers la prochaine dose ([Treatment.nextDueDate]) — la barre
+/// de la maquette se remplit au fil du cycle, pas juste "fait/pas fait".
+///
+/// Deux bases de calcul selon la fréquence (voir
+/// [TreatmentFrequency.usesReminderTimes], ajouté le 2026-08-17) :
+/// - Cycle long : depuis la dernière administration ([Treatment.date])
+///   jusqu'à la prochaine échéance — comportement d'origine.
+/// - Heure(s) fixe(s) : depuis minuit jusqu'à la prochaine heure de
+///   rappel — [Treatment.date] (date de *début* du traitement, pas de la
+///   dernière prise) ferait une barre trompeuse, quasi toujours pleine,
+///   si elle servait de point de départ ici.
 double _progress(Treatment treatment, DateTime now) {
-  final total = treatment.nextDueDate.difference(treatment.date).inSeconds;
+  final start = treatment.frequency.usesReminderTimes
+      ? DateTime(now.year, now.month, now.day)
+      : treatment.date;
+  final total = treatment.nextDueDate.difference(start).inSeconds;
   if (total <= 0) return 1;
-  final elapsed = now.difference(treatment.date).inSeconds;
+  final elapsed = now.difference(start).inSeconds;
   return (elapsed / total).clamp(0, 1);
 }
 
-/// "Dans 15 jours" / "Aujourd'hui" / "En retard de 3 jours" — au jour
-/// près, même granularité que [DueStatus.fromNextDueDate] (une échéance
-/// de traitement est une date de carnet, pas un instant précis).
-String _dueInLabel(DateTime dueDate, DateTime now) {
+/// "Dans 15 jours" / "Aujourd'hui" / "En retard de 3 jours" pour un cycle
+/// long (au jour près, même granularité que [DueStatus.fromNextDueDate])
+/// — "Aujourd'hui à 20:00" / "Demain à 08:00" pour une fréquence à
+/// heure(s) fixe(s), voir [describeUpcomingReminder].
+String _dueInLabel(Treatment treatment, DateTime now) {
+  if (treatment.frequency.usesReminderTimes) {
+    return describeUpcomingReminder(treatment.nextDueDate, now);
+  }
+
   final today = DateTime(now.year, now.month, now.day);
-  final due = DateTime(dueDate.year, dueDate.month, dueDate.day);
+  final due = DateTime(
+    treatment.nextDueDate.year,
+    treatment.nextDueDate.month,
+    treatment.nextDueDate.day,
+  );
   final days = due.difference(today).inDays;
 
   if (days == 0) return 'Aujourd\'hui';

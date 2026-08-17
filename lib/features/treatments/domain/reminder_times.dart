@@ -65,3 +65,21 @@ String formatMinuteOfDay(int minutesOfDay) {
   final minute = (minutesOfDay % 60).toString().padLeft(2, '0');
   return '$hour:$minute';
 }
+
+/// "Aujourd'hui à 20:00" / "Demain à 08:00" — description lisible d'une
+/// occurrence produite par [nextReminderDateTime]. Partagée entre
+/// `TreatmentFormScreen` (aperçu "Prochain rappel") et `TreatmentCard`
+/// (ligne "Prochaine dose") pour ne pas dupliquer cette mise en forme.
+String describeUpcomingReminder(DateTime due, DateTime now) {
+  final today = DateTime(now.year, now.month, now.day);
+  final dueDay = DateTime(due.year, due.month, due.day);
+  final time = formatMinuteOfDay(due.hour * 60 + due.minute);
+
+  if (dueDay == today) return 'Aujourd\'hui à $time';
+  if (dueDay == today.add(const Duration(days: 1))) return 'Demain à $time';
+  // N'arrive normalement pas en lecture juste après
+  // `reconcileOverdueTreatments` (l'écran l'appelle avant d'afficher),
+  // mais reste correct si jamais l'app n'a pas encore eu l'occasion de
+  // rattraper un jour dépassé.
+  return 'En retard ($time)';
+}

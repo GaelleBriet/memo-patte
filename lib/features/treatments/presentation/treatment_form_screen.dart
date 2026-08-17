@@ -1,6 +1,8 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/widgets/gradient_app_bar.dart';
 import '../../notifications/data/first_reminder_source.dart';
@@ -8,12 +10,21 @@ import '../../notifications/data/notification_permission_provider.dart';
 import '../../notifications/presentation/notification_priming_screen.dart';
 import '../data/treatment_provider.dart';
 import '../data/treatment_repository_provider.dart';
+import '../domain/reminder_times.dart';
 import '../domain/treatment_frequency.dart';
 
 /// Formulaire ajout/édition d'un traitement (ticket 4.2). Même principe
 /// que `VaccinationFormScreen`, avec la fréquence récurrente à la place
 /// de la prochaine échéance (calculée, pas saisie — voir
 /// `treatment_table.dart`).
+///
+/// Deux familles de fréquence, voir [TreatmentFrequency.usesReminderTimes]
+/// (ajouté le 2026-08-17) : cycle long (mois/trimestre/semestre/an), où
+/// seule la date de dernière administration + la fréquence comptent, ou
+/// heure(s) fixe(s) par jour (médicament pris 1 ou plusieurs fois par
+/// jour), où une ou plusieurs heures de rappel doivent être choisies
+/// ([_reminderTimes]) — la section "Heure(s) de rappel" ne s'affiche que
+/// pour la deuxième famille.
 ///
 /// [treatmentId] absent = création, présent = édition. La date de
 /// dernière administration peut être antérieure à aujourd'hui — même
@@ -98,6 +109,16 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
   late DateTime _date = widget.treatment?.date ?? DateTime.now();
   late TreatmentFrequency _frequency =
       widget.treatment?.frequency ?? TreatmentFrequency.monthly;
+
+  /// Minutes depuis minuit, triées, sans doublon — voir
+  /// `domain/reminder_times.dart`. N'a de sens que si
+  /// `_frequency.usesReminderTimes` ; conservée même quand on bascule
+  /// vers un cycle long (pas remise à zéro), pour ne pas perdre la
+  /// saisie si l'utilisateur revient en arrière sur son choix de
+  /// fréquence.
+  late List<int> _reminderTimes = decodeReminderTimes(
+    widget.treatment?.reminderTimes,
+  );
   bool _submitting = false;
 
   bool get _isEditing => widget.treatment != null;
@@ -124,8 +145,47 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
     }
   }
 
+  /// Fréquence [TreatmentFrequency.daily] : une seule heure, un nouveau
+  /// choix remplace l'ancien plutôt que de s'ajouter (voir
+  /// [_addReminderTime] pour `severalTimesDaily`, qui accumule).
+  Future<void> _pickSingleReminderTime() async {
+    final initial = _reminderTimes.isNotEmpty
+        ? TimeOfDay(
+            hour: _reminderTimes.first ~/ 60,
+            minute: _reminderTimes.first % 60,
+          )
+        : const TimeOfDay(hour: 8, minute: 0);
+    final picked = await showTimePicker(context: context, initialTime: initial);
+    if (picked != null) {
+      setState(() => _reminderTimes = [picked.hour * 60 + picked.minute]);
+    }
+  }
+
+  Future<void> _addReminderTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: const TimeOfDay(hour: 8, minute: 0),
+    );
+    if (picked == null) return;
+    final minute = picked.hour * 60 + picked.minute;
+    if (_reminderTimes.contains(minute)) return; // Déjà choisie.
+    setState(() => _reminderTimes = ([..._reminderTimes, minute]..sort()));
+  }
+
+  void _removeReminderTime(int minute) {
+    setState(
+      () => _reminderTimes = _reminderTimes.where((m) => m != minute).toList(),
+    );
+  }
+
   Future<void> _submit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (_frequency.usesReminderTimes && _reminderTimes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Choisis au moins une heure de rappel.')),
+      );
+      return;
+    }
 
     setState(() => _submitting = true);
     try {
@@ -155,6 +215,7 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
           name: _nameController.text.trim(),
           date: _date,
           frequency: _frequency,
+          reminderTimes: _reminderTimes,
         );
       } else {
         await repository.updateTreatment(
@@ -162,12 +223,16 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
             name: _nameController.text.trim(),
             date: _date,
             frequency: _frequency,
-            // Toujours recalculée à partir de date + fréquence, jamais
-            // laissée telle quelle : modifier l'une ou l'autre doit
-            // faire glisser la prochaine échéance en conséquence (voir
-            // `treatment_table.dart`, `nextDueDate` n'est jamais saisie
-            // à la main).
-            nextDueDate: _frequency.nextOccurrenceAfter(_date),
+            reminderTimes: Value(
+              _frequency.usesReminderTimes
+                  ? encodeReminderTimes(_reminderTimes)
+                  : null,
+            ),
+            // `nextDueDate` : pas passée ici, elle est recalculée par le
+            // repository à partir de `frequency`/`date`/`reminderTimes`
+            // (voir `TreatmentRepository.updateTreatment`) — la valeur
+            // portée par `treatment` avant cet appel n'a pas besoin
+            // d'être à jour.
           ),
         );
         ref.invalidate(treatmentProvider(treatment.id));
@@ -211,7 +276,11 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
               const SizedBox(height: 16),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Date de la dernière administration *'),
+                title: Text(
+                  _frequency.usesReminderTimes
+                      ? 'Date de début du traitement *'
+                      : 'Date de la dernière administration *',
+                ),
                 subtitle: Text(_formatDate(_date)),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: _pickDate,
@@ -225,27 +294,84 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
                 ),
               ),
               const SizedBox(height: 8),
-              SegmentedButton<TreatmentFrequency>(
-                segments: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
                   for (final frequency in TreatmentFrequency.values)
-                    ButtonSegment(
-                      value: frequency,
-                      label: Text(_shortLabel(frequency)),
+                    _FrequencyChip(
+                      label: _shortLabel(frequency),
+                      selected: _frequency == frequency,
+                      onTap: () => setState(() => _frequency = frequency),
                     ),
                 ],
-                selected: {_frequency},
-                onSelectionChanged: (selection) =>
-                    setState(() => _frequency = selection.first),
               ),
-              const SizedBox(height: 8),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Prochaine échéance : '
-                  '${_formatDate(_frequency.nextOccurrenceAfter(_date))}',
-                  style: Theme.of(context).textTheme.bodySmall,
+              if (_frequency.usesReminderTimes) ...[
+                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    _frequency == TreatmentFrequency.daily
+                        ? 'Heure de rappel *'
+                        : 'Heures de rappel *',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 4),
+                if (_frequency == TreatmentFrequency.daily)
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      _reminderTimes.isEmpty
+                          ? 'Choisir une heure'
+                          : formatMinuteOfDay(_reminderTimes.first),
+                    ),
+                    trailing: const Icon(Icons.access_time),
+                    onTap: _pickSingleReminderTime,
+                  )
+                else ...[
+                  for (final minute in _reminderTimes)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: const Icon(Icons.access_time),
+                      title: Text(formatMinuteOfDay(minute)),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.close),
+                        tooltip: 'Retirer cette heure',
+                        onPressed: () => _removeReminderTime(minute),
+                      ),
+                    ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: OutlinedButton.icon(
+                      onPressed: _addReminderTime,
+                      icon: const Icon(Icons.add),
+                      label: const Text('Ajouter une heure'),
+                    ),
+                  ),
+                ],
+                if (_reminderTimes.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Prochain rappel : '
+                      '${describeUpcomingReminder(nextReminderDateTime(_reminderTimes, DateTime.now()), DateTime.now())}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ],
+              ] else ...[
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Prochaine échéance : '
+                    '${_formatDate(_frequency.nextOccurrenceAfter(_date))}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+              ],
               const SizedBox(height: 24),
               FilledButton(
                 onPressed: _submitting ? null : _submit,
@@ -267,14 +393,63 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
   }
 }
 
-/// Libellés compacts pour le `SegmentedButton` (4 segments côte à côte,
-/// pas la place pour "Tous les 3 mois") — [TreatmentFrequencyLabel.label]
+/// Chip de sélection de fréquence — 6 options depuis le 2026-08-17
+/// (ajout de `daily`/`severalTimesDaily`), trop pour un `SegmentedButton`
+/// sur une largeur de téléphone (déjà cramé à 4). `Wrap` + chips maison
+/// plutôt qu'un `DropdownButtonFormField` : les fréquences sont peu
+/// nombreuses et se comparent d'un coup d'œil, cohérent avec le
+/// différenciant "saisie rapide" (pas de menu à ouvrir). Style calqué sur
+/// le thème `SegmentedButton` existant (`AppTheme.light`,
+/// `segmentedButtonTheme`) pour rester visuellement cohérent malgré le
+/// changement de widget.
+class _FrequencyChip extends StatelessWidget {
+  const _FrequencyChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? AppTheme.primaryTeal : AppTheme.cardSurface,
+      shape: StadiumBorder(
+        side: BorderSide(
+          color: selected ? AppTheme.primaryTeal : AppTheme.divider,
+        ),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const StadiumBorder(),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: selected ? Colors.white : AppTheme.ink,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Libellés compacts pour les chips de fréquence — [TreatmentFrequencyLabel.label]
 /// reste le libellé complet utilisé en lecture (`TreatmentCard`).
 String _shortLabel(TreatmentFrequency frequency) => switch (frequency) {
   TreatmentFrequency.monthly => '1 mois',
   TreatmentFrequency.quarterly => '3 mois',
   TreatmentFrequency.biannual => '6 mois',
   TreatmentFrequency.annual => '1 an',
+  TreatmentFrequency.daily => '1×/jour',
+  TreatmentFrequency.severalTimesDaily => 'Plusieurs/jour',
 };
 
 String _formatDate(DateTime date) => '${date.day}/${date.month}/${date.year}';

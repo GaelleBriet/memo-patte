@@ -1,15 +1,21 @@
 import 'package:drift/drift.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    show DateTimeComponents;
 
 import '../../../core/database/app_database.dart';
 import '../../../core/notifications/notification_service.dart';
 import '../../animals/data/animal_dao.dart';
+import '../domain/reminder_times.dart';
 import '../domain/treatment_frequency.dart';
 import 'treatment_dao.dart';
 
 /// Point d'entrée métier pour les traitements (tickets 4.1 et 4.4) —
 /// même rôle que `VaccinationRepository`, avec en plus le cycle de
 /// rappel récurrent propre aux traitements (voir
-/// [reconcileOverdueTreatments]).
+/// [reconcileOverdueTreatments]) et, depuis le 2026-08-17, les
+/// fréquences à heure(s) de rappel fixe(s)
+/// (`TreatmentFrequency.daily`/`severalTimesDaily`, voir
+/// [_scheduleReminderTimes]).
 class TreatmentRepository {
   TreatmentRepository(this._dao, this._animalDao, this._notificationService);
 
@@ -21,10 +27,30 @@ class TreatmentRepository {
   /// (`id * 10 + 1`) mais décalé de `+ 2` : sans ce décalage, le
   /// traitement n°1 et le vaccin n°1 partageraient le même identifiant
   /// de notification et s'annuleraient mutuellement.
+  ///
+  /// Réservé aux cycles longs (`frequency.usesReminderTimes == false`) :
+  /// un seul rappel actif par traitement. Voir [notificationIdForSlot]
+  /// pour les fréquences à heure(s) fixe(s).
   static int notificationIdFor(int treatmentId) => treatmentId * 10 + 2;
 
+  /// Identifiant de notification pour la [slot]-ième heure de rappel
+  /// d'un traitement à fréquence quotidienne (`daily`/`severalTimesDaily`,
+  /// ajoutées le 2026-08-17) — ces fréquences peuvent avoir plusieurs
+  /// notifications actives en même temps (une par heure choisie), donc
+  /// [notificationIdFor] (un seul id par traitement) ne suffit plus.
+  ///
+  /// Multiplicateur x1000 (au lieu de x10 pour [notificationIdFor]) :
+  /// pour des volumes de données réalistes (jusqu'à quelques milliers de
+  /// lignes), cette plage ne chevauche ni celle des vaccins (`id*10+1`)
+  /// ni celle des traitements à cycle long (`id*10+2`) — voir le test de
+  /// non-collision.
+  static int notificationIdForSlot(int treatmentId, int slot) =>
+      treatmentId * 1000 + slot * 10 + 2;
+
   /// Même heure de déclenchement que les vaccins — voir
-  /// `VaccinationRepository.notificationHour`.
+  /// `VaccinationRepository.notificationHour`. Ne s'applique qu'aux
+  /// cycles longs : les fréquences à heure(s) fixe(s) utilisent l'heure
+  /// choisie par l'utilisateur, pas celle-ci.
   static const notificationHour = 9;
 
   Stream<List<Treatment>> watchForAnimal(int animalId) =>
@@ -38,17 +64,28 @@ class TreatmentRepository {
   /// (voir `features/notifications/data/first_reminder_source.dart`).
   Future<bool> hasAnyTreatments() => _dao.hasAny();
 
-  /// Crée le traitement — [nextDueDate] est calculée ici (`date` +
-  /// [frequency]), jamais saisie par l'utilisateur (contrairement au
-  /// vaccin, cf. `treatment_table.dart`) — et programme son rappel si
-  /// cette échéance calculée tombe dans le futur (ticket 4.4).
+  /// Crée le traitement — [nextDueDate] est toujours calculée ici,
+  /// jamais saisie par l'utilisateur (contrairement au vaccin, cf.
+  /// `treatment_table.dart`) : à partir de `date` + [frequency] pour un
+  /// cycle long, ou de [reminderTimes] pour une fréquence quotidienne
+  /// (voir [_computeNextDueDate]). Programme le(s) rappel(s)
+  /// correspondant(s) (ticket 4.4, étendu le 2026-08-17).
+  ///
+  /// [reminderTimes] : heures de rappel en minutes depuis minuit,
+  /// requises (au moins une) si `frequency.usesReminderTimes`, ignorées
+  /// sinon.
   Future<int> createTreatment({
     required int animalId,
     required String name,
     required DateTime date,
     required TreatmentFrequency frequency,
+    List<int> reminderTimes = const [],
   }) async {
-    final nextDueDate = frequency.nextOccurrenceAfter(date);
+    final nextDueDate = _computeNextDueDate(
+      frequency: frequency,
+      date: date,
+      reminderTimes: reminderTimes,
+    );
     final id = await _dao.insertTreatment(
       TreatmentsCompanion.insert(
         animalId: animalId,
@@ -56,69 +93,142 @@ class TreatmentRepository {
         date: date,
         frequency: frequency,
         nextDueDate: nextDueDate,
+        reminderTimes: Value.absentIfNull(
+          frequency.usesReminderTimes
+              ? encodeReminderTimes(reminderTimes)
+              : null,
+        ),
       ),
     );
 
-    final notificationId = await _scheduleIfDue(
-      treatmentId: id,
-      animalId: animalId,
-      name: name,
-      nextDueDate: nextDueDate,
-    );
-    if (notificationId != null) {
-      final created = await _dao.getById(id);
-      await _dao.updateTreatment(
-        created!
-            .copyWith(notificationId: Value(notificationId))
-            .toCompanion(false),
+    if (frequency.usesReminderTimes) {
+      final ids = await _scheduleReminderTimes(
+        treatmentId: id,
+        animalId: animalId,
+        name: name,
+        reminderTimes: reminderTimes,
       );
+      if (ids.isNotEmpty) {
+        final created = await _dao.getById(id);
+        await _dao.updateTreatment(
+          created!
+              .copyWith(reminderNotificationIds: Value(_encodeIds(ids)))
+              .toCompanion(false),
+        );
+      }
+    } else {
+      final notificationId = await _scheduleIfDue(
+        treatmentId: id,
+        animalId: animalId,
+        name: name,
+        nextDueDate: nextDueDate,
+      );
+      if (notificationId != null) {
+        final created = await _dao.getById(id);
+        await _dao.updateTreatment(
+          created!
+              .copyWith(notificationId: Value(notificationId))
+              .toCompanion(false),
+        );
+      }
     }
     return id;
   }
 
-  /// Met à jour le traitement et reprogramme son rappel — même principe
-  /// annuler-puis-reprogrammer que `VaccinationRepository.updateVaccination`.
-  /// [notificationId] porté par [treatment] est ignoré et réécrit ici.
+  /// Met à jour le traitement et reprogramme son/ses rappel(s) — même
+  /// principe annuler-puis-reprogrammer que
+  /// `VaccinationRepository.updateVaccination`, étendu aux deux
+  /// mécaniques possibles (cycle long ou heure(s) fixe(s)) : les deux
+  /// annulations sont faites systématiquement, la fréquence ayant pu
+  /// changer de famille entre-temps (ex. mensuel → 2 fois par jour).
+  ///
+  /// [notificationId], [reminderNotificationIds] et [nextDueDate] portés
+  /// par [treatment] sont ignorés et recalculés/réécrits ici — même
+  /// logique que `notificationId` déjà pour l'ancienne version de cette
+  /// méthode, étendue par cohérence à tout ce que cette méthode peut
+  /// désormais déterminer elle-même à partir de `frequency`/`date`/
+  /// `reminderTimes`.
   Future<bool> updateTreatment(Treatment treatment) async {
     final previous = await _dao.getById(treatment.id);
     if (previous?.notificationId != null) {
       await _notificationService.cancelNotification(previous!.notificationId!);
     }
+    await _cancelReminderTimes(previous?.reminderNotificationIds);
 
-    final notificationId = await _scheduleIfDue(
-      treatmentId: treatment.id,
-      animalId: treatment.animalId,
-      name: treatment.name,
-      nextDueDate: treatment.nextDueDate,
+    final reminderTimes = decodeReminderTimes(treatment.reminderTimes);
+    final nextDueDate = _computeNextDueDate(
+      frequency: treatment.frequency,
+      date: treatment.date,
+      reminderTimes: reminderTimes,
     );
+
+    int? notificationId;
+    String? reminderNotificationIdsCsv;
+    if (treatment.frequency.usesReminderTimes) {
+      final ids = await _scheduleReminderTimes(
+        treatmentId: treatment.id,
+        animalId: treatment.animalId,
+        name: treatment.name,
+        reminderTimes: reminderTimes,
+      );
+      reminderNotificationIdsCsv = ids.isEmpty ? null : _encodeIds(ids);
+    } else {
+      notificationId = await _scheduleIfDue(
+        treatmentId: treatment.id,
+        animalId: treatment.animalId,
+        name: treatment.name,
+        nextDueDate: nextDueDate,
+      );
+    }
 
     // `toCompanion(false)` et pas `true` : même leçon que pour les
     // vaccins (ticket 1.5 à l'origine) — une édition doit pouvoir
-    // repasser `notificationId` à null, pas seulement "ne pas y toucher".
+    // repasser `notificationId`/`reminderNotificationIds` à null, pas
+    // seulement "ne pas y toucher".
     return _dao.updateTreatment(
       treatment
-          .copyWith(notificationId: Value(notificationId))
+          .copyWith(
+            nextDueDate: nextDueDate,
+            notificationId: Value(notificationId),
+            reminderNotificationIds: Value(reminderNotificationIdsCsv),
+          )
           .toCompanion(false),
     );
   }
 
-  /// Reprogrammation automatique des traitements dont l'échéance est
-  /// passée (ticket 4.4, "reprogrammation automatique à chaque échéance
-  /// passée"). Sans service en arrière-plan — une app mobile pure, hors
-  /// scope v1 — ce recalage se fait quand l'app est ouverte / l'écran du
-  /// traitement consulté, pas par un vrai cron : voir les appelants
-  /// (`AnimalProfileScreen`, `TreatmentsListScreen`).
+  /// Reprogrammation automatique des traitements dont l'échéance
+  /// affichée est passée (ticket 4.4, "reprogrammation automatique à
+  /// chaque échéance passée"). Sans service en arrière-plan — une app
+  /// mobile pure, hors scope v1 — ce recalage se fait quand l'app est
+  /// ouverte / l'écran du traitement consulté, pas par un vrai cron :
+  /// voir les appelants (`AnimalProfileScreen`, `TreatmentsListScreen`).
   ///
-  /// Avance `nextDueDate` par pas de [TreatmentFrequency] jusqu'à
-  /// retomber dans le futur, et reprogramme la notification en
-  /// conséquence — la boucle de rappel se perpétue tant que le
-  /// traitement existe, contrairement au rappel ponctuel des vaccins.
+  /// Deux mécaniques, voir [TreatmentFrequency.usesReminderTimes] :
+  /// - Cycle long : avance `nextDueDate` par pas de [TreatmentFrequency]
+  ///   jusqu'à retomber dans le futur, et reprogramme la notification en
+  ///   conséquence (comportement d'origine, inchangé).
+  /// - Heure(s) fixe(s) (ajouté le 2026-08-17) : seule la date affichée
+  ///   doit rattraper "maintenant" (tri de l'accueil, `TreatmentCard') —
+  ///   le rappel lui-même n'a pas besoin d'être reprogrammé, il se répète
+  ///   déjà nativement côté OS (`matchDateTimeComponents`, voir
+  ///   [_scheduleReminderTimes]).
   Future<void> reconcileOverdueTreatments(int animalId) async {
     final now = DateTime.now();
     final current = await _dao.getForAnimal(animalId);
 
     for (final treatment in current) {
       if (!treatment.nextDueDate.isBefore(now)) continue;
+
+      if (treatment.frequency.usesReminderTimes) {
+        final next = nextReminderDateTime(
+          decodeReminderTimes(treatment.reminderTimes),
+          now,
+        );
+        await _dao.updateTreatment(
+          treatment.copyWith(nextDueDate: next).toCompanion(false),
+        );
+        continue;
+      }
 
       var next = treatment.nextDueDate;
       while (!next.isAfter(now)) {
@@ -130,13 +240,32 @@ class TreatmentRepository {
 
   /// Supprime le traitement (ticket "appui long" du 2026-08-17) — même
   /// principe que `VaccinationRepository.deleteVaccination` : annule
-  /// d'abord le rappel programmé s'il y en a un.
+  /// d'abord le(s) rappel(s) programmé(s) s'il y en a, quelle que soit
+  /// la mécanique (cycle long ou heure(s) fixe(s)).
   Future<void> deleteTreatment(int id) async {
     final treatment = await _dao.getById(id);
     if (treatment?.notificationId != null) {
-      await _notificationService.cancelNotification(treatment!.notificationId!);
+      await _notificationService.cancelNotification(
+        treatment!.notificationId!,
+      );
     }
+    await _cancelReminderTimes(treatment?.reminderNotificationIds);
     await _dao.deleteTreatment(id);
+  }
+
+  /// Prochaine échéance : `date` + [frequency] pour un cycle long,
+  /// prochaine heure de [reminderTimes] à partir de maintenant sinon —
+  /// voir le commentaire de classe de [TreatmentFrequency] pour pourquoi
+  /// ces deux calculs ne se recoupent pas.
+  DateTime _computeNextDueDate({
+    required TreatmentFrequency frequency,
+    required DateTime date,
+    required List<int> reminderTimes,
+  }) {
+    if (frequency.usesReminderTimes) {
+      return nextReminderDateTime(reminderTimes, DateTime.now());
+    }
+    return frequency.nextOccurrenceAfter(date);
   }
 
   Future<int?> _scheduleIfDue({
@@ -165,4 +294,57 @@ class TreatmentRepository {
     );
     return notificationId;
   }
+
+  /// Programme une notification récurrente par heure de [reminderTimes]
+  /// (`matchDateTimeComponents: DateTimeComponents.time`, voir
+  /// `NotificationService.scheduleNotification`) — contrairement à
+  /// [_scheduleIfDue], toujours programmées (une fréquence quotidienne
+  /// n'a pas d'équivalent "échéance déjà passée, ne rien programmer" :
+  /// il y a toujours un prochain "demain à cette heure" si l'heure
+  /// d'aujourd'hui est passée). Retourne les identifiants utilisés, pour
+  /// stockage dans `Treatment.reminderNotificationIds`.
+  Future<List<int>> _scheduleReminderTimes({
+    required int treatmentId,
+    required int animalId,
+    required String name,
+    required List<int> reminderTimes,
+  }) async {
+    if (reminderTimes.isEmpty) return const [];
+
+    final animal = await _animalDao.getById(animalId);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final sorted = [...reminderTimes]..sort();
+    final ids = <int>[];
+
+    for (var slot = 0; slot < sorted.length; slot++) {
+      var firstFireAt = today.add(Duration(minutes: sorted[slot]));
+      if (!firstFireAt.isAfter(now)) {
+        firstFireAt = firstFireAt.add(const Duration(days: 1));
+      }
+      final id = notificationIdForSlot(treatmentId, slot);
+      await _notificationService.scheduleNotification(
+        id: id,
+        title: 'Rappel de traitement',
+        body:
+            'Le traitement $name de ${animal?.name ?? 'ton animal'} est à '
+            'donner maintenant.',
+        scheduledDate: firstFireAt,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+      ids.add(id);
+    }
+    return ids;
+  }
+
+  Future<void> _cancelReminderTimes(String? notificationIdsCsv) async {
+    for (final id in _decodeIds(notificationIdsCsv)) {
+      await _notificationService.cancelNotification(id);
+    }
+  }
+
+  List<int> _decodeIds(String? csv) =>
+      (csv == null || csv.isEmpty) ? const [] : csv.split(',').map(int.parse).toList();
+
+  String _encodeIds(List<int> ids) => ids.join(',');
 }
