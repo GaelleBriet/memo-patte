@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/domain/due_status.dart';
+import '../../../core/widgets/delete_confirmation_sheet.dart';
 import '../../../core/widgets/light_status_bar.dart';
 import '../../../core/widgets/straddling_hero.dart';
 import '../../../core/widgets/surface_card.dart';
@@ -12,6 +13,8 @@ import '../../animals/data/animals_list_provider.dart';
 import '../../animals/data/selected_animal_provider.dart';
 import '../../animals/presentation/animal_chip_selector.dart';
 import '../../notifications/presentation/notification_permission_banner.dart';
+import '../../treatments/data/treatment_repository_provider.dart';
+import '../../vaccinations/data/vaccination_repository_provider.dart';
 import '../data/home_reminders_provider.dart';
 import '../domain/home_reminder.dart';
 
@@ -180,13 +183,13 @@ class _HomeHero extends StatelessWidget {
   }
 }
 
-class _ReminderCard extends StatelessWidget {
+class _ReminderCard extends ConsumerWidget {
   const _ReminderCard({required this.reminder});
 
   final HomeReminder reminder;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final accent = reminder.status == DueStatus.overdue
         ? AppTheme.alertRed
         : AppTheme.sandAmber;
@@ -207,6 +210,34 @@ class _ReminderCard extends StatelessWidget {
           idParam: reminder.sourceId.toString(),
         },
       ),
+      // Appui long → suppression, même feuille de confirmation que
+      // `VaccinationCard`/`TreatmentCard` (`delete_confirmation_sheet.dart`)
+      // — ajouté le 2026-08-17 pour que le geste soit disponible partout
+      // où un rappel apparaît, pas seulement sur ses écrans dédiés.
+      onLongPress: () async {
+        final confirmed = await showDeleteConfirmationSheet(
+          context,
+          title: reminder.kind == ReminderKind.vaccination
+              ? 'Supprimer ce vaccin ?'
+              : 'Supprimer ce traitement ?',
+          message:
+              '"${reminder.detail}" sera définitivement supprimé, ainsi '
+              'que son rappel programmé.',
+        );
+        if (!confirmed) return;
+        switch (reminder.kind) {
+          case ReminderKind.vaccination:
+            await ref
+                .read(vaccinationRepositoryProvider)
+                .deleteVaccination(reminder.sourceId);
+            break;
+          case ReminderKind.treatment:
+            await ref
+                .read(treatmentRepositoryProvider)
+                .deleteTreatment(reminder.sourceId);
+            break;
+        }
+      },
       child: Row(
         children: [
           Container(
