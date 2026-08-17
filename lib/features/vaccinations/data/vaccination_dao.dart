@@ -37,4 +37,7 @@ class VaccinationDao extends DatabaseAccessor<AppDatabase>
 
   Future<bool> updateVaccination(VaccinationsCompanion entry) =>
       update(vaccinations).replace(entry);
+
+  Future<int> deleteVaccination(int id) =>
+      (delete(vaccinations)..where((v) => v.id.equals(id))).go();
 }

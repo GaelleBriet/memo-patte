@@ -310,4 +310,36 @@ void main() {
       expect(vaccinations, isEmpty);
     });
   });
+
+  group('deleteVaccination', () {
+    test('rappel programmé : annule la notification avant de supprimer '
+        'la ligne', () async {
+      final id = await repository.createVaccination(
+        animalId: animalId,
+        name: 'Rage',
+        date: DateTime(2026, 6, 1),
+        nextDueDate: tomorrow,
+      );
+
+      await repository.deleteVaccination(id);
+
+      expect(notificationService.cancelled, [
+        VaccinationRepository.notificationIdFor(id),
+      ]);
+      expect(await repository.getVaccination(id), isNull);
+    });
+
+    test('sans rappel programmé : supprime sans tenter d\'annuler', () async {
+      final id = await repository.createVaccination(
+        animalId: animalId,
+        name: 'Rage',
+        date: DateTime(2026, 6, 1),
+      );
+
+      await repository.deleteVaccination(id);
+
+      expect(notificationService.cancelled, isEmpty);
+      expect(await repository.getVaccination(id), isNull);
+    });
+  });
 }
