@@ -240,6 +240,48 @@ class _ReminderCard extends StatelessWidget {
               ],
             ),
           ),
+          // Heure de rappel (traitement à fréquence quotidienne
+          // uniquement, voir `HomeReminder.reminderTimeLabel`) — ajouté
+          // le 2026-08-17.
+          if (reminder.reminderTimeLabel != null) ...[
+            const SizedBox(width: 8),
+            _ReminderTimePill(label: reminder.reminderTimeLabel!),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Pastille "08:00" à droite d'une carte de rappel — mêmes teintes que
+/// [IconChip] (fond menthe, texte sarcelle foncé) pour rester dans le
+/// même vocabulaire visuel que le reste de l'accueil.
+class _ReminderTimePill extends StatelessWidget {
+  const _ReminderTimePill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppTheme.mintPale,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.schedule, size: 12, color: AppTheme.tealOnMint),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.tealOnMint,
+            ),
+          ),
         ],
       ),
     );
