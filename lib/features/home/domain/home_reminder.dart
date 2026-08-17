@@ -20,6 +20,7 @@ class HomeReminder {
     required this.detail,
     required this.dueDate,
     required this.status,
+    this.reminderTimeLabel,
   });
 
   final int animalId;
@@ -46,4 +47,12 @@ class HomeReminder {
   /// faire dans "À faire aujourd'hui" (filtré à la source, voir le
   /// provider).
   final DueStatus status;
+
+  /// "08:00" — `null` sauf pour un traitement à fréquence quotidienne
+  /// (`TreatmentFrequency.daily`/`severalTimesDaily`, ajoutées le
+  /// 2026-08-17), dont l'heure de rappel a un sens réel pour la
+  /// personne (contrairement aux vaccins/cycles longs, où l'heure de
+  /// [dueDate] n'est qu'un détail d'implémentation — 9h par défaut,
+  /// jamais choisi par l'utilisateur — pas à afficher).
+  final String? reminderTimeLabel;
 }
