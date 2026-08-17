@@ -12,12 +12,15 @@ import 'package:memo_patte/features/animals/data/animal_repository.dart';
 import 'package:memo_patte/features/animals/domain/animal_species.dart';
 import 'package:memo_patte/features/home/data/home_reminders_provider.dart';
 import 'package:memo_patte/features/home/domain/home_reminder.dart';
+import 'package:memo_patte/features/treatments/data/treatment_repository_provider.dart';
+import 'package:memo_patte/features/treatments/domain/treatment_frequency.dart';
 import 'package:memo_patte/features/vaccinations/data/vaccination_repository_provider.dart';
 
 /// Fake muet : `homeRemindersProvider` ne lit que les données Drift, ce
-/// service n'est ici que pour satisfaire `vaccinationRepositoryProvider`
-/// (qui en a besoin pour programmer les rappels — tickets 3.4) sans
-/// toucher aux canaux de plateforme en test.
+/// service n'est ici que pour satisfaire `vaccinationRepositoryProvider`/
+/// `treatmentRepositoryProvider` (qui en ont besoin pour programmer les
+/// rappels — tickets 3.4/4.4) sans toucher aux canaux de plateforme en
+/// test.
 class _NoopNotificationService extends NotificationService {
   @override
   Future<void> init() async {}
@@ -42,7 +45,9 @@ class _NoopNotificationService extends NotificationService {
 ///
 /// Scopé à un animal à la fois (`.family` sur l'id) depuis le
 /// 2026-08-15 — plus une agrégation multi-animaux, voir le commentaire
-/// de classe de `home_reminders_provider.dart`.
+/// de classe de `home_reminders_provider.dart`. Depuis le ticket 4.1,
+/// vaccins et traitements sont tous les deux des sources possibles
+/// (`ReminderKind`).
 void main() {
   late AppDatabase database;
   late ProviderContainer container;
@@ -108,7 +113,7 @@ void main() {
         container.listen(homeRemindersProvider(animalId), (previous, next) {}),
   );
 
-  test('animal sans vaccin : liste vide', () async {
+  test('animal sans vaccin ni traitement : liste vide', () async {
     final animalId = await createAnimal('Milo');
     expect(await readReminders(animalId), isEmpty);
   });
@@ -168,59 +173,105 @@ void main() {
     final reminder = reminders.single;
     expect(reminder.animalId, animalId);
     expect(reminder.animalName, 'Milo');
-    expect(reminder.vaccinationId, vaccinationId);
+    expect(reminder.kind, ReminderKind.vaccination);
+    expect(reminder.sourceId, vaccinationId);
     expect(reminder.title, 'Rappel de vaccin');
     expect(reminder.detail, 'Rage');
     expect(reminder.dueDate, dueDate);
   });
 
-  test('triés par échéance la plus proche, pour un même animal', () async {
+  test('traitement à jour (échéance lointaine) : absent de la liste', () async {
     final animalId = await createAnimal('Milo');
-    final repository = container.read(vaccinationRepositoryProvider);
+    await container
+        .read(treatmentRepositoryProvider)
+        .createTreatment(
+          animalId: animalId,
+          name: 'Bravecto',
+          date: DateTime.now(),
+          frequency: TreatmentFrequency.annual,
+        );
 
-    await repository.createVaccination(
-      animalId: animalId,
-      name: 'Rage',
-      date: DateTime.now(),
-      nextDueDate: DateTime.now().add(const Duration(days: 10)),
-    );
-    await repository.createVaccination(
-      animalId: animalId,
-      name: 'Typhus',
-      date: DateTime.now(),
-      // En retard : doit passer devant malgré l'ordre de création.
-      nextDueDate: DateTime.now().subtract(const Duration(days: 2)),
-    );
-
-    final reminders = await readReminders(animalId);
-    expect(reminders.map((r) => r.detail), ['Typhus', 'Rage']);
+    expect(await readReminders(animalId), isEmpty);
   });
 
-  test(
-    'scopé à l\'animal demandé : n\'inclut pas les vaccins des autres',
-    () async {
-      final milo = await createAnimal('Milo');
-      final luna = await createAnimal('Luna');
-      final repository = container.read(vaccinationRepositoryProvider);
+  test('traitement à venir/en retard : présent avec les bons champs', () async {
+    final animalId = await createAnimal('Milo');
+    final treatmentId = await container
+        .read(treatmentRepositoryProvider)
+        .createTreatment(
+          animalId: animalId,
+          name: 'Bravecto',
+          // Fréquence mensuelle avec une administration il y a 25
+          // jours : prochaine échéance dans 5 jours, "à venir".
+          date: DateTime.now().subtract(const Duration(days: 25)),
+          frequency: TreatmentFrequency.monthly,
+        );
 
-      await repository.createVaccination(
-        animalId: milo,
-        name: 'Rage',
-        date: DateTime.now(),
-        nextDueDate: DateTime.now().add(const Duration(days: 5)),
-      );
-      await repository.createVaccination(
-        animalId: luna,
-        name: 'Typhus',
-        date: DateTime.now(),
-        nextDueDate: DateTime.now().add(const Duration(days: 5)),
-      );
+    final reminders = await readReminders(animalId);
+    expect(reminders, hasLength(1));
+    final reminder = reminders.single;
+    expect(reminder.animalId, animalId);
+    expect(reminder.animalName, 'Milo');
+    expect(reminder.kind, ReminderKind.treatment);
+    expect(reminder.sourceId, treatmentId);
+    expect(reminder.title, 'Rappel de traitement');
+    expect(reminder.detail, 'Bravecto');
+  });
 
-      final miloReminders = await readReminders(milo);
-      expect(miloReminders.map((r) => r.detail), ['Rage']);
+  test('vaccins et traitements fusionnés, triés par échéance la plus '
+      'proche', () async {
+    final animalId = await createAnimal('Milo');
 
-      final lunaReminders = await readReminders(luna);
-      expect(lunaReminders.map((r) => r.detail), ['Typhus']);
-    },
-  );
+    await container
+        .read(vaccinationRepositoryProvider)
+        .createVaccination(
+          animalId: animalId,
+          name: 'Rage',
+          date: DateTime.now(),
+          nextDueDate: DateTime.now().add(const Duration(days: 10)),
+        );
+    await container
+        .read(treatmentRepositoryProvider)
+        .createTreatment(
+          animalId: animalId,
+          name: 'Vermifuge',
+          // En retard : doit passer devant malgré l'ordre de création.
+          date: DateTime.now().subtract(const Duration(days: 40)),
+          frequency: TreatmentFrequency.monthly,
+        );
+
+    final reminders = await readReminders(animalId);
+    expect(reminders.map((r) => r.detail), ['Vermifuge', 'Rage']);
+    expect(reminders.map((r) => r.kind), [
+      ReminderKind.treatment,
+      ReminderKind.vaccination,
+    ]);
+  });
+
+  test('scopé à l\'animal demandé : n\'inclut pas les vaccins/traitements '
+      'des autres', () async {
+    final milo = await createAnimal('Milo');
+    final luna = await createAnimal('Luna');
+    final vaccinationRepository = container.read(vaccinationRepositoryProvider);
+    final treatmentRepository = container.read(treatmentRepositoryProvider);
+
+    await vaccinationRepository.createVaccination(
+      animalId: milo,
+      name: 'Rage',
+      date: DateTime.now(),
+      nextDueDate: DateTime.now().add(const Duration(days: 5)),
+    );
+    await treatmentRepository.createTreatment(
+      animalId: luna,
+      name: 'Bravecto',
+      date: DateTime.now().subtract(const Duration(days: 25)),
+      frequency: TreatmentFrequency.monthly,
+    );
+
+    final miloReminders = await readReminders(milo);
+    expect(miloReminders.map((r) => r.detail), ['Rage']);
+
+    final lunaReminders = await readReminders(luna);
+    expect(lunaReminders.map((r) => r.detail), ['Bravecto']);
+  });
 }
