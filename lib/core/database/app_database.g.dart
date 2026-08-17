@@ -1101,6 +1101,28 @@ class $TreatmentsTable extends Treatments
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _reminderTimesMeta = const VerificationMeta(
+    'reminderTimes',
+  );
+  @override
+  late final GeneratedColumn<String> reminderTimes = GeneratedColumn<String>(
+    'reminder_times',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reminderNotificationIdsMeta =
+      const VerificationMeta('reminderNotificationIds');
+  @override
+  late final GeneratedColumn<String> reminderNotificationIds =
+      GeneratedColumn<String>(
+        'reminder_notification_ids',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1122,6 +1144,8 @@ class $TreatmentsTable extends Treatments
     frequency,
     nextDueDate,
     notificationId,
+    reminderTimes,
+    reminderNotificationIds,
     createdAt,
   ];
   @override
@@ -1183,6 +1207,24 @@ class $TreatmentsTable extends Treatments
         ),
       );
     }
+    if (data.containsKey('reminder_times')) {
+      context.handle(
+        _reminderTimesMeta,
+        reminderTimes.isAcceptableOrUnknown(
+          data['reminder_times']!,
+          _reminderTimesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('reminder_notification_ids')) {
+      context.handle(
+        _reminderNotificationIdsMeta,
+        reminderNotificationIds.isAcceptableOrUnknown(
+          data['reminder_notification_ids']!,
+          _reminderNotificationIdsMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -1228,6 +1270,14 @@ class $TreatmentsTable extends Treatments
         DriftSqlType.int,
         data['${effectivePrefix}notification_id'],
       ),
+      reminderTimes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_times'],
+      ),
+      reminderNotificationIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_notification_ids'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1272,7 +1322,27 @@ class Treatment extends DataClass implements Insertable<Treatment> {
   /// [nextDueDate], `null` si aucune ne l'est (échéance déjà passée au
   /// moment de la programmation). Géré exclusivement par
   /// `TreatmentRepository`, jamais par les écrans.
+  ///
+  /// Utilisé seulement pour les cycles longs (`frequency.usesReminderTimes
+  /// == false`) — les fréquences à heure(s) fixe(s) utilisent
+  /// [reminderNotificationIds] à la place (une notification par heure,
+  /// pas une seule).
   final int? notificationId;
+
+  /// Heure(s) de rappel en minutes depuis minuit, CSV (ex. `"480,1200"`
+  /// pour 08:00 et 20:00) — ajouté le 2026-08-17 pour
+  /// [TreatmentFrequency.daily]/[TreatmentFrequency.severalTimesDaily].
+  /// `null`/vide pour les cycles longs, qui n'en ont pas besoin. Voir
+  /// `domain/reminder_times.dart` pour l'encodage/décodage.
+  final String? reminderTimes;
+
+  /// Identifiants des notifications locales récurrentes programmées pour
+  /// [reminderTimes] (une par heure), CSV — `null`/vide si la fréquence
+  /// n'utilise pas d'heure(s) fixe(s), ou si aucune n'a encore été
+  /// programmée. Équivalent "liste" de [notificationId] : deux colonnes
+  /// plutôt qu'une pour ne pas ambiguïser "une notification unique" vs
+  /// "une liste", chacune des deux mécaniques restant simple à lire.
+  final String? reminderNotificationIds;
   final DateTime createdAt;
   const Treatment({
     required this.id,
@@ -1282,6 +1352,8 @@ class Treatment extends DataClass implements Insertable<Treatment> {
     required this.frequency,
     required this.nextDueDate,
     this.notificationId,
+    this.reminderTimes,
+    this.reminderNotificationIds,
     required this.createdAt,
   });
   @override
@@ -1300,6 +1372,14 @@ class Treatment extends DataClass implements Insertable<Treatment> {
     if (!nullToAbsent || notificationId != null) {
       map['notification_id'] = Variable<int>(notificationId);
     }
+    if (!nullToAbsent || reminderTimes != null) {
+      map['reminder_times'] = Variable<String>(reminderTimes);
+    }
+    if (!nullToAbsent || reminderNotificationIds != null) {
+      map['reminder_notification_ids'] = Variable<String>(
+        reminderNotificationIds,
+      );
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -1315,6 +1395,12 @@ class Treatment extends DataClass implements Insertable<Treatment> {
       notificationId: notificationId == null && nullToAbsent
           ? const Value.absent()
           : Value(notificationId),
+      reminderTimes: reminderTimes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderTimes),
+      reminderNotificationIds: reminderNotificationIds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reminderNotificationIds),
       createdAt: Value(createdAt),
     );
   }
@@ -1334,6 +1420,10 @@ class Treatment extends DataClass implements Insertable<Treatment> {
       ),
       nextDueDate: serializer.fromJson<DateTime>(json['nextDueDate']),
       notificationId: serializer.fromJson<int?>(json['notificationId']),
+      reminderTimes: serializer.fromJson<String?>(json['reminderTimes']),
+      reminderNotificationIds: serializer.fromJson<String?>(
+        json['reminderNotificationIds'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -1350,6 +1440,10 @@ class Treatment extends DataClass implements Insertable<Treatment> {
       ),
       'nextDueDate': serializer.toJson<DateTime>(nextDueDate),
       'notificationId': serializer.toJson<int?>(notificationId),
+      'reminderTimes': serializer.toJson<String?>(reminderTimes),
+      'reminderNotificationIds': serializer.toJson<String?>(
+        reminderNotificationIds,
+      ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -1362,6 +1456,8 @@ class Treatment extends DataClass implements Insertable<Treatment> {
     TreatmentFrequency? frequency,
     DateTime? nextDueDate,
     Value<int?> notificationId = const Value.absent(),
+    Value<String?> reminderTimes = const Value.absent(),
+    Value<String?> reminderNotificationIds = const Value.absent(),
     DateTime? createdAt,
   }) => Treatment(
     id: id ?? this.id,
@@ -1373,6 +1469,12 @@ class Treatment extends DataClass implements Insertable<Treatment> {
     notificationId: notificationId.present
         ? notificationId.value
         : this.notificationId,
+    reminderTimes: reminderTimes.present
+        ? reminderTimes.value
+        : this.reminderTimes,
+    reminderNotificationIds: reminderNotificationIds.present
+        ? reminderNotificationIds.value
+        : this.reminderNotificationIds,
     createdAt: createdAt ?? this.createdAt,
   );
   Treatment copyWithCompanion(TreatmentsCompanion data) {
@@ -1388,6 +1490,12 @@ class Treatment extends DataClass implements Insertable<Treatment> {
       notificationId: data.notificationId.present
           ? data.notificationId.value
           : this.notificationId,
+      reminderTimes: data.reminderTimes.present
+          ? data.reminderTimes.value
+          : this.reminderTimes,
+      reminderNotificationIds: data.reminderNotificationIds.present
+          ? data.reminderNotificationIds.value
+          : this.reminderNotificationIds,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -1402,6 +1510,8 @@ class Treatment extends DataClass implements Insertable<Treatment> {
           ..write('frequency: $frequency, ')
           ..write('nextDueDate: $nextDueDate, ')
           ..write('notificationId: $notificationId, ')
+          ..write('reminderTimes: $reminderTimes, ')
+          ..write('reminderNotificationIds: $reminderNotificationIds, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -1416,6 +1526,8 @@ class Treatment extends DataClass implements Insertable<Treatment> {
     frequency,
     nextDueDate,
     notificationId,
+    reminderTimes,
+    reminderNotificationIds,
     createdAt,
   );
   @override
@@ -1429,6 +1541,8 @@ class Treatment extends DataClass implements Insertable<Treatment> {
           other.frequency == this.frequency &&
           other.nextDueDate == this.nextDueDate &&
           other.notificationId == this.notificationId &&
+          other.reminderTimes == this.reminderTimes &&
+          other.reminderNotificationIds == this.reminderNotificationIds &&
           other.createdAt == this.createdAt);
 }
 
@@ -1440,6 +1554,8 @@ class TreatmentsCompanion extends UpdateCompanion<Treatment> {
   final Value<TreatmentFrequency> frequency;
   final Value<DateTime> nextDueDate;
   final Value<int?> notificationId;
+  final Value<String?> reminderTimes;
+  final Value<String?> reminderNotificationIds;
   final Value<DateTime> createdAt;
   const TreatmentsCompanion({
     this.id = const Value.absent(),
@@ -1449,6 +1565,8 @@ class TreatmentsCompanion extends UpdateCompanion<Treatment> {
     this.frequency = const Value.absent(),
     this.nextDueDate = const Value.absent(),
     this.notificationId = const Value.absent(),
+    this.reminderTimes = const Value.absent(),
+    this.reminderNotificationIds = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   TreatmentsCompanion.insert({
@@ -1459,6 +1577,8 @@ class TreatmentsCompanion extends UpdateCompanion<Treatment> {
     required TreatmentFrequency frequency,
     required DateTime nextDueDate,
     this.notificationId = const Value.absent(),
+    this.reminderTimes = const Value.absent(),
+    this.reminderNotificationIds = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : animalId = Value(animalId),
        name = Value(name),
@@ -1473,6 +1593,8 @@ class TreatmentsCompanion extends UpdateCompanion<Treatment> {
     Expression<int>? frequency,
     Expression<DateTime>? nextDueDate,
     Expression<int>? notificationId,
+    Expression<String>? reminderTimes,
+    Expression<String>? reminderNotificationIds,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -1483,6 +1605,9 @@ class TreatmentsCompanion extends UpdateCompanion<Treatment> {
       if (frequency != null) 'frequency': frequency,
       if (nextDueDate != null) 'next_due_date': nextDueDate,
       if (notificationId != null) 'notification_id': notificationId,
+      if (reminderTimes != null) 'reminder_times': reminderTimes,
+      if (reminderNotificationIds != null)
+        'reminder_notification_ids': reminderNotificationIds,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -1495,6 +1620,8 @@ class TreatmentsCompanion extends UpdateCompanion<Treatment> {
     Value<TreatmentFrequency>? frequency,
     Value<DateTime>? nextDueDate,
     Value<int?>? notificationId,
+    Value<String?>? reminderTimes,
+    Value<String?>? reminderNotificationIds,
     Value<DateTime>? createdAt,
   }) {
     return TreatmentsCompanion(
@@ -1505,6 +1632,9 @@ class TreatmentsCompanion extends UpdateCompanion<Treatment> {
       frequency: frequency ?? this.frequency,
       nextDueDate: nextDueDate ?? this.nextDueDate,
       notificationId: notificationId ?? this.notificationId,
+      reminderTimes: reminderTimes ?? this.reminderTimes,
+      reminderNotificationIds:
+          reminderNotificationIds ?? this.reminderNotificationIds,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -1535,6 +1665,14 @@ class TreatmentsCompanion extends UpdateCompanion<Treatment> {
     if (notificationId.present) {
       map['notification_id'] = Variable<int>(notificationId.value);
     }
+    if (reminderTimes.present) {
+      map['reminder_times'] = Variable<String>(reminderTimes.value);
+    }
+    if (reminderNotificationIds.present) {
+      map['reminder_notification_ids'] = Variable<String>(
+        reminderNotificationIds.value,
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1551,6 +1689,8 @@ class TreatmentsCompanion extends UpdateCompanion<Treatment> {
           ..write('frequency: $frequency, ')
           ..write('nextDueDate: $nextDueDate, ')
           ..write('notificationId: $notificationId, ')
+          ..write('reminderTimes: $reminderTimes, ')
+          ..write('reminderNotificationIds: $reminderNotificationIds, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -2398,6 +2538,8 @@ typedef $$TreatmentsTableCreateCompanionBuilder = TreatmentsCompanion Function({
   required TreatmentFrequency frequency,
   required DateTime nextDueDate,
   Value<int?> notificationId,
+  Value<String?> reminderTimes,
+  Value<String?> reminderNotificationIds,
   Value<DateTime> createdAt,
 });
 typedef $$TreatmentsTableUpdateCompanionBuilder = TreatmentsCompanion Function({
@@ -2408,6 +2550,8 @@ typedef $$TreatmentsTableUpdateCompanionBuilder = TreatmentsCompanion Function({
   Value<TreatmentFrequency> frequency,
   Value<DateTime> nextDueDate,
   Value<int?> notificationId,
+  Value<String?> reminderTimes,
+  Value<String?> reminderNotificationIds,
   Value<DateTime> createdAt,
 });
 
@@ -2470,6 +2614,16 @@ class $$TreatmentsTableFilterComposer
 
   ColumnFilters<int> get notificationId => $composableBuilder(
     column: $table.notificationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reminderTimes => $composableBuilder(
+    column: $table.reminderTimes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reminderNotificationIds => $composableBuilder(
+    column: $table.reminderNotificationIds,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2541,6 +2695,16 @@ class $$TreatmentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get reminderTimes => $composableBuilder(
+    column: $table.reminderTimes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reminderNotificationIds => $composableBuilder(
+    column: $table.reminderNotificationIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -2598,6 +2762,16 @@ class $$TreatmentsTableAnnotationComposer
 
   GeneratedColumn<int> get notificationId => $composableBuilder(
     column: $table.notificationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reminderTimes => $composableBuilder(
+    column: $table.reminderTimes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reminderNotificationIds => $composableBuilder(
+    column: $table.reminderNotificationIds,
     builder: (column) => column,
   );
 
@@ -2663,6 +2837,8 @@ class $$TreatmentsTableTableManager
                 Value<TreatmentFrequency> frequency = const Value.absent(),
                 Value<DateTime> nextDueDate = const Value.absent(),
                 Value<int?> notificationId = const Value.absent(),
+                Value<String?> reminderTimes = const Value.absent(),
+                Value<String?> reminderNotificationIds = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => TreatmentsCompanion(
                 id: id,
@@ -2672,6 +2848,8 @@ class $$TreatmentsTableTableManager
                 frequency: frequency,
                 nextDueDate: nextDueDate,
                 notificationId: notificationId,
+                reminderTimes: reminderTimes,
+                reminderNotificationIds: reminderNotificationIds,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -2683,6 +2861,8 @@ class $$TreatmentsTableTableManager
                 required TreatmentFrequency frequency,
                 required DateTime nextDueDate,
                 Value<int?> notificationId = const Value.absent(),
+                Value<String?> reminderTimes = const Value.absent(),
+                Value<String?> reminderNotificationIds = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => TreatmentsCompanion.insert(
                 id: id,
@@ -2692,6 +2872,8 @@ class $$TreatmentsTableTableManager
                 frequency: frequency,
                 nextDueDate: nextDueDate,
                 notificationId: notificationId,
+                reminderTimes: reminderTimes,
+                reminderNotificationIds: reminderNotificationIds,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0

@@ -25,22 +25,28 @@ class AppDatabase extends _$AppDatabase {
   /// fichier de [AppDatabase.new], pour des tests rapides et isolés.
   AppDatabase.forTesting(super.executor);
 
-  /// v3 : ajout de la table [Treatments] (ticket 4.1).
+  /// v4 : ajout de `Treatments.reminderTimes`/`reminderNotificationIds`
+  /// (fréquences quotidiennes à heure(s) fixe(s), 2026-08-17).
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     // Migrations écrites à la main tant qu'elles restent triviales
-    // (création de table). Si une migration doit un jour *modifier* une
-    // table existante, passer sur l'outillage `drift_dev schema` (exports
-    // de schéma versionnés + tests de migration), plus lourd mais sûr.
+    // (création de table / ajout de colonne). Si une migration doit un
+    // jour faire quelque chose de plus lourd, passer sur l'outillage
+    // `drift_dev schema` (exports de schéma versionnés + tests de
+    // migration), plus lourd mais sûr.
     onUpgrade: (m, from, to) async {
       if (from < 2) {
         await m.createTable(vaccinations);
       }
       if (from < 3) {
         await m.createTable(treatments);
+      }
+      if (from < 4) {
+        await m.addColumn(treatments, treatments.reminderTimes);
+        await m.addColumn(treatments, treatments.reminderNotificationIds);
       }
     },
     // Sqlite n'applique PAS les clés étrangères par défaut : sans ce
