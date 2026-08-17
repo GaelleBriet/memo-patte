@@ -371,6 +371,38 @@ void main() {
       // Toujours en retard : la reconciliation n'a porté que sur Milo.
       expect(lunaTreatment!.nextDueDate.isBefore(DateTime.now()), isTrue);
     });
+
+    test('fréquence à heure(s) fixe(s) : avance nextDueDate sans rien '
+        'reprogrammer (le rappel natif se répète déjà tout seul côté OS)',
+        () async {
+      final id = await repository.createTreatment(
+        animalId: animalId,
+        name: 'Antibiotique',
+        date: DateTime.now(),
+        frequency: TreatmentFrequency.daily,
+        reminderTimes: const [8 * 60],
+      );
+      notificationService.scheduled.clear();
+
+      // Simule une échéance devenue obsolète (app pas rouverte depuis un
+      // moment) : impossible à obtenir via `createTreatment`, qui calcule
+      // toujours une échéance future — écriture directe en base, comme
+      // le ferait le temps qui passe.
+      final stale = (await repository.getTreatment(id))!.copyWith(
+        nextDueDate: DateTime.now().subtract(const Duration(days: 2)),
+      );
+      await TreatmentDao(database).updateTreatment(stale.toCompanion(false));
+
+      await repository.reconcileOverdueTreatments(animalId);
+
+      final after = await repository.getTreatment(id);
+      expect(after!.nextDueDate.isAfter(DateTime.now()), isTrue);
+      // Rien programmé ni annulé : le rappel récurrent natif programmé à
+      // la création continue de se déclencher chaque jour à 08:00 sans
+      // intervention de l'app, voir `TreatmentRepository._scheduleReminderTimes`.
+      expect(notificationService.scheduled, isEmpty);
+      expect(notificationService.cancelled, isEmpty);
+    });
   });
 
   group('watchForAnimal', () {
@@ -467,6 +499,26 @@ void main() {
       await repository.deleteTreatment(id);
 
       expect(notificationService.cancelled, isEmpty);
+      expect(await repository.getTreatment(id), isNull);
+    });
+
+    test('fréquence à heure(s) fixe(s) : annule tous les rappels '
+        'récurrents (un par heure)', () async {
+      final id = await repository.createTreatment(
+        animalId: animalId,
+        name: 'Antibiotique',
+        date: DateTime.now(),
+        frequency: TreatmentFrequency.severalTimesDaily,
+        reminderTimes: const [8 * 60, 14 * 60, 20 * 60],
+      );
+
+      await repository.deleteTreatment(id);
+
+      expect(notificationService.cancelled, [
+        TreatmentRepository.notificationIdForSlot(id, 0),
+        TreatmentRepository.notificationIdForSlot(id, 1),
+        TreatmentRepository.notificationIdForSlot(id, 2),
+      ]);
       expect(await repository.getTreatment(id), isNull);
     });
   });

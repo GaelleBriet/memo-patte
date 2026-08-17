@@ -200,4 +200,61 @@ void main() {
       expect(saved, isTrue);
     },
   );
+
+  group('fréquence quotidienne (ticket "heure(s) de rappel", 2026-08-17)', () {
+    testWidgets(
+      'fréquence "1×/jour" sélectionnée : affiche la section heure de '
+      'rappel',
+      (tester) async {
+        await pumpForm(tester);
+
+        await tester.tap(find.text('1×/jour'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Heure de rappel *'), findsOneWidget);
+        expect(find.text('Choisir une heure'), findsOneWidget);
+        // Pas la section "cycle long" en même temps.
+        expect(find.textContaining('Prochaine échéance :'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'fréquence "1×/jour" sans heure choisie : bloque la soumission avec '
+      'un message, ne crée rien',
+      (tester) async {
+        await pumpForm(tester);
+        await tester.enterText(find.byType(TextFormField).first, 'Antibiotique');
+        await tester.tap(find.text('1×/jour'));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.text('Ajouter le traitement'));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text('Choisis au moins une heure de rappel.'),
+          findsOneWidget,
+        );
+        final saved = await TreatmentDao(database).hasAny();
+        expect(saved, isFalse);
+      },
+    );
+
+    testWidgets(
+      'fréquence "Plusieurs/jour" sélectionnée : affiche le bouton '
+      '"Ajouter une heure", pas de sélecteur à heure unique',
+      (tester) async {
+        await pumpForm(tester);
+
+        await tester.tap(find.text('Plusieurs/jour'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Heures de rappel *'), findsOneWidget);
+        expect(
+          find.widgetWithText(OutlinedButton, 'Ajouter une heure'),
+          findsOneWidget,
+        );
+        expect(find.text('Choisir une heure'), findsNothing);
+      },
+    );
+  });
 }

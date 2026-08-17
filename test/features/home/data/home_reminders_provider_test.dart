@@ -179,6 +179,9 @@ void main() {
     expect(reminder.title, 'Rappel de vaccin');
     expect(reminder.detail, 'Rage');
     expect(reminder.dueDate, dueDate);
+    // Les vaccins n'ont pas d'heure de rappel configurable — voir
+    // `HomeReminder.reminderTimeLabel`.
+    expect(reminder.reminderTimeLabel, isNull);
   });
 
   test('traitement à jour (échéance lointaine) : absent de la liste', () async {
@@ -217,6 +220,32 @@ void main() {
     expect(reminder.sourceId, treatmentId);
     expect(reminder.title, 'Rappel de traitement');
     expect(reminder.detail, 'Bravecto');
+    // Cycle long : pas d'heure de rappel à afficher (9h par défaut,
+    // jamais choisie par l'utilisateur — voir `HomeReminder.reminderTimeLabel`).
+    expect(reminder.reminderTimeLabel, isNull);
+  });
+
+  test('traitement à fréquence quotidienne : l\'heure de rappel est '
+      'exposée pour l\'accueil', () async {
+    final animalId = await createAnimal('Milo');
+    final treatmentId = await container
+        .read(treatmentRepositoryProvider)
+        .createTreatment(
+          animalId: animalId,
+          name: 'Antibiotique',
+          date: DateTime.now(),
+          frequency: TreatmentFrequency.daily,
+          reminderTimes: [
+            DateTime.now().add(const Duration(hours: 1)).hour * 60,
+          ],
+        );
+
+    final reminders = await readReminders(animalId);
+    expect(reminders, hasLength(1));
+    final reminder = reminders.single;
+    expect(reminder.sourceId, treatmentId);
+    expect(reminder.reminderTimeLabel, isNotNull);
+    expect(reminder.reminderTimeLabel, matches(RegExp(r'^\d{2}:\d{2}$')));
   });
 
   test('vaccins et traitements fusionnés, triés par échéance la plus '
