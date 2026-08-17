@@ -1,6 +1,6 @@
 import 'package:drift/native.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show AndroidScheduleMode;
+    show AndroidScheduleMode, DateTimeComponents;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memo_patte/core/database/app_database.dart';
@@ -34,6 +34,7 @@ class _NoopNotificationService extends NotificationService {
     String? payload,
     AndroidScheduleMode androidScheduleMode =
         AndroidScheduleMode.inexactAllowWhileIdle,
+    DateTimeComponents? matchDateTimeComponents,
   }) async {}
 
   @override

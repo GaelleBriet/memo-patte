@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/domain/due_status.dart';
 import '../../animals/data/animal_provider.dart';
 import '../../treatments/data/treatments_list_provider.dart';
+import '../../treatments/domain/reminder_times.dart';
 import '../../vaccinations/data/vaccinations_list_provider.dart';
 import '../domain/home_reminder.dart';
 
@@ -85,6 +86,12 @@ final homeRemindersProvider =
             detail: treatment.name,
             dueDate: treatment.nextDueDate,
             status: status,
+            reminderTimeLabel: treatment.frequency.usesReminderTimes
+                ? formatMinuteOfDay(
+                    treatment.nextDueDate.hour * 60 +
+                        treatment.nextDueDate.minute,
+                  )
+                : null,
           ),
         );
       }
