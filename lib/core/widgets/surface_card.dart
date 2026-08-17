@@ -13,6 +13,7 @@ class SurfaceCard extends StatelessWidget {
     required this.child,
     this.padding = const EdgeInsets.all(14),
     this.onTap,
+    this.onLongPress,
   });
 
   final Widget child;
@@ -20,6 +21,12 @@ class SurfaceCard extends StatelessWidget {
 
   /// Si présent, la carte entière devient tapable (avec ripple).
   final VoidCallback? onTap;
+
+  /// Si présent, un appui long déclenche cette action (ex. suppression,
+  /// voir `delete_confirmation_sheet.dart`) — géré par le même `InkWell`
+  /// que [onTap], pas un `GestureDetector` séparé, pour rester dans
+  /// l'arène de gestes standard de Material (retour visuel cohérent).
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +43,7 @@ class SurfaceCard extends StatelessWidget {
         type: MaterialType.transparency,
         child: InkWell(
           onTap: onTap,
+          onLongPress: onLongPress,
           borderRadius: radius,
           child: Padding(padding: padding, child: child),
         ),
