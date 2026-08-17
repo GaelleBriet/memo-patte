@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show AndroidScheduleMode, DateTimeComponents;
@@ -9,6 +10,7 @@ import 'package:memo_patte/features/animals/data/animal_repository.dart';
 import 'package:memo_patte/features/animals/domain/animal_species.dart';
 import 'package:memo_patte/features/treatments/data/treatment_dao.dart';
 import 'package:memo_patte/features/treatments/data/treatment_repository.dart';
+import 'package:memo_patte/features/treatments/domain/reminder_times.dart';
 import 'package:memo_patte/features/treatments/domain/treatment_frequency.dart';
 import 'package:memo_patte/features/vaccinations/data/vaccination_repository.dart';
 
@@ -131,13 +133,77 @@ void main() {
     });
 
     test('l\'identifiant de notification ne collisionne pas avec un vaccin '
-        'de même id de ligne', () {
+        'de même id de ligne, ni entre cycle long et heure(s) fixe(s)', () {
       for (var id = 1; id <= 20; id++) {
-        expect(
-          TreatmentRepository.notificationIdFor(id),
-          isNot(VaccinationRepository.notificationIdFor(id)),
-        );
+        final vaccinationId = VaccinationRepository.notificationIdFor(id);
+        final cycleId = TreatmentRepository.notificationIdFor(id);
+        expect(cycleId, isNot(vaccinationId));
+
+        for (var slot = 0; slot < 10; slot++) {
+          final slotId = TreatmentRepository.notificationIdForSlot(id, slot);
+          expect(slotId, isNot(vaccinationId));
+          expect(slotId, isNot(cycleId));
+        }
       }
+    });
+  });
+
+  group('createTreatment — fréquence quotidienne (une heure)', () {
+    test('calcule la prochaine échéance à partir de l\'heure choisie et '
+        'programme un rappel récurrent natif', () async {
+      final now = DateTime.now();
+      final upcoming = now.add(const Duration(hours: 2));
+      final id = await repository.createTreatment(
+        animalId: animalId,
+        name: 'Antibiotique',
+        date: now,
+        frequency: TreatmentFrequency.daily,
+        reminderTimes: [upcoming.hour * 60 + upcoming.minute],
+      );
+
+      final treatment = await repository.getTreatment(id);
+      expect(treatment, isNotNull);
+      expect(treatment!.frequency, TreatmentFrequency.daily);
+      expect(treatment.nextDueDate.hour, upcoming.hour);
+      expect(treatment.nextDueDate.minute, upcoming.minute);
+      // Pas de rappel "cycle long" pour cette famille de fréquence — voir
+      // `treatment_table.dart`.
+      expect(treatment.notificationId, isNull);
+
+      expect(notificationService.scheduled, hasLength(1));
+      final call = notificationService.scheduled.single;
+      expect(call.id, TreatmentRepository.notificationIdForSlot(id, 0));
+      expect(call.matchDateTimeComponents, DateTimeComponents.time);
+      expect(treatment.reminderNotificationIds, '${call.id}');
+    });
+  });
+
+  group('createTreatment — fréquence quotidienne (plusieurs heures)', () {
+    test('programme un rappel récurrent natif par heure choisie', () async {
+      final id = await repository.createTreatment(
+        animalId: animalId,
+        name: 'Antibiotique',
+        date: DateTime.now(),
+        frequency: TreatmentFrequency.severalTimesDaily,
+        reminderTimes: const [8 * 60, 20 * 60],
+      );
+
+      expect(notificationService.scheduled, hasLength(2));
+      expect(
+        notificationService.scheduled.map((c) => c.matchDateTimeComponents),
+        everyElement(DateTimeComponents.time),
+      );
+      expect(notificationService.scheduled.map((c) => c.id), [
+        TreatmentRepository.notificationIdForSlot(id, 0),
+        TreatmentRepository.notificationIdForSlot(id, 1),
+      ]);
+
+      final treatment = await repository.getTreatment(id);
+      expect(
+        treatment!.reminderNotificationIds,
+        '${TreatmentRepository.notificationIdForSlot(id, 0)},'
+        '${TreatmentRepository.notificationIdForSlot(id, 1)}',
+      );
     });
   });
 
@@ -166,6 +232,40 @@ void main() {
       expect(
         result!.nextDueDate,
         TreatmentFrequency.quarterly.nextOccurrenceAfter(now),
+      );
+    });
+
+    test('fréquence à heure(s) fixe(s) : annule les anciens rappels '
+        'récurrents et en programme de nouveaux pour les nouvelles heures',
+        () async {
+      final id = await repository.createTreatment(
+        animalId: animalId,
+        name: 'Antibiotique',
+        date: DateTime.now(),
+        frequency: TreatmentFrequency.daily,
+        reminderTimes: const [8 * 60],
+      );
+      final original = (await repository.getTreatment(id))!;
+      final firstSlotId = TreatmentRepository.notificationIdForSlot(id, 0);
+      expect(original.reminderNotificationIds, '$firstSlotId');
+
+      await repository.updateTreatment(
+        original.copyWith(
+          frequency: TreatmentFrequency.severalTimesDaily,
+          reminderTimes: Value(encodeReminderTimes(const [8 * 60, 20 * 60])),
+          nextDueDate: nextReminderDateTime(
+            const [8 * 60, 20 * 60],
+            DateTime.now(),
+          ),
+        ),
+      );
+
+      expect(notificationService.cancelled, [firstSlotId]);
+      final result = await repository.getTreatment(id);
+      expect(
+        result!.reminderNotificationIds,
+        '${TreatmentRepository.notificationIdForSlot(id, 0)},'
+        '${TreatmentRepository.notificationIdForSlot(id, 1)}',
       );
     });
   });
