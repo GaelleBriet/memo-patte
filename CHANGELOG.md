@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.6.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.5.0...memo_patte-v1.6.0) (2026-08-17)
+
+
+### ✨ Fonctionnalités
+
+* add deleteVaccination method and tests to handle vaccination deletion with notification cancellation ([c40fa8a](https://github.com/GaelleBriet/memo-patte/commit/c40fa8a88778bca90fc49c3ca856f01b06fd309c))
+* add isFirstReminderSource function to determine initial vaccination or treatment status ([a27582e](https://github.com/GaelleBriet/memo-patte/commit/a27582e99caf7e370b2f68ea27015f6125b3e400))
+* add long press delete functionality and confirmation for vaccination cards ([458d3e2](https://github.com/GaelleBriet/memo-patte/commit/458d3e228d83d115177074e6bc69c320f1e8997f))
+* add long press delete functionality for reminders in home screen ([8644495](https://github.com/GaelleBriet/memo-patte/commit/864449500d285e95fe20a4b81ea7d7747383c664))
+* add long press functionality and delete confirmation sheet for treatments ([dfaf06c](https://github.com/GaelleBriet/memo-patte/commit/dfaf06c67ebd315e327c2c1edbc87da6e2092229))
+* add matchDateTimeComponents parameter for scheduling recurring notifications ([7329072](https://github.com/GaelleBriet/memo-patte/commit/73290727722b4171e957c923fb1373a147e885c1))
+* add reminder times handling for daily treatments ([e970f62](https://github.com/GaelleBriet/memo-patte/commit/e970f625f33c12d14ecc0faad07c846db378fd28))
+* add reminderTimeLabel to home reminder model for daily treatments ([d95fd93](https://github.com/GaelleBriet/memo-patte/commit/d95fd937705e644ed028d731407a6d1fbbef93c1))
+* add reminderTimeLabel to home reminders for treatments ([dec543d](https://github.com/GaelleBriet/memo-patte/commit/dec543ddf4a70664a05c4db47292331f40a27797))
+* add reminderTimePill widget to display reminder time label in home screen ([68ae8c2](https://github.com/GaelleBriet/memo-patte/commit/68ae8c2410395e1701f8a9b5b48049864ab6c532))
+* add reminderTimes and reminderNotificationIds to Treatments table ([42bc9f7](https://github.com/GaelleBriet/memo-patte/commit/42bc9f70b34dffaa2d94c2499ebbc81ead1dc899))
+* add tests for daily treatment reminder time handling and validation ([48f5b17](https://github.com/GaelleBriet/memo-patte/commit/48f5b1700471a33194afe97efaa4e7ef455f3ce6))
+* add tests for reminder times handling and treatment scheduling ([742900d](https://github.com/GaelleBriet/memo-patte/commit/742900df0f8c767c77c7c08fac1f5556f480bb64))
+* add TreatmentCard and TreatmentFormScreen for managing treatments ([e9c679a](https://github.com/GaelleBriet/memo-patte/commit/e9c679ad1a0e6b60884fc4f35822e9aaa5220d73))
+* add TreatmentFrequency enum and tests for treatment scheduling ([71b1c6d](https://github.com/GaelleBriet/memo-patte/commit/71b1c6d4c97aa5c3ee06ccaeb72623444663d045))
+* add Treatments table and routing for treatment management ([0823d85](https://github.com/GaelleBriet/memo-patte/commit/0823d85bdf97e888f0df9438d243aa6191863e99))
+* extend TreatmentFrequency to include daily and severalTimesDaily options ([d02dd81](https://github.com/GaelleBriet/memo-patte/commit/d02dd819440685b997f7df0b3f29b929755b8ea9))
+* implement reminder times handling for daily treatments ([4807b6b](https://github.com/GaelleBriet/memo-patte/commit/4807b6bc09b8b4aa7cc5d4e37efc43976a8ddcd0))
+* implement TreatmentDao and TreatmentRepository for managing animal treatments ([d58b5eb](https://github.com/GaelleBriet/memo-patte/commit/d58b5eb442f8ce23fadb0e0b222e614a64b25fbb))
+* improve formatting and readability in reminder times and treatment frequency handling ([b825e41](https://github.com/GaelleBriet/memo-patte/commit/b825e41d1cdb511ba54492a9d6eb6f39f8c2cae8))
+* integrate treatment reminders into animal profile screen and home reminders ([d119f5b](https://github.com/GaelleBriet/memo-patte/commit/d119f5b486d8183be92d26f02a57ab9d8df1a2f6))
+* merge vaccination and treatment reminders in home reminders provider ([67ebdb7](https://github.com/GaelleBriet/memo-patte/commit/67ebdb7b50561a8cdd81b75ff8679951cffec906))
+* refactor HomeScreen to use DueStatus and enhance quick action cards for treatments and vaccinations ([94be681](https://github.com/GaelleBriet/memo-patte/commit/94be681d81a36996bf32288f40c109777c8b4b09))
+* refactor VaccinationStatus to alias DueStatus for consistency ([61d21a1](https://github.com/GaelleBriet/memo-patte/commit/61d21a11c38551738852b01ee8b7e7c6470ad221))
+* update nextDueDate calculation and add matchDateTimeComponents parameter ([ebbdd53](https://github.com/GaelleBriet/memo-patte/commit/ebbdd5376330132cad2e28c2a251411fae8c5360))
+
 ## [1.5.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.4.0...memo_patte-v1.5.0) (2026-08-15)
 
 
