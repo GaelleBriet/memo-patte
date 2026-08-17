@@ -43,7 +43,27 @@ class Treatments extends Table {
   /// [nextDueDate], `null` si aucune ne l'est (échéance déjà passée au
   /// moment de la programmation). Géré exclusivement par
   /// `TreatmentRepository`, jamais par les écrans.
+  ///
+  /// Utilisé seulement pour les cycles longs (`frequency.usesReminderTimes
+  /// == false`) — les fréquences à heure(s) fixe(s) utilisent
+  /// [reminderNotificationIds] à la place (une notification par heure,
+  /// pas une seule).
   IntColumn get notificationId => integer().nullable()();
+
+  /// Heure(s) de rappel en minutes depuis minuit, CSV (ex. `"480,1200"`
+  /// pour 08:00 et 20:00) — ajouté le 2026-08-17 pour
+  /// [TreatmentFrequency.daily]/[TreatmentFrequency.severalTimesDaily].
+  /// `null`/vide pour les cycles longs, qui n'en ont pas besoin. Voir
+  /// `domain/reminder_times.dart` pour l'encodage/décodage.
+  TextColumn get reminderTimes => text().nullable()();
+
+  /// Identifiants des notifications locales récurrentes programmées pour
+  /// [reminderTimes] (une par heure), CSV — `null`/vide si la fréquence
+  /// n'utilise pas d'heure(s) fixe(s), ou si aucune n'a encore été
+  /// programmée. Équivalent "liste" de [notificationId] : deux colonnes
+  /// plutôt qu'une pour ne pas ambiguïser "une notification unique" vs
+  /// "une liste", chacune des deux mécaniques restant simple à lire.
+  TextColumn get reminderNotificationIds => text().nullable()();
 
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
