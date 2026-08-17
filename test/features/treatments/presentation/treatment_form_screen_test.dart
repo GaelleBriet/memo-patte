@@ -223,7 +223,10 @@ void main() {
       'un message, ne crée rien',
       (tester) async {
         await pumpForm(tester);
-        await tester.enterText(find.byType(TextFormField).first, 'Antibiotique');
+        await tester.enterText(
+          find.byType(TextFormField).first,
+          'Antibiotique',
+        );
         await tester.tap(find.text('1×/jour'));
         await tester.pumpAndSettle();
 
@@ -239,22 +242,19 @@ void main() {
       },
     );
 
-    testWidgets(
-      'fréquence "Plusieurs/jour" sélectionnée : affiche le bouton '
-      '"Ajouter une heure", pas de sélecteur à heure unique',
-      (tester) async {
-        await pumpForm(tester);
+    testWidgets('fréquence "Plusieurs/jour" sélectionnée : affiche le bouton '
+        '"Ajouter une heure", pas de sélecteur à heure unique', (tester) async {
+      await pumpForm(tester);
 
-        await tester.tap(find.text('Plusieurs/jour'));
-        await tester.pumpAndSettle();
+      await tester.tap(find.text('Plusieurs/jour'));
+      await tester.pumpAndSettle();
 
-        expect(find.text('Heures de rappel *'), findsOneWidget);
-        expect(
-          find.widgetWithText(OutlinedButton, 'Ajouter une heure'),
-          findsOneWidget,
-        );
-        expect(find.text('Choisir une heure'), findsNothing);
-      },
-    );
+      expect(find.text('Heures de rappel *'), findsOneWidget);
+      expect(
+        find.widgetWithText(OutlinedButton, 'Ajouter une heure'),
+        findsOneWidget,
+      );
+      expect(find.text('Choisir une heure'), findsNothing);
+    });
   });
 }

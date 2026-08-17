@@ -18,8 +18,7 @@ library;
 /// dans `treatment_frequency.dart`).
 List<int> decodeReminderTimes(String? raw) {
   if (raw == null || raw.trim().isEmpty) return const [];
-  return {for (final part in raw.split(',')) int.parse(part)}.toList()
-    ..sort();
+  return {for (final part in raw.split(',')) int.parse(part)}.toList()..sort();
 }
 
 /// Encode en CSV pour stockage (`Treatment.reminderTimes`), triées et

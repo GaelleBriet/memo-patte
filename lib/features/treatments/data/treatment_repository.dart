@@ -246,9 +246,7 @@ class TreatmentRepository {
   Future<void> deleteTreatment(int id) async {
     final treatment = await _dao.getById(id);
     if (treatment?.notificationId != null) {
-      await _notificationService.cancelNotification(
-        treatment!.notificationId!,
-      );
+      await _notificationService.cancelNotification(treatment!.notificationId!);
     }
     await _cancelReminderTimes(treatment?.reminderNotificationIds);
     await _dao.deleteTreatment(id);
@@ -344,8 +342,9 @@ class TreatmentRepository {
     }
   }
 
-  List<int> _decodeIds(String? csv) =>
-      (csv == null || csv.isEmpty) ? const [] : csv.split(',').map(int.parse).toList();
+  List<int> _decodeIds(String? csv) => (csv == null || csv.isEmpty)
+      ? const []
+      : csv.split(',').map(int.parse).toList();
 
   String _encodeIds(List<int> ids) => ids.join(',');
 }

@@ -43,11 +43,11 @@ enum TreatmentFrequency {
     TreatmentFrequency.quarterly => 3,
     TreatmentFrequency.biannual => 6,
     TreatmentFrequency.annual => 12,
-    TreatmentFrequency.daily || TreatmentFrequency.severalTimesDaily =>
-      throw StateError(
-        'nextOccurrenceAfter ne s\'applique pas à $this — voir '
-        'reminder_times.dart pour les fréquences à heure(s) fixe(s).',
-      ),
+    TreatmentFrequency.daily ||
+    TreatmentFrequency.severalTimesDaily => throw StateError(
+      'nextOccurrenceAfter ne s\'applique pas à $this — voir '
+      'reminder_times.dart pour les fréquences à heure(s) fixe(s).',
+    ),
   };
 
   /// Prochaine occurrence après [date] — `DateTime` normalise tout seul
