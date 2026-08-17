@@ -145,6 +145,18 @@ class NotificationService {
   /// permission spéciale `SCHEDULE_EXACT_ALARM`/`USE_EXACT_ALARM`, non
   /// demandée dans ce ticket. À revoir si un futur besoin exige une
   /// précision à la minute près.
+  ///
+  /// [matchDateTimeComponents] : `null` (défaut) programme une
+  /// notification ponctuelle, à [scheduledDate] et une seule fois — c'est
+  /// le cas des vaccins et des traitements à cycle long (repris à chaque
+  /// échéance dépassée par `VaccinationRepository`/`TreatmentRepository`,
+  /// pas de vraie récurrence côté OS). Passer
+  /// `DateTimeComponents.time` (ajouté le 2026-08-17 pour les traitements
+  /// à heure(s) de rappel fixe(s), `TreatmentFrequency.daily`/
+  /// `severalTimesDaily`) programme au contraire une notification qui se
+  /// répète nativement tous les jours à la même heure — l'OS s'occupe de
+  /// la répétition, pas besoin de reprogrammer à chaque ouverture de
+  /// l'app comme pour les cycles longs.
   Future<void> scheduleNotification({
     required int id,
     required String title,
@@ -153,6 +165,7 @@ class NotificationService {
     String? payload,
     AndroidScheduleMode androidScheduleMode =
         AndroidScheduleMode.inexactAllowWhileIdle,
+    DateTimeComponents? matchDateTimeComponents,
   }) async {
     await init();
 
@@ -163,6 +176,7 @@ class NotificationService {
       scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
       payload: payload,
       androidScheduleMode: androidScheduleMode,
+      matchDateTimeComponents: matchDateTimeComponents,
       notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           _androidChannelId,

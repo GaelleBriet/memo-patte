@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show AndroidScheduleMode;
+    show AndroidScheduleMode, DateTimeComponents;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memo_patte/core/database/app_database.dart';
 import 'package:memo_patte/core/notifications/notification_service.dart';
@@ -39,6 +39,7 @@ class _FakeNotificationService extends NotificationService {
     String? payload,
     AndroidScheduleMode androidScheduleMode =
         AndroidScheduleMode.inexactAllowWhileIdle,
+    DateTimeComponents? matchDateTimeComponents,
   }) async {
     scheduled.add((
       id: id,
@@ -308,6 +309,38 @@ void main() {
 
       final vaccinations = await repository.watchForAnimal(animalId).first;
       expect(vaccinations, isEmpty);
+    });
+  });
+
+  group('deleteVaccination', () {
+    test('rappel programmé : annule la notification avant de supprimer '
+        'la ligne', () async {
+      final id = await repository.createVaccination(
+        animalId: animalId,
+        name: 'Rage',
+        date: DateTime(2026, 6, 1),
+        nextDueDate: tomorrow,
+      );
+
+      await repository.deleteVaccination(id);
+
+      expect(notificationService.cancelled, [
+        VaccinationRepository.notificationIdFor(id),
+      ]);
+      expect(await repository.getVaccination(id), isNull);
+    });
+
+    test('sans rappel programmé : supprime sans tenter d\'annuler', () async {
+      final id = await repository.createVaccination(
+        animalId: animalId,
+        name: 'Rage',
+        date: DateTime(2026, 6, 1),
+      );
+
+      await repository.deleteVaccination(id);
+
+      expect(notificationService.cancelled, isEmpty);
+      expect(await repository.getVaccination(id), isNull);
     });
   });
 }

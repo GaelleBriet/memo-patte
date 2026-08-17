@@ -7,6 +7,7 @@ import '../../../core/database/app_database.dart';
 import '../../../core/widgets/gradient_app_bar.dart';
 import '../../../core/widgets/surface_card.dart';
 import '../../animals/data/animal_provider.dart';
+import '../data/vaccination_repository_provider.dart';
 import '../data/vaccinations_list_provider.dart';
 import 'vaccination_card.dart';
 
@@ -49,14 +50,14 @@ class VaccinationsListScreen extends ConsumerWidget {
   }
 }
 
-class _VaccinationsList extends StatelessWidget {
+class _VaccinationsList extends ConsumerWidget {
   const _VaccinationsList({required this.animalId, required this.vaccinations});
 
   final int animalId;
   final List<Vaccination> vaccinations;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: vaccinations.length,
@@ -72,6 +73,9 @@ class _VaccinationsList extends StatelessWidget {
               'vaccinationId': vaccination.id.toString(),
             },
           ),
+          onDelete: () => ref
+              .read(vaccinationRepositoryProvider)
+              .deleteVaccination(vaccination.id),
         );
       },
     );

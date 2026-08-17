@@ -107,6 +107,20 @@ class VaccinationRepository {
     );
   }
 
+  /// Supprime le vaccin (ticket "appui long" du 2026-08-17) — annule
+  /// d'abord son rappel programmé s'il y en a un, même logique que
+  /// l'annulation en tête de [updateVaccination] : on ne veut pas d'une
+  /// notification qui survit à la ligne qu'elle décrivait.
+  Future<void> deleteVaccination(int id) async {
+    final vaccination = await _dao.getById(id);
+    if (vaccination?.notificationId != null) {
+      await _notificationService.cancelNotification(
+        vaccination!.notificationId!,
+      );
+    }
+    await _dao.deleteVaccination(id);
+  }
+
   /// Programme la notification de rappel et retourne son identifiant, ou
   /// `null` sans rien programmer si l'échéance est absente ou si son
   /// instant de déclenchement est déjà passé (saisie rétroactive d'un

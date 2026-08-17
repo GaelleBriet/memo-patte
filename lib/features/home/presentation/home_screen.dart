@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/domain/due_status.dart';
+import '../../../core/widgets/delete_confirmation_sheet.dart';
 import '../../../core/widgets/light_status_bar.dart';
 import '../../../core/widgets/straddling_hero.dart';
 import '../../../core/widgets/surface_card.dart';
@@ -11,7 +13,8 @@ import '../../animals/data/animals_list_provider.dart';
 import '../../animals/data/selected_animal_provider.dart';
 import '../../animals/presentation/animal_chip_selector.dart';
 import '../../notifications/presentation/notification_permission_banner.dart';
-import '../../vaccinations/domain/vaccination_status.dart';
+import '../../treatments/data/treatment_repository_provider.dart';
+import '../../vaccinations/data/vaccination_repository_provider.dart';
 import '../data/home_reminders_provider.dart';
 import '../domain/home_reminder.dart';
 
@@ -27,14 +30,16 @@ import '../domain/home_reminder.dart';
 /// Contenu volontairement réduit par rapport à la maquette tant que les
 /// épics dont il dépend ne sont pas toutes faites (voir
 /// `home_reminders_provider.dart`) :
-/// - "À faire aujourd'hui" : vaccins uniquement (pas de vermifuges tant
-///   que l'épic 4 `treatments` n'est pas faite).
+/// - "À faire aujourd'hui" : vaccins et traitements (épics 3 et 4,
+///   toutes les deux faites) — pas de vermifuges "one-off" hors
+///   traitement récurrent, ce n'est pas un concept séparé dans ce
+///   schéma (voir `01-architecture.md`).
 /// - Pas de carte de poids (épic 5 `weight` pas faite) ni "documents"
 ///   (hors scope v1).
-/// - "Actions rapides" : un seul bouton pour l'instant (rappel de
-///   vaccin) — les autres (traitement, antiparasitaire) apparaîtront
-///   avec l'épic 4, pas avant (pas de bouton qui ne mène nulle part,
-///   même principe que la coquille de nav du ticket 6.0).
+/// - "Actions rapides" : rappel de vaccin, nouveau traitement,
+///   antiparasitaire (raccourci vers un traitement pré-nommé) — pas de
+///   bouton qui ne mène nulle part, même principe que la coquille de nav
+///   du ticket 6.0.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -178,26 +183,61 @@ class _HomeHero extends StatelessWidget {
   }
 }
 
-class _ReminderCard extends StatelessWidget {
+class _ReminderCard extends ConsumerWidget {
   const _ReminderCard({required this.reminder});
 
   final HomeReminder reminder;
 
   @override
-  Widget build(BuildContext context) {
-    final accent = reminder.status == VaccinationStatus.overdue
+  Widget build(BuildContext context, WidgetRef ref) {
+    final accent = reminder.status == DueStatus.overdue
         ? AppTheme.alertRed
         : AppTheme.sandAmber;
+
+    // Route nommée + nom du paramètre d'id selon la source du rappel —
+    // vaccin ou traitement, voir [ReminderKind].
+    final (routeName, idParam) = switch (reminder.kind) {
+      ReminderKind.vaccination => ('editVaccination', 'vaccinationId'),
+      ReminderKind.treatment => ('editTreatment', 'treatmentId'),
+    };
 
     return SurfaceCard(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       onTap: () => context.goNamed(
-        'editVaccination',
+        routeName,
         pathParameters: {
           'id': reminder.animalId.toString(),
-          'vaccinationId': reminder.vaccinationId.toString(),
+          idParam: reminder.sourceId.toString(),
         },
       ),
+      // Appui long → suppression, même feuille de confirmation que
+      // `VaccinationCard`/`TreatmentCard` (`delete_confirmation_sheet.dart`)
+      // — ajouté le 2026-08-17 pour que le geste soit disponible partout
+      // où un rappel apparaît, pas seulement sur ses écrans dédiés.
+      onLongPress: () async {
+        final confirmed = await showDeleteConfirmationSheet(
+          context,
+          title: reminder.kind == ReminderKind.vaccination
+              ? 'Supprimer ce vaccin ?'
+              : 'Supprimer ce traitement ?',
+          message:
+              '"${reminder.detail}" sera définitivement supprimé, ainsi '
+              'que son rappel programmé.',
+        );
+        if (!confirmed) return;
+        switch (reminder.kind) {
+          case ReminderKind.vaccination:
+            await ref
+                .read(vaccinationRepositoryProvider)
+                .deleteVaccination(reminder.sourceId);
+            break;
+          case ReminderKind.treatment:
+            await ref
+                .read(treatmentRepositoryProvider)
+                .deleteTreatment(reminder.sourceId);
+            break;
+        }
+      },
       child: Row(
         children: [
           Container(
@@ -229,6 +269,48 @@ class _ReminderCard extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+          // Heure de rappel (traitement à fréquence quotidienne
+          // uniquement, voir `HomeReminder.reminderTimeLabel`) — ajouté
+          // le 2026-08-17.
+          if (reminder.reminderTimeLabel != null) ...[
+            const SizedBox(width: 8),
+            _ReminderTimePill(label: reminder.reminderTimeLabel!),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Pastille "08:00" à droite d'une carte de rappel — mêmes teintes que
+/// [IconChip] (fond menthe, texte sarcelle foncé) pour rester dans le
+/// même vocabulaire visuel que le reste de l'accueil.
+class _ReminderTimePill extends StatelessWidget {
+  const _ReminderTimePill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppTheme.mintPale,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.schedule, size: 12, color: AppTheme.tealOnMint),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.tealOnMint,
             ),
           ),
         ],
@@ -289,6 +371,15 @@ class _StatsRow extends ConsumerWidget {
   }
 }
 
+/// 3 cartes compactes en ligne (icône au-dessus du libellé), comme sur
+/// la maquette — pas la pleine largeur empilée du premier rendu (ticket
+/// 6.2), qui ne passait plus à l'échelle une fois "Nouveau traitement"
+/// et "Antiparasitaire" ajoutés (ticket 4.2).
+///
+/// "Antiparasitaire" mène au même formulaire que "Nouveau traitement",
+/// juste avec le nom pré-rempli — pas un type de traitement distinct
+/// dans le modèle (`treatment_table.dart` n'a qu'un `name` libre, comme
+/// les vaccins), seulement un raccourci de saisie.
 class _QuickActions extends StatelessWidget {
   const _QuickActions({required this.animalId});
 
@@ -301,23 +392,86 @@ class _QuickActions extends StatelessWidget {
       children: [
         Text('Actions rapides', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 12),
-        SurfaceCard(
-          onTap: () => context.goNamed(
-            'createVaccination',
-            pathParameters: {'id': animalId.toString()},
-          ),
-          child: const Row(
+        // `IntrinsicHeight` : les 3 cartes doivent faire la même hauteur
+        // même si leur libellé ne retourne pas à la ligne au même
+        // endroit ("Antiparasitaire", un seul mot, tient plus souvent
+        // sur une ligne que "Nouveau traitement"/"Rappel de vaccin").
+        // Sans ça, chaque `SurfaceCard` se dimensionne à son contenu
+        // (`Column` en `mainAxisSize.min`) indépendamment des deux
+        // autres — bug remonté le 2026-08-17.
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              IconChip(icon: Icons.vaccines_outlined),
-              SizedBox(width: 12),
-              Text(
-                'Rappel de vaccin',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+              Expanded(
+                child: _QuickActionCard(
+                  icon: Icons.medication_outlined,
+                  label: 'Nouveau traitement',
+                  onTap: () => context.goNamed(
+                    'createTreatment',
+                    pathParameters: {'id': animalId.toString()},
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _QuickActionCard(
+                  icon: Icons.vaccines_outlined,
+                  label: 'Rappel de vaccin',
+                  onTap: () => context.goNamed(
+                    'createVaccination',
+                    pathParameters: {'id': animalId.toString()},
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _QuickActionCard(
+                  icon: Icons.pest_control_outlined,
+                  label: 'Antiparasitaire',
+                  onTap: () => context.goNamed(
+                    'createTreatment',
+                    pathParameters: {'id': animalId.toString()},
+                    queryParameters: const {'name': 'Antiparasitaire'},
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _QuickActionCard extends StatelessWidget {
+  const _QuickActionCard({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SurfaceCard(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconChip(icon: icon),
+          const SizedBox(height: 10),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
     );
   }
 }

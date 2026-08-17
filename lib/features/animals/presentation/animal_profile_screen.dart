@@ -7,6 +7,11 @@ import '../../../core/database/app_database.dart';
 import '../../../core/widgets/light_status_bar.dart';
 import '../../../core/widgets/straddling_hero.dart';
 import '../../../core/widgets/surface_card.dart';
+import '../../home/data/home_reminders_provider.dart';
+import '../../treatments/data/treatment_repository_provider.dart';
+import '../../treatments/data/treatments_list_provider.dart';
+import '../../treatments/presentation/treatment_card.dart';
+import '../../vaccinations/data/vaccination_repository_provider.dart';
 import '../../vaccinations/data/vaccinations_list_provider.dart';
 import '../../vaccinations/domain/vaccination_status.dart';
 import '../../vaccinations/presentation/vaccination_card.dart';
@@ -21,10 +26,10 @@ import 'animal_form_fields.dart';
 /// Écran "Profil animal" (ticket 1.4), restylé en "Carnet de santé"
 /// pour coller à `docs/design/PetCare - Ma Vision` (ticket 6.4) : hero
 /// dégradé avec avatar/nom/âge, sélecteur d'animal, carte de stat, puis
-/// un aperçu du carnet — pour l'instant seulement la section Vaccins
-/// (épic 3 faite) ; Traitement en cours et Suivi de poids
-/// apparaîtront quand les épics 4 et 5 seront faites, pas avant (pas de
-/// section vide/placeholder pour une épic pas encore attaquée).
+/// un aperçu du carnet — sections Vaccins (épic 3) et Traitement en
+/// cours (épic 4) faites ; Suivi de poids apparaîtra quand l'épic 5 le
+/// sera, pas avant (pas de section vide/placeholder pour une épic pas
+/// encore attaquée).
 ///
 /// Pas de bouton "Exporter le carnet" (export PDF explicitement hors
 /// scope, `06-mvp-scope.md`), contrairement à la maquette.
@@ -85,6 +90,15 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         ref.read(selectedAnimalIdProvider.notifier).state = widget.animalId;
+        // Reprogrammation automatique des traitements en retard (ticket
+        // 4.4) — même appel qu'au chargement de `TreatmentsListScreen`,
+        // voir le commentaire de
+        // `TreatmentRepository.reconcileOverdueTreatments` pour
+        // pourquoi c'est ici (pas de service en arrière-plan) et pas
+        // gênant d'être appelé depuis plusieurs écrans (idempotent).
+        ref
+            .read(treatmentRepositoryProvider)
+            .reconcileOverdueTreatments(widget.animalId);
       }
     });
   }
@@ -126,7 +140,12 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
     final vaccinationsAsync = ref.watch(
       vaccinationsListProvider(widget.animalId),
     );
+    final treatmentsAsync = ref.watch(treatmentsListProvider(widget.animalId));
     final animalsAsync = ref.watch(animalsListProvider);
+    // Même provider que l'accueil (ticket 6.1) pour la carte de stat :
+    // vaccins + traitements qui appellent l'attention, pas la peine de
+    // recalculer ce compte séparément ici.
+    final remindersAsync = ref.watch(homeRemindersProvider(widget.animalId));
 
     return ListView(
       // Voir le commentaire équivalent dans `home_screen.dart` : sans
@@ -157,11 +176,7 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
         const SizedBox(height: 24), // = overlap de StraddlingHero
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          child: _RemindersStat(
-            count: vaccinationsAsync.value == null
-                ? null
-                : _dueVaccinations(vaccinationsAsync.value!).length,
-          ),
+          child: _RemindersStat(count: remindersAsync.value?.length),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -224,6 +239,58 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
                                 'vaccinationId': vaccination.id.toString(),
                               },
                             ),
+                            onDelete: () => ref
+                                .read(vaccinationRepositoryProvider)
+                                .deleteVaccination(vaccination.id),
+                          ),
+                        ),
+                    ],
+                  ),
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (error, stackTrace) => Text('Erreur de chargement : $error'),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Traitement en cours',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              TextButton(
+                onPressed: () => context.goNamed(
+                  'treatmentsList',
+                  pathParameters: {'id': widget.animalId.toString()},
+                ),
+                child: const Text('Voir tout'),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: treatmentsAsync.when(
+            data: (treatments) => treatments.isEmpty
+                ? _TreatmentsEmptyCta(animalId: widget.animalId)
+                : Column(
+                    children: [
+                      for (final treatment in _treatmentsPreview(treatments))
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: TreatmentCard(
+                            treatment: treatment,
+                            onTap: () => context.goNamed(
+                              'editTreatment',
+                              pathParameters: {
+                                'id': widget.animalId.toString(),
+                                'treatmentId': treatment.id.toString(),
+                              },
+                            ),
+                            onDelete: () => ref
+                                .read(treatmentRepositoryProvider)
+                                .deleteTreatment(treatment.id),
                           ),
                         ),
                     ],
@@ -286,19 +353,6 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
   }
 }
 
-/// Vaccins qui appellent l'attention (à venir ou en retard) — c'est ce
-/// nombre-là qui compte pour la carte de stat "rappels", pas le total de
-/// vaccins enregistrés.
-List<Vaccination> _dueVaccinations(List<Vaccination> vaccinations) {
-  return vaccinations
-      .where(
-        (v) =>
-            VaccinationStatus.fromNextDueDate(v.nextDueDate, DateTime.now()) !=
-            VaccinationStatus.upToDate,
-      )
-      .toList();
-}
-
 /// Aperçu du carnet : priorité aux vaccins qui appellent l'attention,
 /// puis aux plus récents — plafonné à 3 lignes, la liste complète reste
 /// à un tap ("Voir tout").
@@ -313,6 +367,26 @@ List<Vaccination> _preview(List<Vaccination> vaccinations) {
         VaccinationStatus.dueSoon => 1,
         VaccinationStatus.upToDate => 2,
       };
+      final byStatus = rank(a).compareTo(rank(b));
+      return byStatus != 0 ? byStatus : b.date.compareTo(a.date);
+    });
+  return sorted.take(3).toList();
+}
+
+/// Même principe que [_preview], côté traitements — pas fusionné en une
+/// seule fonction générique : `Vaccination.nextDueDate` est facultative,
+/// `Treatment.nextDueDate` ne l'est pas (toujours calculée, voir
+/// `treatment_table.dart`), les deux types divergent trop pour que la
+/// généricité en vaille la peine sur une fonction de 10 lignes.
+List<Treatment> _treatmentsPreview(List<Treatment> treatments) {
+  final sorted = [...treatments]
+    ..sort((a, b) {
+      int rank(Treatment t) =>
+          switch (DueStatus.fromNextDueDate(t.nextDueDate, DateTime.now())) {
+            DueStatus.overdue => 0,
+            DueStatus.dueSoon => 1,
+            DueStatus.upToDate => 2,
+          };
       final byStatus = rank(a).compareTo(rank(b));
       return byStatus != 0 ? byStatus : b.date.compareTo(a.date);
     });
@@ -355,8 +429,22 @@ class _CarnetHero extends StatelessWidget {
               // le fichier) : le retour automatique qu'elle fournissait
               // doit être recréé ici à la main, sans quoi cet écran
               // devient un cul-de-sac de navigation.
+              //
+              // `Navigator.pop()` sans garde plantait (écran noir,
+              // signalé le 2026-08-17) : depuis la suppression de l'écran
+              // "liste des animaux" (ticket 6.0), `/animals/:id` est une
+              // route de premier niveau de sa branche, pas imbriquée sous
+              // un parent — sa pile de navigation ne contient donc le
+              // plus souvent qu'elle-même (accueil et onglet Carnet y
+              // mènent tous les deux directement). `pop()` sur une pile
+              // à un seul écran n'a rien où revenir. `canPop` bascule
+              // vers l'accueil dans ce cas, au lieu de planter ; reste
+              // compatible avec un éventuel futur appelant qui pousserait
+              // vraiment cet écran par-dessus un autre.
               IconButton(
-                onPressed: () => Navigator.of(context).pop(),
+                onPressed: () => Navigator.canPop(context)
+                    ? Navigator.of(context).pop()
+                    : context.goNamed('home'),
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
                 tooltip: 'Retour',
               ),
@@ -466,6 +554,34 @@ class _VaccinesEmptyCta extends StatelessWidget {
           Expanded(
             child: Text(
               'Aucun vaccin enregistré — appuie pour en ajouter un.',
+              style: TextStyle(color: AppTheme.textSecondary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TreatmentsEmptyCta extends StatelessWidget {
+  const _TreatmentsEmptyCta({required this.animalId});
+
+  final int animalId;
+
+  @override
+  Widget build(BuildContext context) {
+    return SurfaceCard(
+      onTap: () => context.goNamed(
+        'createTreatment',
+        pathParameters: {'id': animalId.toString()},
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.add_circle_outline, color: AppTheme.primaryTeal),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Aucun traitement enregistré — appuie pour en ajouter un.',
               style: TextStyle(color: AppTheme.textSecondary),
             ),
           ),
