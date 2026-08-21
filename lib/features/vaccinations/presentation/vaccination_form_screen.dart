@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/widgets/error_display.dart';
 import '../../../core/widgets/gradient_app_bar.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../notifications/data/first_reminder_source.dart';
 import '../../notifications/data/notification_permission_provider.dart';
 import '../../notifications/presentation/notification_priming_screen.dart';
@@ -45,19 +46,27 @@ class VaccinationFormScreen extends ConsumerWidget {
     return vaccinationAsync.when(
       data: (vaccination) => vaccination == null
           ? Scaffold(
-              appBar: const GradientAppBar(title: Text('Modifier le vaccin')),
-              body: const Center(child: Text('Vaccin introuvable.')),
+              appBar: GradientAppBar(
+                title: Text(AppLocalizations.of(context)!.vaccinationFormEditTitle),
+              ),
+              body: Center(
+                child: Text(AppLocalizations.of(context)!.vaccinationFormNotFound),
+              ),
             )
           : _VaccinationFormScaffold(
               animalId: animalId,
               vaccination: vaccination,
             ),
       loading: () => Scaffold(
-        appBar: const GradientAppBar(title: Text('Modifier le vaccin')),
+        appBar: GradientAppBar(
+          title: Text(AppLocalizations.of(context)!.vaccinationFormEditTitle),
+        ),
         body: const Center(child: CircularProgressIndicator()),
       ),
       error: (error, stackTrace) => Scaffold(
-        appBar: const GradientAppBar(title: Text('Modifier le vaccin')),
+        appBar: GradientAppBar(
+          title: Text(AppLocalizations.of(context)!.vaccinationFormEditTitle),
+        ),
         body: ErrorDisplay(
           error: error,
           stackTrace: stackTrace,
@@ -196,9 +205,14 @@ class _VaccinationFormBodyState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: GradientAppBar(
-        title: Text(_isEditing ? 'Modifier le vaccin' : 'Ajouter un vaccin'),
+        title: Text(
+          _isEditing
+              ? l10n.vaccinationFormEditTitle
+              : l10n.vaccinationFormAddTitle,
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -208,36 +222,36 @@ class _VaccinationFormBodyState
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nom du vaccin *',
-                  hintText: 'Rage, CHPPiL...',
+                decoration: InputDecoration(
+                  labelText: l10n.vaccinationFormNameLabel,
+                  hintText: l10n.vaccinationFormNameHint,
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Le nom du vaccin est obligatoire.'
+                    ? l10n.vaccinationFormNameRequired
                     : null,
               ),
               const SizedBox(height: 16),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Date du vaccin *'),
+                title: Text(l10n.vaccinationFormDateLabel),
                 subtitle: Text(_formatDate(_date)),
                 trailing: const Icon(Icons.calendar_today),
                 onTap: _pickDate,
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Prochaine échéance (facultatif)'),
+                title: Text(l10n.vaccinationFormNextDueDateLabel),
                 subtitle: Text(
                   _nextDueDate == null
-                      ? 'Non renseignée'
+                      ? l10n.commonNotProvidedFeminine
                       : _formatDate(_nextDueDate!),
                 ),
                 trailing: _nextDueDate == null
                     ? const Icon(Icons.calendar_today)
                     : IconButton(
                         icon: const Icon(Icons.clear),
-                        tooltip: 'Effacer l\'échéance',
+                        tooltip: l10n.vaccinationFormClearDueDateTooltip,
                         onPressed: () => setState(() => _nextDueDate = null),
                       ),
                 onTap: _pickNextDueDate,
@@ -251,7 +265,9 @@ class _VaccinationFormBodyState
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Text(_isEditing ? 'Enregistrer' : 'Ajouter le vaccin'),
+                    : Text(
+                        _isEditing ? l10n.commonSave : l10n.vaccinationFormSubmit,
+                      ),
               ),
             ],
           ),

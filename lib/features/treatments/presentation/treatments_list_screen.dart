@@ -134,16 +134,15 @@ class _EmptyState extends StatelessWidget {
             const IconChip(icon: Icons.medication_outlined, size: 56),
             const SizedBox(height: 16),
             Text(
-              'Aucun traitement enregistré',
+              AppLocalizations.of(context)!.treatmentsListEmptyTitle,
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Appuie sur + pour ajouter un vermifuge ou un '
-              'antiparasitaire, même fait il y a longtemps.',
+            Text(
+              AppLocalizations.of(context)!.treatmentsListEmptyMessage,
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.textSecondary),
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
           ],
         ),
