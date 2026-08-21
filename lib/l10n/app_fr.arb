@@ -128,6 +128,14 @@
   "treatmentFormFrequencyDaily": "1×/jour",
   "treatmentFormFrequencySeveralTimesDaily": "Plusieurs/jour",
 
+  "notificationPermissionBannerText": "Rappels désactivés — active-les dans les réglages",
+
+  "notificationPrimingTitle": "Activer les rappels",
+  "notificationPrimingHeadline": "Ne rate plus jamais un rappel",
+  "notificationPrimingBody": "MémoPatte peut te prévenir quand un vaccin ou un vermifuge approche de son échéance. Autorise les notifications pour ne rien oublier — tu pourras changer d'avis à tout moment dans les réglages de ton téléphone.",
+  "notificationPrimingActivate": "Activer les rappels",
+  "notificationPrimingLater": "Plus tard",
+
   "dueStatusUpToDate": "À jour",
   "dueStatusDueSoon": "À venir",
   "dueStatusOverdue": "En retard",

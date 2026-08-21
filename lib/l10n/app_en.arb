@@ -88,6 +88,14 @@
   "treatmentFormFrequencyDaily": "1×/day",
   "treatmentFormFrequencySeveralTimesDaily": "Several/day",
 
+  "notificationPermissionBannerText": "Reminders are off — enable them in settings",
+
+  "notificationPrimingTitle": "Enable reminders",
+  "notificationPrimingHeadline": "Never miss a reminder again",
+  "notificationPrimingBody": "MémoPatte can let you know when a vaccination or a dewormer treatment is coming due. Allow notifications so nothing slips through the cracks — you can change your mind anytime in your phone's settings.",
+  "notificationPrimingActivate": "Enable reminders",
+  "notificationPrimingLater": "Later",
+
   "dueStatusUpToDate": "Up to date",
   "dueStatusDueSoon": "Upcoming",
   "dueStatusOverdue": "Overdue",

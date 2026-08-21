@@ -272,6 +272,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get treatmentFormFrequencySeveralTimesDaily => 'Several/day';
 
   @override
+  String get notificationPermissionBannerText =>
+      'Reminders are off — enable them in settings';
+
+  @override
   String get dueStatusUpToDate => 'Up to date';
 
   @override

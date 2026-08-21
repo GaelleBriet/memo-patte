@@ -548,6 +548,12 @@ abstract class AppLocalizations {
   /// **'Plusieurs/jour'**
   String get treatmentFormFrequencySeveralTimesDaily;
 
+  /// No description provided for @notificationPermissionBannerText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappels désactivés — active-les dans les réglages'**
+  String get notificationPermissionBannerText;
+
   /// No description provided for @dueStatusUpToDate.
   ///
   /// In fr, this message translates to:

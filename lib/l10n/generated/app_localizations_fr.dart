@@ -275,6 +275,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get treatmentFormFrequencySeveralTimesDaily => 'Plusieurs/jour';
 
   @override
+  String get notificationPermissionBannerText =>
+      'Rappels désactivés — active-les dans les réglages';
+
+  @override
   String get dueStatusUpToDate => 'À jour';
 
   @override
