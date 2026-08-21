@@ -196,6 +196,85 @@ class AppLocalizationsFr extends AppLocalizations {
       'Appuie sur + pour ajouter un vermifuge ou un antiparasitaire, même fait il y a longtemps.';
 
   @override
+  String get treatmentFormAddTitle => 'Ajouter un traitement';
+
+  @override
+  String get treatmentFormEditTitle => 'Modifier le traitement';
+
+  @override
+  String get treatmentFormNotFound => 'Traitement introuvable.';
+
+  @override
+  String get treatmentFormNameLabel => 'Nom du traitement *';
+
+  @override
+  String get treatmentFormNameHint => 'Bravecto, Vermifuge...';
+
+  @override
+  String get treatmentFormNameRequired =>
+      'Le nom du traitement est obligatoire.';
+
+  @override
+  String get treatmentFormStartDateLabel => 'Date de début du traitement *';
+
+  @override
+  String get treatmentFormLastDoseDateLabel =>
+      'Date de la dernière administration *';
+
+  @override
+  String get treatmentFormFrequencyLabel => 'Fréquence *';
+
+  @override
+  String get treatmentFormReminderTimeLabel => 'Heure de rappel *';
+
+  @override
+  String get treatmentFormReminderTimesLabel => 'Heures de rappel *';
+
+  @override
+  String get treatmentFormChooseTime => 'Choisir une heure';
+
+  @override
+  String get treatmentFormRemoveTimeTooltip => 'Retirer cette heure';
+
+  @override
+  String get treatmentFormAddTime => 'Ajouter une heure';
+
+  @override
+  String treatmentFormNextReminderLabel(String description) {
+    return 'Prochain rappel : $description';
+  }
+
+  @override
+  String treatmentFormNextDueDateLabel(String date) {
+    return 'Prochaine échéance : $date';
+  }
+
+  @override
+  String get treatmentFormMissingReminderTime =>
+      'Choisis au moins une heure de rappel.';
+
+  @override
+  String get treatmentFormSubmit => 'Ajouter le traitement';
+
+  @override
+  String get treatmentFormFrequencyMonthly => '1 mois';
+
+  @override
+  String get treatmentFormFrequencyQuarterly => '3 mois';
+
+  @override
+  String get treatmentFormFrequencyBiannual => '6 mois';
+
+  @override
+  String get treatmentFormFrequencyAnnual => '1 an';
+
+  @override
+  String get treatmentFormFrequencyDaily => '1×/jour';
+
+  @override
+  String get treatmentFormFrequencySeveralTimesDaily => 'Plusieurs/jour';
+
+  @override
   String get dueStatusUpToDate => 'À jour';
 
   @override

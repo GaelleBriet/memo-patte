@@ -463,13 +463,15 @@ class _FrequencyChip extends StatelessWidget {
 
 /// Libellés compacts pour les chips de fréquence — [TreatmentFrequencyLabel.label]
 /// reste le libellé complet utilisé en lecture (`TreatmentCard`).
-String _shortLabel(TreatmentFrequency frequency) => switch (frequency) {
-  TreatmentFrequency.monthly => '1 mois',
-  TreatmentFrequency.quarterly => '3 mois',
-  TreatmentFrequency.biannual => '6 mois',
-  TreatmentFrequency.annual => '1 an',
-  TreatmentFrequency.daily => '1×/jour',
-  TreatmentFrequency.severalTimesDaily => 'Plusieurs/jour',
-};
+String _shortLabel(AppLocalizations l10n, TreatmentFrequency frequency) =>
+    switch (frequency) {
+      TreatmentFrequency.monthly => l10n.treatmentFormFrequencyMonthly,
+      TreatmentFrequency.quarterly => l10n.treatmentFormFrequencyQuarterly,
+      TreatmentFrequency.biannual => l10n.treatmentFormFrequencyBiannual,
+      TreatmentFrequency.annual => l10n.treatmentFormFrequencyAnnual,
+      TreatmentFrequency.daily => l10n.treatmentFormFrequencyDaily,
+      TreatmentFrequency.severalTimesDaily =>
+        l10n.treatmentFormFrequencySeveralTimesDaily,
+    };
 
 String _formatDate(DateTime date) => '${date.day}/${date.month}/${date.year}';

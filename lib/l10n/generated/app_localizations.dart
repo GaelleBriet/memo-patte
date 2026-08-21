@@ -404,6 +404,150 @@ abstract class AppLocalizations {
   /// **'Appuie sur + pour ajouter un vermifuge ou un antiparasitaire, même fait il y a longtemps.'**
   String get treatmentsListEmptyMessage;
 
+  /// No description provided for @treatmentFormAddTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un traitement'**
+  String get treatmentFormAddTitle;
+
+  /// No description provided for @treatmentFormEditTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le traitement'**
+  String get treatmentFormEditTitle;
+
+  /// No description provided for @treatmentFormNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitement introuvable.'**
+  String get treatmentFormNotFound;
+
+  /// No description provided for @treatmentFormNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du traitement *'**
+  String get treatmentFormNameLabel;
+
+  /// No description provided for @treatmentFormNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bravecto, Vermifuge...'**
+  String get treatmentFormNameHint;
+
+  /// No description provided for @treatmentFormNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nom du traitement est obligatoire.'**
+  String get treatmentFormNameRequired;
+
+  /// No description provided for @treatmentFormStartDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de début du traitement *'**
+  String get treatmentFormStartDateLabel;
+
+  /// No description provided for @treatmentFormLastDoseDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de la dernière administration *'**
+  String get treatmentFormLastDoseDateLabel;
+
+  /// No description provided for @treatmentFormFrequencyLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fréquence *'**
+  String get treatmentFormFrequencyLabel;
+
+  /// No description provided for @treatmentFormReminderTimeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Heure de rappel *'**
+  String get treatmentFormReminderTimeLabel;
+
+  /// No description provided for @treatmentFormReminderTimesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Heures de rappel *'**
+  String get treatmentFormReminderTimesLabel;
+
+  /// No description provided for @treatmentFormChooseTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une heure'**
+  String get treatmentFormChooseTime;
+
+  /// No description provided for @treatmentFormRemoveTimeTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer cette heure'**
+  String get treatmentFormRemoveTimeTooltip;
+
+  /// No description provided for @treatmentFormAddTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une heure'**
+  String get treatmentFormAddTime;
+
+  /// No description provided for @treatmentFormNextReminderLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochain rappel : {description}'**
+  String treatmentFormNextReminderLabel(String description);
+
+  /// No description provided for @treatmentFormNextDueDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine échéance : {date}'**
+  String treatmentFormNextDueDateLabel(String date);
+
+  /// No description provided for @treatmentFormMissingReminderTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis au moins une heure de rappel.'**
+  String get treatmentFormMissingReminderTime;
+
+  /// No description provided for @treatmentFormSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter le traitement'**
+  String get treatmentFormSubmit;
+
+  /// No description provided for @treatmentFormFrequencyMonthly.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 mois'**
+  String get treatmentFormFrequencyMonthly;
+
+  /// No description provided for @treatmentFormFrequencyQuarterly.
+  ///
+  /// In fr, this message translates to:
+  /// **'3 mois'**
+  String get treatmentFormFrequencyQuarterly;
+
+  /// No description provided for @treatmentFormFrequencyBiannual.
+  ///
+  /// In fr, this message translates to:
+  /// **'6 mois'**
+  String get treatmentFormFrequencyBiannual;
+
+  /// No description provided for @treatmentFormFrequencyAnnual.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 an'**
+  String get treatmentFormFrequencyAnnual;
+
+  /// No description provided for @treatmentFormFrequencyDaily.
+  ///
+  /// In fr, this message translates to:
+  /// **'1×/jour'**
+  String get treatmentFormFrequencyDaily;
+
+  /// No description provided for @treatmentFormFrequencySeveralTimesDaily.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs/jour'**
+  String get treatmentFormFrequencySeveralTimesDaily;
+
   /// No description provided for @dueStatusUpToDate.
   ///
   /// In fr, this message translates to:

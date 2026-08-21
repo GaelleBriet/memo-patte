@@ -195,6 +195,83 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tap + to add a dewormer or pest control treatment, even one given a while ago.';
 
   @override
+  String get treatmentFormAddTitle => 'Add a treatment';
+
+  @override
+  String get treatmentFormEditTitle => 'Edit treatment';
+
+  @override
+  String get treatmentFormNotFound => 'Treatment not found.';
+
+  @override
+  String get treatmentFormNameLabel => 'Treatment name *';
+
+  @override
+  String get treatmentFormNameHint => 'Bravecto, Dewormer...';
+
+  @override
+  String get treatmentFormNameRequired => 'Treatment name is required.';
+
+  @override
+  String get treatmentFormStartDateLabel => 'Treatment start date *';
+
+  @override
+  String get treatmentFormLastDoseDateLabel => 'Date of last dose *';
+
+  @override
+  String get treatmentFormFrequencyLabel => 'Frequency *';
+
+  @override
+  String get treatmentFormReminderTimeLabel => 'Reminder time *';
+
+  @override
+  String get treatmentFormReminderTimesLabel => 'Reminder times *';
+
+  @override
+  String get treatmentFormChooseTime => 'Choose a time';
+
+  @override
+  String get treatmentFormRemoveTimeTooltip => 'Remove this time';
+
+  @override
+  String get treatmentFormAddTime => 'Add a time';
+
+  @override
+  String treatmentFormNextReminderLabel(String description) {
+    return 'Next reminder: $description';
+  }
+
+  @override
+  String treatmentFormNextDueDateLabel(String date) {
+    return 'Next due date: $date';
+  }
+
+  @override
+  String get treatmentFormMissingReminderTime =>
+      'Choose at least one reminder time.';
+
+  @override
+  String get treatmentFormSubmit => 'Add treatment';
+
+  @override
+  String get treatmentFormFrequencyMonthly => '1 month';
+
+  @override
+  String get treatmentFormFrequencyQuarterly => '3 months';
+
+  @override
+  String get treatmentFormFrequencyBiannual => '6 months';
+
+  @override
+  String get treatmentFormFrequencyAnnual => '1 year';
+
+  @override
+  String get treatmentFormFrequencyDaily => '1×/day';
+
+  @override
+  String get treatmentFormFrequencySeveralTimesDaily => 'Several/day';
+
+  @override
   String get dueStatusUpToDate => 'Up to date';
 
   @override
