@@ -132,12 +132,14 @@ double _progress(Treatment treatment, DateTime now) {
 /// "Dans 15 jours" / "Aujourd'hui" / "En retard de 3 jours" pour un cycle
 /// long (au jour près, même granularité que [DueStatus.fromNextDueDate])
 /// — "Aujourd'hui à 20:00" / "Demain à 08:00" pour une fréquence à
-/// heure(s) fixe(s), voir [describeUpcomingReminder].
-String _dueInLabel(Treatment treatment, DateTime now) {
+/// heure(s) fixe(s), voir [describeUpcomingReminder] (pas encore
+/// localisé, voir son commentaire dans `reminder_times.dart`).
+String _dueInLabel(BuildContext context, Treatment treatment, DateTime now) {
   if (treatment.frequency.usesReminderTimes) {
     return describeUpcomingReminder(treatment.nextDueDate, now);
   }
 
+  final l10n = AppLocalizations.of(context)!;
   final today = DateTime(now.year, now.month, now.day);
   final due = DateTime(
     treatment.nextDueDate.year,
@@ -146,8 +148,7 @@ String _dueInLabel(Treatment treatment, DateTime now) {
   );
   final days = due.difference(today).inDays;
 
-  if (days == 0) return 'Aujourd\'hui';
-  if (days > 0) return 'Dans $days jour${days > 1 ? 's' : ''}';
-  final late = -days;
-  return 'En retard de $late jour${late > 1 ? 's' : ''}';
+  if (days == 0) return l10n.treatmentDueToday;
+  if (days > 0) return l10n.treatmentDueInDays(days);
+  return l10n.treatmentOverdueDays(-days);
 }
