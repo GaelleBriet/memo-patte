@@ -248,6 +248,102 @@ abstract class AppLocalizations {
   /// **'\"{name}\" sera définitivement supprimé, ainsi que son rappel programmé.'**
   String deleteTreatmentMessage(String name);
 
+  /// No description provided for @vaccinationDoneOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fait le {date}'**
+  String vaccinationDoneOn(String date);
+
+  /// No description provided for @vaccinationDoneOnWithDue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fait le {date} — échéance le {dueDate}'**
+  String vaccinationDoneOnWithDue(String date, String dueDate);
+
+  /// No description provided for @treatmentNextDoseLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine dose'**
+  String get treatmentNextDoseLabel;
+
+  /// No description provided for @treatmentDueToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get treatmentDueToday;
+
+  /// No description provided for @treatmentDueInDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'{days, plural, =1{Dans 1 jour} other{Dans {days} jours}}'**
+  String treatmentDueInDays(int days);
+
+  /// No description provided for @treatmentOverdueDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'{days, plural, =1{En retard de 1 jour} other{En retard de {days} jours}}'**
+  String treatmentOverdueDays(int days);
+
+  /// No description provided for @vaccinationsListTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vaccins'**
+  String get vaccinationsListTitle;
+
+  /// No description provided for @vaccinationsListTitleWithName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vaccins de {name}'**
+  String vaccinationsListTitleWithName(String name);
+
+  /// No description provided for @vaccinationsListAddTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un vaccin'**
+  String get vaccinationsListAddTooltip;
+
+  /// No description provided for @vaccinationsListEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun vaccin enregistré'**
+  String get vaccinationsListEmptyTitle;
+
+  /// No description provided for @vaccinationsListEmptyMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appuie sur + pour ajouter un vaccin, même fait il y a longtemps.'**
+  String get vaccinationsListEmptyMessage;
+
+  /// No description provided for @treatmentsListTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitements'**
+  String get treatmentsListTitle;
+
+  /// No description provided for @treatmentsListTitleWithName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitements de {name}'**
+  String treatmentsListTitleWithName(String name);
+
+  /// No description provided for @treatmentsListAddTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un traitement'**
+  String get treatmentsListAddTooltip;
+
+  /// No description provided for @treatmentsListEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun traitement enregistré'**
+  String get treatmentsListEmptyTitle;
+
+  /// No description provided for @treatmentsListEmptyMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appuie sur + pour ajouter un vermifuge ou un antiparasitaire, même fait il y a longtemps.'**
+  String get treatmentsListEmptyMessage;
+
   /// No description provided for @dueStatusUpToDate.
   ///
   /// In fr, this message translates to:

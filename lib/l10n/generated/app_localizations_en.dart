@@ -91,6 +91,80 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String vaccinationDoneOn(String date) {
+    return 'Given on $date';
+  }
+
+  @override
+  String vaccinationDoneOnWithDue(String date, String dueDate) {
+    return 'Given on $date — due on $dueDate';
+  }
+
+  @override
+  String get treatmentNextDoseLabel => 'Next dose';
+
+  @override
+  String get treatmentDueToday => 'Today';
+
+  @override
+  String treatmentDueInDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'In $days days',
+      one: 'In 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String treatmentOverdueDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days overdue',
+      one: '1 day overdue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get vaccinationsListTitle => 'Vaccinations';
+
+  @override
+  String vaccinationsListTitleWithName(String name) {
+    return '$name\'s vaccinations';
+  }
+
+  @override
+  String get vaccinationsListAddTooltip => 'Add a vaccination';
+
+  @override
+  String get vaccinationsListEmptyTitle => 'No vaccinations recorded';
+
+  @override
+  String get vaccinationsListEmptyMessage =>
+      'Tap + to add a vaccination, even one given a while ago.';
+
+  @override
+  String get treatmentsListTitle => 'Treatments';
+
+  @override
+  String treatmentsListTitleWithName(String name) {
+    return '$name\'s treatments';
+  }
+
+  @override
+  String get treatmentsListAddTooltip => 'Add a treatment';
+
+  @override
+  String get treatmentsListEmptyTitle => 'No treatments recorded';
+
+  @override
+  String get treatmentsListEmptyMessage =>
+      'Tap + to add a dewormer or pest control treatment, even one given a while ago.';
+
+  @override
   String get dueStatusUpToDate => 'Up to date';
 
   @override
