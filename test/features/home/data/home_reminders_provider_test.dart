@@ -7,8 +7,7 @@ import 'package:memo_patte/core/database/app_database.dart';
 import 'package:memo_patte/core/database/database_provider.dart';
 import 'package:memo_patte/core/notifications/notification_service.dart';
 import 'package:memo_patte/core/notifications/notification_service_provider.dart';
-import 'package:memo_patte/features/animals/data/animal_dao.dart';
-import 'package:memo_patte/features/animals/data/animal_repository.dart';
+import 'package:memo_patte/features/animals/data/animal_repository_provider.dart';
 import 'package:memo_patte/features/animals/domain/animal_species.dart';
 import 'package:memo_patte/features/home/data/home_reminders_provider.dart';
 import 'package:memo_patte/features/home/domain/home_reminder.dart';
@@ -67,9 +66,9 @@ void main() {
     addTearDown(database.close);
   });
 
-  Future<int> createAnimal(String name) =>
-      AnimalRepository(AnimalDao(database))
-          .createAnimal(name: name, species: AnimalSpecies.dog);
+  Future<int> createAnimal(String name) => container
+      .read(animalRepositoryProvider)
+      .createAnimal(name: name, species: AnimalSpecies.dog);
 
   /// Attend qu'un provider `Stream`/`AsyncValue` sorte de l'état
   /// `AsyncLoading`, par polling plutôt que `container.read(provider.future)`.

@@ -13,6 +13,10 @@ import 'package:memo_patte/features/animals/data/animal_dao.dart';
 import 'package:memo_patte/features/animals/data/animal_repository.dart';
 import 'package:memo_patte/features/animals/domain/animal_species.dart';
 import 'package:memo_patte/features/animals/presentation/animal_profile_screen.dart';
+import 'package:memo_patte/features/treatments/data/treatment_dao.dart';
+import 'package:memo_patte/features/treatments/data/treatment_repository.dart';
+import 'package:memo_patte/features/vaccinations/data/vaccination_dao.dart';
+import 'package:memo_patte/features/vaccinations/data/vaccination_repository.dart';
 
 /// Fake muet — `AnimalProfileScreen` réconcilie les traitements en retard
 /// dans `initState` (ticket 4.4), qui a besoin d'un `NotificationService`
@@ -62,8 +66,22 @@ void main() {
     'éditer un animal préserve les champs absents du formulaire '
     '(photoPath en particulier)',
     (tester) async {
+      final notificationService = _NoopNotificationService();
+      // `AnimalRepository` a besoin d'un `VaccinationRepository`/
+      // `TreatmentRepository` depuis le 2026-08-21 (audit issue #71
+      // point 1.2) — jetables ici, ce test n'exerce pas `deleteAnimal`.
       final id = await AnimalRepository(
         AnimalDao(database),
+        VaccinationRepository(
+          VaccinationDao(database),
+          AnimalDao(database),
+          notificationService,
+        ),
+        TreatmentRepository(
+          TreatmentDao(database),
+          AnimalDao(database),
+          notificationService,
+        ),
       ).createAnimal(name: 'Milo', species: AnimalSpecies.dog);
       // `photoPath` posé directement en base : aucun écran ne sait
       // encore le saisir (cf. commentaire de classe).
