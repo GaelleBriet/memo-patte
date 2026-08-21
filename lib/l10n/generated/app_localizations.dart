@@ -103,6 +103,228 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Bonjour'**
   String get homeGreeting;
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get commonCancel;
+
+  /// No description provided for @commonSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get commonSave;
+
+  /// No description provided for @commonBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get commonBack;
+
+  /// No description provided for @commonEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get commonEdit;
+
+  /// No description provided for @commonSeeAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir tout'**
+  String get commonSeeAll;
+
+  /// Valeur d'un champ facultatif non renseigné, accord féminin (ex. "la race", "la date de naissance").
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseignée'**
+  String get commonNotProvidedFeminine;
+
+  /// Valeur d'un champ facultatif non renseigné, accord masculin (ex. "le poids").
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get commonNotProvidedMasculine;
+
+  /// No description provided for @dueStatusUpToDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'À jour'**
+  String get dueStatusUpToDate;
+
+  /// No description provided for @dueStatusDueSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'À venir'**
+  String get dueStatusDueSoon;
+
+  /// No description provided for @dueStatusOverdue.
+  ///
+  /// In fr, this message translates to:
+  /// **'En retard'**
+  String get dueStatusOverdue;
+
+  /// No description provided for @animalSpeciesDog.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chien'**
+  String get animalSpeciesDog;
+
+  /// No description provided for @animalSpeciesCat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chat'**
+  String get animalSpeciesCat;
+
+  /// No description provided for @animalFormNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom *'**
+  String get animalFormNameLabel;
+
+  /// No description provided for @animalFormNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nom est obligatoire.'**
+  String get animalFormNameRequired;
+
+  /// No description provided for @animalFormSpeciesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espèce *'**
+  String get animalFormSpeciesLabel;
+
+  /// No description provided for @animalFormSpeciesRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis une espèce.'**
+  String get animalFormSpeciesRequired;
+
+  /// No description provided for @animalFormBreedLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Race (facultatif)'**
+  String get animalFormBreedLabel;
+
+  /// No description provided for @animalFormWeightLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids initial en kg (facultatif)'**
+  String get animalFormWeightLabel;
+
+  /// No description provided for @animalFormWeightInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids invalide.'**
+  String get animalFormWeightInvalid;
+
+  /// No description provided for @animalFormBirthDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de naissance (facultatif)'**
+  String get animalFormBirthDateLabel;
+
+  /// No description provided for @animalFormBirthDateNotProvided.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseignée'**
+  String get animalFormBirthDateNotProvided;
+
+  /// No description provided for @createAnimalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un profil animal'**
+  String get createAnimalTitle;
+
+  /// No description provided for @createAnimalSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer le profil'**
+  String get createAnimalSubmit;
+
+  /// No description provided for @animalNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Animal introuvable.'**
+  String get animalNotFound;
+
+  /// No description provided for @profileSpeciesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espèce'**
+  String get profileSpeciesLabel;
+
+  /// No description provided for @profileBreedLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Race'**
+  String get profileBreedLabel;
+
+  /// No description provided for @profileBirthDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de naissance'**
+  String get profileBirthDateLabel;
+
+  /// No description provided for @profileWeightLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids initial'**
+  String get profileWeightLabel;
+
+  /// No description provided for @animalProfileWeightValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{weight} kg'**
+  String animalProfileWeightValue(String weight);
+
+  /// No description provided for @vaccinationsSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vaccins'**
+  String get vaccinationsSectionTitle;
+
+  /// No description provided for @treatmentsSectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitement en cours'**
+  String get treatmentsSectionTitle;
+
+  /// No description provided for @remindersCountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'rappel(s)'**
+  String get remindersCountLabel;
+
+  /// No description provided for @vaccinesEmptyCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun vaccin enregistré — appuie pour en ajouter un.'**
+  String get vaccinesEmptyCta;
+
+  /// No description provided for @treatmentsEmptyCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun traitement enregistré — appuie pour en ajouter un.'**
+  String get treatmentsEmptyCta;
+
+  /// No description provided for @animalAgeLessThanMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'moins d\'un mois'**
+  String get animalAgeLessThanMonth;
+
+  /// No description provided for @animalAgeMonths.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{{count} mois} other{{count} mois}}'**
+  String animalAgeMonths(int count);
+
+  /// No description provided for @animalAgeYears.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 an} other{{count} ans}}'**
+  String animalAgeYears(int count);
 }
 
 class _AppLocalizationsDelegate
