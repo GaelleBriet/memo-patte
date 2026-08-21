@@ -1,7 +1,64 @@
 {
   "@@locale": "fr",
+
   "homeGreeting": "Bonjour",
-  "@homeGreeting": {
-    "description": "Salutation en tête de l'accueil."
+  "@homeGreeting": { "description": "Salutation en tête de l'accueil." },
+
+  "commonCancel": "Annuler",
+  "commonSave": "Enregistrer",
+  "commonBack": "Retour",
+  "commonEdit": "Modifier",
+  "commonSeeAll": "Voir tout",
+  "commonNotProvidedFeminine": "Non renseignée",
+  "@commonNotProvidedFeminine": {
+    "description": "Valeur d'un champ facultatif non renseigné, accord féminin (ex. \"la race\", \"la date de naissance\")."
+  },
+  "commonNotProvidedMasculine": "Non renseigné",
+  "@commonNotProvidedMasculine": {
+    "description": "Valeur d'un champ facultatif non renseigné, accord masculin (ex. \"le poids\")."
+  },
+
+  "dueStatusUpToDate": "À jour",
+  "dueStatusDueSoon": "À venir",
+  "dueStatusOverdue": "En retard",
+
+  "animalSpeciesDog": "Chien",
+  "animalSpeciesCat": "Chat",
+
+  "animalFormNameLabel": "Nom *",
+  "animalFormNameRequired": "Le nom est obligatoire.",
+  "animalFormSpeciesLabel": "Espèce *",
+  "animalFormSpeciesRequired": "Choisis une espèce.",
+  "animalFormBreedLabel": "Race (facultatif)",
+  "animalFormWeightLabel": "Poids initial en kg (facultatif)",
+  "animalFormWeightInvalid": "Poids invalide.",
+  "animalFormBirthDateLabel": "Date de naissance (facultatif)",
+  "animalFormBirthDateNotProvided": "Non renseignée",
+
+  "createAnimalTitle": "Créer un profil animal",
+  "createAnimalSubmit": "Créer le profil",
+
+  "animalNotFound": "Animal introuvable.",
+  "profileSpeciesLabel": "Espèce",
+  "profileBreedLabel": "Race",
+  "profileBirthDateLabel": "Date de naissance",
+  "profileWeightLabel": "Poids initial",
+  "animalProfileWeightValue": "{weight} kg",
+  "@animalProfileWeightValue": {
+    "placeholders": { "weight": { "type": "String" } }
+  },
+  "vaccinationsSectionTitle": "Vaccins",
+  "treatmentsSectionTitle": "Traitement en cours",
+  "remindersCountLabel": "rappel(s)",
+  "vaccinesEmptyCta": "Aucun vaccin enregistré — appuie pour en ajouter un.",
+  "treatmentsEmptyCta": "Aucun traitement enregistré — appuie pour en ajouter un.",
+  "animalAgeLessThanMonth": "moins d'un mois",
+  "animalAgeMonths": "{count, plural, =1{{count} mois} other{{count} mois}}",
+  "@animalAgeMonths": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "animalAgeYears": "{count, plural, =1{1 an} other{{count} ans}}",
+  "@animalAgeYears": {
+    "placeholders": { "count": { "type": "int" } }
   }
 }
