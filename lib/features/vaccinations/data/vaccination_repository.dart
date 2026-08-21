@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/notifications/notification_service.dart';
+import '../../../l10n/app_locale.dart';
 import '../../animals/data/animal_dao.dart';
 import 'vaccination_dao.dart';
 
@@ -150,13 +151,15 @@ class VaccinationRepository {
     if (!fireAt.isAfter(DateTime.now())) return null;
 
     final animal = await _animalDao.getById(animalId);
+    final l10n = appLocalizations();
     final notificationId = notificationIdFor(vaccinationId);
     await _notificationService.scheduleNotification(
       id: notificationId,
-      title: 'Rappel vaccin',
-      body:
-          'Le vaccin $name de ${animal?.name ?? 'ton animal'} arrive à '
-          'échéance aujourd\'hui.',
+      title: l10n.vaccinationReminderNotificationTitle,
+      body: l10n.vaccinationReminderNotificationBody(
+        name,
+        animal?.name ?? l10n.notificationFallbackAnimalName,
+      ),
       scheduledDate: fireAt,
     );
     return notificationId;

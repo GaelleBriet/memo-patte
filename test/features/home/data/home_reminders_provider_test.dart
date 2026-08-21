@@ -184,7 +184,6 @@ void main() {
     expect(reminder.animalName, 'Milo');
     expect(reminder.kind, ReminderKind.vaccination);
     expect(reminder.sourceId, vaccinationId);
-    expect(reminder.title, 'Rappel de vaccin');
     expect(reminder.detail, 'Rage');
     expect(reminder.dueDate, dueDate);
     // Les vaccins n'ont pas d'heure de rappel configurable — voir
@@ -226,7 +225,6 @@ void main() {
     expect(reminder.animalName, 'Milo');
     expect(reminder.kind, ReminderKind.treatment);
     expect(reminder.sourceId, treatmentId);
-    expect(reminder.title, 'Rappel de traitement');
     expect(reminder.detail, 'Bravecto');
     // Cycle long : pas d'heure de rappel à afficher (9h par défaut,
     // jamais choisie par l'utilisateur — voir `HomeReminder.reminderTimeLabel`).

@@ -265,7 +265,7 @@ class _ReminderCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  reminder.title,
+                  reminder.kind.label(context),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,

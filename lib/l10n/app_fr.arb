@@ -136,6 +136,34 @@
   "notificationPrimingActivate": "Activer les rappels",
   "notificationPrimingLater": "Plus tard",
 
+  "homeReminderVaccinationTitle": "Rappel de vaccin",
+  "homeReminderTreatmentTitle": "Rappel de traitement",
+
+  "notificationFallbackAnimalName": "ton animal",
+  "vaccinationReminderNotificationTitle": "Rappel vaccin",
+  "vaccinationReminderNotificationBody": "Le vaccin {name} de {animalName} arrive à échéance aujourd'hui.",
+  "@vaccinationReminderNotificationBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "animalName": { "type": "String" }
+    }
+  },
+  "treatmentReminderNotificationTitle": "Rappel de traitement",
+  "treatmentReminderDueNotificationBody": "Le traitement {name} de {animalName} arrive à échéance aujourd'hui.",
+  "@treatmentReminderDueNotificationBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "animalName": { "type": "String" }
+    }
+  },
+  "treatmentReminderTimeNotificationBody": "Le traitement {name} de {animalName} est à donner maintenant.",
+  "@treatmentReminderTimeNotificationBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "animalName": { "type": "String" }
+    }
+  },
+
   "dueStatusUpToDate": "À jour",
   "dueStatusDueSoon": "À venir",
   "dueStatusOverdue": "En retard",

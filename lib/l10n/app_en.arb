@@ -96,6 +96,16 @@
   "notificationPrimingActivate": "Enable reminders",
   "notificationPrimingLater": "Later",
 
+  "homeReminderVaccinationTitle": "Vaccination reminder",
+  "homeReminderTreatmentTitle": "Treatment reminder",
+
+  "notificationFallbackAnimalName": "your companion",
+  "vaccinationReminderNotificationTitle": "Vaccination reminder",
+  "vaccinationReminderNotificationBody": "The {name} vaccine for {animalName} is due today.",
+  "treatmentReminderNotificationTitle": "Treatment reminder",
+  "treatmentReminderDueNotificationBody": "The {name} treatment for {animalName} is due today.",
+  "treatmentReminderTimeNotificationBody": "The {name} treatment for {animalName} needs to be given now.",
+
   "dueStatusUpToDate": "Up to date",
   "dueStatusDueSoon": "Upcoming",
   "dueStatusOverdue": "Overdue",
