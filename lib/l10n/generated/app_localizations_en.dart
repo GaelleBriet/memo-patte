@@ -147,6 +147,36 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tap + to add a vaccination, even one given a while ago.';
 
   @override
+  String get vaccinationFormAddTitle => 'Add a vaccination';
+
+  @override
+  String get vaccinationFormEditTitle => 'Edit vaccination';
+
+  @override
+  String get vaccinationFormNotFound => 'Vaccination not found.';
+
+  @override
+  String get vaccinationFormNameLabel => 'Vaccination name *';
+
+  @override
+  String get vaccinationFormNameHint => 'Rabies, DHPPi...';
+
+  @override
+  String get vaccinationFormNameRequired => 'Vaccination name is required.';
+
+  @override
+  String get vaccinationFormDateLabel => 'Vaccination date *';
+
+  @override
+  String get vaccinationFormNextDueDateLabel => 'Next due date (optional)';
+
+  @override
+  String get vaccinationFormClearDueDateTooltip => 'Clear due date';
+
+  @override
+  String get vaccinationFormSubmit => 'Add vaccination';
+
+  @override
   String get treatmentsListTitle => 'Treatments';
 
   @override

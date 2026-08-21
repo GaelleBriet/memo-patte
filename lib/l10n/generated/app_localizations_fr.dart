@@ -147,6 +147,37 @@ class AppLocalizationsFr extends AppLocalizations {
       'Appuie sur + pour ajouter un vaccin, même fait il y a longtemps.';
 
   @override
+  String get vaccinationFormAddTitle => 'Ajouter un vaccin';
+
+  @override
+  String get vaccinationFormEditTitle => 'Modifier le vaccin';
+
+  @override
+  String get vaccinationFormNotFound => 'Vaccin introuvable.';
+
+  @override
+  String get vaccinationFormNameLabel => 'Nom du vaccin *';
+
+  @override
+  String get vaccinationFormNameHint => 'Rage, CHPPiL...';
+
+  @override
+  String get vaccinationFormNameRequired => 'Le nom du vaccin est obligatoire.';
+
+  @override
+  String get vaccinationFormDateLabel => 'Date du vaccin *';
+
+  @override
+  String get vaccinationFormNextDueDateLabel =>
+      'Prochaine échéance (facultatif)';
+
+  @override
+  String get vaccinationFormClearDueDateTooltip => 'Effacer l\'échéance';
+
+  @override
+  String get vaccinationFormSubmit => 'Ajouter le vaccin';
+
+  @override
   String get treatmentsListTitle => 'Traitements';
 
   @override

@@ -314,6 +314,66 @@ abstract class AppLocalizations {
   /// **'Appuie sur + pour ajouter un vaccin, même fait il y a longtemps.'**
   String get vaccinationsListEmptyMessage;
 
+  /// No description provided for @vaccinationFormAddTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un vaccin'**
+  String get vaccinationFormAddTitle;
+
+  /// No description provided for @vaccinationFormEditTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le vaccin'**
+  String get vaccinationFormEditTitle;
+
+  /// No description provided for @vaccinationFormNotFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vaccin introuvable.'**
+  String get vaccinationFormNotFound;
+
+  /// No description provided for @vaccinationFormNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du vaccin *'**
+  String get vaccinationFormNameLabel;
+
+  /// No description provided for @vaccinationFormNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rage, CHPPiL...'**
+  String get vaccinationFormNameHint;
+
+  /// No description provided for @vaccinationFormNameRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nom du vaccin est obligatoire.'**
+  String get vaccinationFormNameRequired;
+
+  /// No description provided for @vaccinationFormDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date du vaccin *'**
+  String get vaccinationFormDateLabel;
+
+  /// No description provided for @vaccinationFormNextDueDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine échéance (facultatif)'**
+  String get vaccinationFormNextDueDateLabel;
+
+  /// No description provided for @vaccinationFormClearDueDateTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer l\'échéance'**
+  String get vaccinationFormClearDueDateTooltip;
+
+  /// No description provided for @vaccinationFormSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter le vaccin'**
+  String get vaccinationFormSubmit;
+
   /// No description provided for @treatmentsListTitle.
   ///
   /// In fr, this message translates to:
