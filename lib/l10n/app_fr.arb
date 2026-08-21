@@ -77,6 +77,17 @@
   "vaccinationsListEmptyTitle": "Aucun vaccin enregistré",
   "vaccinationsListEmptyMessage": "Appuie sur + pour ajouter un vaccin, même fait il y a longtemps.",
 
+  "vaccinationFormAddTitle": "Ajouter un vaccin",
+  "vaccinationFormEditTitle": "Modifier le vaccin",
+  "vaccinationFormNotFound": "Vaccin introuvable.",
+  "vaccinationFormNameLabel": "Nom du vaccin *",
+  "vaccinationFormNameHint": "Rage, CHPPiL...",
+  "vaccinationFormNameRequired": "Le nom du vaccin est obligatoire.",
+  "vaccinationFormDateLabel": "Date du vaccin *",
+  "vaccinationFormNextDueDateLabel": "Prochaine échéance (facultatif)",
+  "vaccinationFormClearDueDateTooltip": "Effacer l'échéance",
+  "vaccinationFormSubmit": "Ajouter le vaccin",
+
   "treatmentsListTitle": "Traitements",
   "treatmentsListTitleWithName": "Traitements de {name}",
   "@treatmentsListTitleWithName": {
@@ -85,6 +96,37 @@
   "treatmentsListAddTooltip": "Ajouter un traitement",
   "treatmentsListEmptyTitle": "Aucun traitement enregistré",
   "treatmentsListEmptyMessage": "Appuie sur + pour ajouter un vermifuge ou un antiparasitaire, même fait il y a longtemps.",
+
+  "treatmentFormAddTitle": "Ajouter un traitement",
+  "treatmentFormEditTitle": "Modifier le traitement",
+  "treatmentFormNotFound": "Traitement introuvable.",
+  "treatmentFormNameLabel": "Nom du traitement *",
+  "treatmentFormNameHint": "Bravecto, Vermifuge...",
+  "treatmentFormNameRequired": "Le nom du traitement est obligatoire.",
+  "treatmentFormStartDateLabel": "Date de début du traitement *",
+  "treatmentFormLastDoseDateLabel": "Date de la dernière administration *",
+  "treatmentFormFrequencyLabel": "Fréquence *",
+  "treatmentFormReminderTimeLabel": "Heure de rappel *",
+  "treatmentFormReminderTimesLabel": "Heures de rappel *",
+  "treatmentFormChooseTime": "Choisir une heure",
+  "treatmentFormRemoveTimeTooltip": "Retirer cette heure",
+  "treatmentFormAddTime": "Ajouter une heure",
+  "treatmentFormNextReminderLabel": "Prochain rappel : {description}",
+  "@treatmentFormNextReminderLabel": {
+    "placeholders": { "description": { "type": "String" } }
+  },
+  "treatmentFormNextDueDateLabel": "Prochaine échéance : {date}",
+  "@treatmentFormNextDueDateLabel": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "treatmentFormMissingReminderTime": "Choisis au moins une heure de rappel.",
+  "treatmentFormSubmit": "Ajouter le traitement",
+  "treatmentFormFrequencyMonthly": "1 mois",
+  "treatmentFormFrequencyQuarterly": "3 mois",
+  "treatmentFormFrequencyBiannual": "6 mois",
+  "treatmentFormFrequencyAnnual": "1 an",
+  "treatmentFormFrequencyDaily": "1×/jour",
+  "treatmentFormFrequencySeveralTimesDaily": "Plusieurs/jour",
 
   "dueStatusUpToDate": "À jour",
   "dueStatusDueSoon": "À venir",
