@@ -34,6 +34,63 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonNotProvidedMasculine => 'Non renseigné';
 
   @override
+  String get commonRetry => 'Réessayer';
+
+  @override
+  String get commonDelete => 'Supprimer';
+
+  @override
+  String get errorDisplayTitle => 'Une erreur est survenue';
+
+  @override
+  String get navHome => 'Accueil';
+
+  @override
+  String get navCarnet => 'Carnet';
+
+  @override
+  String get homeTodayTitle => 'À faire aujourd\'hui';
+
+  @override
+  String get homeNoReminders =>
+      'Rien à signaler pour l\'instant — tous les rappels sont à jour.';
+
+  @override
+  String get homeQuickActionsTitle => 'Actions rapides';
+
+  @override
+  String get homeNewTreatmentAction => 'Nouveau traitement';
+
+  @override
+  String get homeVaccinationReminderAction => 'Rappel de vaccin';
+
+  @override
+  String get homeAntiparasiteAction => 'Antiparasitaire';
+
+  @override
+  String get homeEmptyStateTitle => 'Bienvenue sur MémoPatte';
+
+  @override
+  String get homeEmptyStateMessage =>
+      'Crée le profil de ton premier compagnon pour commencer à suivre ses rappels.';
+
+  @override
+  String get deleteVaccinationTitle => 'Supprimer ce vaccin ?';
+
+  @override
+  String deleteVaccinationMessage(String name) {
+    return '\"$name\" sera définitivement supprimé, ainsi que son rappel programmé.';
+  }
+
+  @override
+  String get deleteTreatmentTitle => 'Supprimer ce traitement ?';
+
+  @override
+  String deleteTreatmentMessage(String name) {
+    return '\"$name\" sera définitivement supprimé, ainsi que son rappel programmé.';
+  }
+
+  @override
   String get dueStatusUpToDate => 'À jour';
 
   @override

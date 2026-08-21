@@ -17,6 +17,33 @@
   "@commonNotProvidedMasculine": {
     "description": "Valeur d'un champ facultatif non renseigné, accord masculin (ex. \"le poids\")."
   },
+  "commonRetry": "Réessayer",
+  "commonDelete": "Supprimer",
+
+  "errorDisplayTitle": "Une erreur est survenue",
+
+  "navHome": "Accueil",
+  "navCarnet": "Carnet",
+
+  "homeTodayTitle": "À faire aujourd'hui",
+  "homeNoReminders": "Rien à signaler pour l'instant — tous les rappels sont à jour.",
+  "homeQuickActionsTitle": "Actions rapides",
+  "homeNewTreatmentAction": "Nouveau traitement",
+  "homeVaccinationReminderAction": "Rappel de vaccin",
+  "homeAntiparasiteAction": "Antiparasitaire",
+  "homeEmptyStateTitle": "Bienvenue sur MémoPatte",
+  "homeEmptyStateMessage": "Crée le profil de ton premier compagnon pour commencer à suivre ses rappels.",
+
+  "deleteVaccinationTitle": "Supprimer ce vaccin ?",
+  "deleteVaccinationMessage": "\"{name}\" sera définitivement supprimé, ainsi que son rappel programmé.",
+  "@deleteVaccinationMessage": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "deleteTreatmentTitle": "Supprimer ce traitement ?",
+  "deleteTreatmentMessage": "\"{name}\" sera définitivement supprimé, ainsi que son rappel programmé.",
+  "@deleteTreatmentMessage": {
+    "placeholders": { "name": { "type": "String" } }
+  },
 
   "dueStatusUpToDate": "À jour",
   "dueStatusDueSoon": "À venir",
