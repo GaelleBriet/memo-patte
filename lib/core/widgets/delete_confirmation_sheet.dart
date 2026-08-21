@@ -106,9 +106,7 @@ class _DeleteConfirmationSheet extends StatelessWidget {
                         backgroundColor: AppTheme.alertRed,
                       ),
                       onPressed: () => Navigator.of(context).pop(true),
-                      child: Text(
-                        AppLocalizations.of(context)!.commonDelete,
-                      ),
+                      child: Text(AppLocalizations.of(context)!.commonDelete),
                     ),
                   ),
                 ],

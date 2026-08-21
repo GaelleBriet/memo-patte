@@ -83,10 +83,7 @@ class ErrorDisplay extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              FilledButton(
-                onPressed: onRetry,
-                child: Text(l10n.commonRetry),
-              ),
+              FilledButton(onPressed: onRetry, child: Text(l10n.commonRetry)),
             ],
           ],
         ),

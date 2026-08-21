@@ -82,9 +82,8 @@ class VaccinationCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   vaccination.nextDueDate == null
-                      ? AppLocalizations.of(
-                          context,
-                        )!.vaccinationDoneOn(_formatDate(vaccination.date))
+                      ? AppLocalizations.of(context)!
+                            .vaccinationDoneOn(_formatDate(vaccination.date))
                       : AppLocalizations.of(context)!.vaccinationDoneOnWithDue(
                           _formatDate(vaccination.date),
                           _formatDate(vaccination.nextDueDate!),

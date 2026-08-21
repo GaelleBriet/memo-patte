@@ -47,7 +47,9 @@ class VaccinationFormScreen extends ConsumerWidget {
     return vaccinationAsync.when(
       data: (vaccination) => vaccination == null
           ? Scaffold(
-              appBar: GradientAppBar(title: Text(l10n.vaccinationFormEditTitle)),
+              appBar: GradientAppBar(
+                title: Text(l10n.vaccinationFormEditTitle),
+              ),
               body: Center(child: Text(l10n.vaccinationFormNotFound)),
             )
           : _VaccinationFormScaffold(
@@ -259,7 +261,9 @@ class _VaccinationFormBodyState
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Text(
-                        _isEditing ? l10n.commonSave : l10n.vaccinationFormSubmit,
+                        _isEditing
+                            ? l10n.commonSave
+                            : l10n.vaccinationFormSubmit,
                       ),
               ),
             ],
