@@ -218,6 +218,60 @@ class NotificationService {
     );
   }
 
+  /// Indique si l'app peut programmer des alarmes exactes (Android
+  /// uniquement) — audit du 2026-08-19, issue #71 point 3.4. Consommée
+  /// par `TreatmentRepository._scheduleReminderTimes` pour choisir entre
+  /// [AndroidScheduleMode.exactAllowWhileIdle] (traitements à heure(s)
+  /// de rappel fixe(s), où l'heure précise compte réellement — prendre
+  /// un médicament "vers 8h" plutôt qu'à 8h pile n'a pas le même sens
+  /// que pour un vaccin dans un mois) et
+  /// [AndroidScheduleMode.inexactAllowWhileIdle] (repli si la
+  /// permission n'est pas accordée).
+  ///
+  /// Ne déclenche jamais de demande — c'est le rôle de
+  /// [requestExactAlarmPermission]. `true` par défaut sur les
+  /// plateformes/versions Android où l'exactitude n'est pas restreinte
+  /// (avant Android 12, ou hors Android où la question ne se pose pas
+  /// pour ce plugin) : c'est ce que retourne déjà
+  /// `canScheduleExactNotifications` du plugin dans ces cas.
+  Future<bool> canScheduleExactAlarms() async {
+    await init();
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      final allowed = await _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.canScheduleExactNotifications();
+      return allowed ?? false;
+    }
+
+    return true;
+  }
+
+  /// Déclenche la vraie demande de permission d'alarmes exactes — sur
+  /// Android 12+, ouvre l'écran système dédié (pas une popup in-app
+  /// classique). Contrairement aux notifications elles-mêmes
+  /// ([requestPermission]), pas de "priming" avant : cette permission
+  /// n'est demandée qu'au moment de créer/modifier un traitement à
+  /// heure(s) fixe(s), un contexte déjà explicite pour qui la déclenche.
+  ///
+  /// `false` sur les plateformes hors Android (rien à demander).
+  Future<bool> requestExactAlarmPermission() async {
+    await init();
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      final granted = await _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.requestExactAlarmsPermission();
+      return granted ?? false;
+    }
+
+    return false;
+  }
+
   /// Annule la notification programmée sous l'identifiant [id]. Ne fait
   /// rien si aucune notification n'est programmée sous cet identifiant.
   Future<void> cancelNotification(int id) async {

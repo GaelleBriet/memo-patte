@@ -1,6 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show DateTimeComponents;
+    show AndroidScheduleMode, DateTimeComponents;
 
 import '../../../core/database/app_database.dart';
 import '../../../core/notifications/notification_service.dart';
@@ -323,6 +323,19 @@ class TreatmentRepository {
     final sorted = [...reminderTimes]..sort();
     final ids = <int>[];
 
+    // Alarme exacte si autorisée (audit du 2026-08-19, issue #71 point
+    // 3.4) : contrairement aux vaccins/cycles longs (granularité du
+    // jour, `inexactAllowWhileIdle` largement suffisant), l'heure
+    // précise compte réellement pour un médicament pris à heure(s)
+    // fixe(s) — "vers 8h" plutôt que "à 8h pile" n'a pas le même sens
+    // qu'un rappel de vaccin dans un mois. Repli automatique sur
+    // `inexactAllowWhileIdle` (comportement d'avant) si la permission
+    // `SCHEDULE_EXACT_ALARM` n'est pas accordée, plutôt que de faire
+    // échouer la programmation.
+    final scheduleMode = await _notificationService.canScheduleExactAlarms()
+        ? AndroidScheduleMode.exactAllowWhileIdle
+        : AndroidScheduleMode.inexactAllowWhileIdle;
+
     for (var slot = 0; slot < sorted.length; slot++) {
       var firstFireAt = today.add(Duration(minutes: sorted[slot]));
       if (!firstFireAt.isAfter(now)) {
@@ -337,6 +350,7 @@ class TreatmentRepository {
             'donner maintenant.',
         scheduledDate: firstFireAt,
         matchDateTimeComponents: DateTimeComponents.time,
+        androidScheduleMode: scheduleMode,
       );
       ids.add(id);
     }

@@ -38,6 +38,15 @@ class _NoopNotificationService extends NotificationService {
 
   @override
   Future<void> cancelNotification(int id) async {}
+
+  // `TreatmentRepository._scheduleReminderTimes` interroge cette
+  // méthode pour les traitements à heure(s) fixe(s) (audit du
+  // 2026-08-19, issue #71 point 3.4) — sans cette surcharge, elle
+  // retomberait sur l'implémentation réelle et plante en test
+  // (`LateInitializationError` sur `FlutterLocalNotificationsPlatform`,
+  // jamais initialisée hors d'un vrai appareil).
+  @override
+  Future<bool> canScheduleExactAlarms() async => false;
 }
 
 /// Tests du provider de rappels de l'accueil (ticket 6.1) : sur une base

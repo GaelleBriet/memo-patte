@@ -22,6 +22,7 @@ typedef _ScheduledCall = ({
   String body,
   DateTime scheduledDate,
   DateTimeComponents? matchDateTimeComponents,
+  AndroidScheduleMode androidScheduleMode,
 });
 
 /// Fake de [NotificationService] — même principe que
@@ -31,8 +32,16 @@ class _FakeNotificationService extends NotificationService {
   final List<_ScheduledCall> scheduled = [];
   final List<int> cancelled = [];
 
+  /// `true` par défaut : le cas "permission accordée" — voir le groupe
+  /// de tests dédié pour le repli sur `inexactAllowWhileIdle` quand
+  /// elle ne l'est pas (audit du 2026-08-19, issue #71 point 3.4).
+  bool exactAlarmsAllowed = true;
+
   @override
   Future<void> init() async {}
+
+  @override
+  Future<bool> canScheduleExactAlarms() async => exactAlarmsAllowed;
 
   @override
   Future<void> scheduleNotification({
@@ -51,6 +60,7 @@ class _FakeNotificationService extends NotificationService {
       body: body,
       scheduledDate: scheduledDate,
       matchDateTimeComponents: matchDateTimeComponents,
+      androidScheduleMode: androidScheduleMode,
     ));
   }
 
@@ -228,6 +238,64 @@ void main() {
         treatment!.reminderNotificationIds,
         '${TreatmentRepository.notificationIdForSlot(id, 0)},'
         '${TreatmentRepository.notificationIdForSlot(id, 1)}',
+      );
+    });
+  });
+
+  group('createTreatment — fréquence quotidienne, mode d\'alarme (audit du '
+      '2026-08-19, issue #71 point 3.4)', () {
+    test('permission SCHEDULE_EXACT_ALARM accordée : alarme exacte', () async {
+      notificationService.exactAlarmsAllowed = true;
+
+      await repository.createTreatment(
+        animalId: animalId,
+        name: 'Antibiotique',
+        date: DateTime.now(),
+        frequency: TreatmentFrequency.daily,
+        reminderTimes: const [8 * 60],
+      );
+
+      expect(
+        notificationService.scheduled.single.androidScheduleMode,
+        AndroidScheduleMode.exactAllowWhileIdle,
+      );
+    });
+
+    test(
+      'permission SCHEDULE_EXACT_ALARM refusée : repli sur '
+      'inexactAllowWhileIdle, la programmation n\'échoue pas pour autant',
+      () async {
+        notificationService.exactAlarmsAllowed = false;
+
+        await repository.createTreatment(
+          animalId: animalId,
+          name: 'Antibiotique',
+          date: DateTime.now(),
+          frequency: TreatmentFrequency.daily,
+          reminderTimes: const [8 * 60],
+        );
+
+        expect(
+          notificationService.scheduled.single.androidScheduleMode,
+          AndroidScheduleMode.inexactAllowWhileIdle,
+        );
+      },
+    );
+
+    test('traitement à cycle long : jamais concerné par le mode exact '
+        '(granularité du jour, comportement inchangé)', () async {
+      notificationService.exactAlarmsAllowed = true;
+
+      await repository.createTreatment(
+        animalId: animalId,
+        name: 'Bravecto',
+        date: DateTime.now(),
+        frequency: TreatmentFrequency.monthly,
+      );
+
+      expect(
+        notificationService.scheduled.single.androidScheduleMode,
+        AndroidScheduleMode.inexactAllowWhileIdle,
       );
     });
   });
