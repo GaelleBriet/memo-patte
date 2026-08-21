@@ -1,0 +1,11 @@
+# Config `flutter gen-l10n` — audit du 2026-08-19, issue #71 point 3.3.
+#
+# `app_fr.arb` en template (pas `app_en.arb`) : le français est la
+# langue source réelle du produit, pas une traduction — voir
+# `main.dart` pour pourquoi `MaterialApp.locale` reste pinné sur `fr`
+# malgré la présence de traductions EN complètes.
+arb-dir: lib/l10n
+template-arb-file: app_fr.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/l10n/generated
