@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.7.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.6.0...memo_patte-v1.7.0) (2026-08-21)
+
+
+### ✨ Fonctionnalités
+
+* add defensive checks for column existence during migration to prevent duplicate column errors ([33d1337](https://github.com/GaelleBriet/memo-patte/commit/33d13371952f61530cb65fa4beb37c3ff2558ac2))
+* add regression tests for migration handling and first animal creation ([80b3487](https://github.com/GaelleBriet/memo-patte/commit/80b3487879477f05e3ba348095e4b8798802a86b))
+* handle navigation fallback after creating the first animal to prevent crashes ([6999407](https://github.com/GaelleBriet/memo-patte/commit/6999407a2f507b03178e7c9e75045602fe1f75f0))
+
 ## [1.6.0](https://github.com/GaelleBriet/memo-patte/compare/memo_patte-v1.5.0...memo_patte-v1.6.0) (2026-08-17)
 
 
