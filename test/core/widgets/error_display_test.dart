@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memo_patte/core/widgets/error_display.dart';
 
+import '../../support/localized_test_app.dart';
+
 /// Tests du composant d'erreur partagé (audit du 2026-08-19, issue #71
 /// point 3.2).
 void main() {
   testWidgets('affiche le message d\'erreur', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         home: Scaffold(
           body: ErrorDisplay(
             error: Exception('panne réseau'),
@@ -28,7 +30,7 @@ void main() {
     var retried = false;
 
     await tester.pumpWidget(
-      MaterialApp(
+      localizedTestApp(
         home: Scaffold(
           body: ErrorDisplay(
             error: Exception('panne réseau'),
