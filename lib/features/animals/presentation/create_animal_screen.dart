@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/widgets/gradient_app_bar.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../data/animal_repository_provider.dart';
 import 'animal_form_fields.dart';
-import '../../../core/widgets/gradient_app_bar.dart';
 
 /// Écran "Créer un profil animal" (ticket 1.2).
 ///
@@ -63,8 +64,9 @@ class _CreateAnimalScreenState extends ConsumerState<CreateAnimalScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: const GradientAppBar(title: Text('Créer un profil animal')),
+      appBar: GradientAppBar(title: Text(l10n.createAnimalTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -79,7 +81,7 @@ class _CreateAnimalScreenState extends ConsumerState<CreateAnimalScreen> {
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Créer le profil'),
+                  : Text(l10n.createAnimalSubmit),
             ),
           ],
         ),
