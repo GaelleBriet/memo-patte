@@ -29,11 +29,39 @@ jobs:
 
       - run: flutter pub get
 
+      # Fichiers générés (`*.g.dart` : Drift, riverpod_generator) à jour
+      # avec le code source — audit du 2026-08-19, issue #71 point 3.9 :
+      # rien n'empêchait jusqu'ici de committer un changement de schéma/
+      # provider sans relancer `build_runner`, avec un `.g.dart` périmé
+      # qui compile quand même (juste plus en phase avec ce qu'il est
+      # censé générer) jusqu'à ce que ça casse ailleurs, plus tard.
+      - name: Fichiers générés à jour
+        run: |
+          dart run build_runner build --delete-conflicting-outputs
+          git diff --exit-code -- '*.g.dart'
+
       - name: Vérifier le formatage
         run: dart format --output=none --set-exit-if-changed .
 
+      # `--fatal-infos` : une info (pas seulement warning/error) fait
+      # aussi échouer la CI — audit du 2026-08-19, issue #71 point 3.8.
       - name: Analyse statique
-        run: flutter analyze
+        run: flutter analyze --fatal-infos
 
       - name: Tests
-        run: flutter test
+        run: flutter test --coverage
+
+      - name: Publier la couverture de tests
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/lcov.info
+
+      # Détecte les régressions que `flutter analyze`/`flutter test` ne
+      # voient pas (config Gradle/manifest Android cassée...) — audit du
+      # 2026-08-19, issue #71 point 3.8. Debug, pas release : pas de
+      # signature nécessaire (voir `build.gradle.kts` — la release exige
+      # `android/key.properties`, un secret non présent en CI et qui ne
+      # doit pas l'être).
+      - name: Build APK debug
+        run: flutter build apk --debug
