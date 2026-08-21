@@ -7,25 +7,10 @@ import 'package:memo_patte/core/database/app_database.dart';
 import 'package:memo_patte/core/database/database_provider.dart';
 import 'package:memo_patte/features/animals/data/animal_dao.dart';
 import 'package:memo_patte/features/animals/presentation/create_animal_screen.dart';
+import 'package:memo_patte/l10n/generated/app_localizations.dart';
 
-/// Test de non-régression pour un bug constaté le 2026-08-21 : créer son
-/// tout premier animal (aucun autre encore en base) faisait planter l'app
-/// sur un écran noir à la validation.
-///
-/// Cause : `/animals/new` est une route soeur de `/animals/:id` dans
-/// `router.dart` (pas imbriquée dessous), et `AppShell._onCarnetTap`/
-/// `_HomeEmptyState` y naviguent directement quand aucun animal n'existe
-/// — la branche "Carnet" du `StatefulShellRoute` n'a donc *rien* en
-/// dessous de `CreateAnimalScreen` dans sa pile de navigation la toute
-/// première fois. `_submit()` faisait un `Navigator.pop()` nu, qui n'a
-/// rien à dépiler → crash. Même famille de bug que celui déjà corrigé sur
-/// le bouton retour de `AnimalProfileScreen` (2026-08-17).
-///
-/// Un vrai `GoRouter` minimal (2 routes) plutôt que `Navigator.push` :
-/// c'est justement le fait de passer par go_router (comme dans la vraie
-/// app, via `context.goNamed`) qui reproduit l'absence de page
-/// précédente — `Navigator.push` dans un test donnerait toujours
-/// quelque chose à dépiler, masquant le bug.
+import '../../../support/localized_test_app.dart';
+
 void main() {
   late AppDatabase database;
 
@@ -61,7 +46,12 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [appDatabaseProvider.overrideWithValue(database)],
-          child: MaterialApp.router(routerConfig: router),
+          child: MaterialApp.router(
+            routerConfig: router,
+            locale: testLocale,
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: testLocalizationsDelegates,
+          ),
         ),
       );
 

@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/notifications/notification_service.dart';
+import '../../../l10n/app_locale.dart';
 import '../../animals/data/animal_dao.dart';
 import 'vaccination_dao.dart';
 
@@ -33,6 +34,12 @@ class VaccinationRepository {
 
   Stream<List<Vaccination>> watchForAnimal(int animalId) =>
       _dao.watchForAnimal(animalId);
+
+  /// Lecture ponctuelle — voir `VaccinationDao.getForAnimal`. Consommée
+  /// par `AnimalRepository.deleteAnimal` pour annuler les notifications
+  /// des vaccins d'un animal avant sa suppression.
+  Future<List<Vaccination>> getForAnimal(int animalId) =>
+      _dao.getForAnimal(animalId);
 
   Future<Vaccination?> getVaccination(int id) => _dao.getById(id);
 
@@ -144,13 +151,15 @@ class VaccinationRepository {
     if (!fireAt.isAfter(DateTime.now())) return null;
 
     final animal = await _animalDao.getById(animalId);
+    final l10n = appLocalizations();
     final notificationId = notificationIdFor(vaccinationId);
     await _notificationService.scheduleNotification(
       id: notificationId,
-      title: 'Rappel vaccin',
-      body:
-          'Le vaccin $name de ${animal?.name ?? 'ton animal'} arrive à '
-          'échéance aujourd\'hui.',
+      title: l10n.vaccinationReminderNotificationTitle,
+      body: l10n.vaccinationReminderNotificationBody(
+        name,
+        animal?.name ?? l10n.notificationFallbackAnimalName,
+      ),
       scheduledDate: fireAt,
     );
     return notificationId;

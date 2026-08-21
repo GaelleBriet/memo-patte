@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../l10n/generated/app_localizations.dart';
 import '../domain/animal_species.dart';
 
 /// Valeurs saisies dans [AnimalFormFields], une fois validées.
@@ -87,8 +88,13 @@ class AnimalFormFieldsState extends State<AnimalFormFields> {
   /// explicatif est déjà affiché à l'utilisateur dans ce cas).
   AnimalFormValues? validateAndGetValues() {
     if (_species == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Choisis une espèce.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.animalFormSpeciesRequired,
+          ),
+        ),
+      );
       return null;
     }
     if (!(widget.formKey.currentState?.validate() ?? false)) {
@@ -110,23 +116,24 @@ class AnimalFormFieldsState extends State<AnimalFormFields> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Form(
       key: widget.formKey,
       child: Column(
         children: [
           TextFormField(
             controller: _nameController,
-            decoration: const InputDecoration(labelText: 'Nom *'),
+            decoration: InputDecoration(labelText: l10n.animalFormNameLabel),
             textCapitalization: TextCapitalization.words,
             validator: (value) => (value == null || value.trim().isEmpty)
-                ? 'Le nom est obligatoire.'
+                ? l10n.animalFormNameRequired
                 : null,
           ),
           const SizedBox(height: 16),
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Espèce *',
+              l10n.animalFormSpeciesLabel,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
@@ -136,7 +143,7 @@ class AnimalFormFieldsState extends State<AnimalFormFields> {
               for (final species in AnimalSpecies.values)
                 ButtonSegment(
                   value: species,
-                  label: Text(species.label),
+                  label: Text(species.label(context)),
                   icon: const Icon(Icons.pets),
                 ),
             ],
@@ -149,21 +156,19 @@ class AnimalFormFieldsState extends State<AnimalFormFields> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _breedController,
-            decoration: const InputDecoration(labelText: 'Race (facultatif)'),
+            decoration: InputDecoration(labelText: l10n.animalFormBreedLabel),
             textCapitalization: TextCapitalization.words,
           ),
           const SizedBox(height: 16),
           TextFormField(
             controller: _weightController,
-            decoration: const InputDecoration(
-              labelText: 'Poids initial en kg (facultatif)',
-            ),
+            decoration: InputDecoration(labelText: l10n.animalFormWeightLabel),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             validator: (value) {
               if (value == null || value.trim().isEmpty) return null;
               final parsed = double.tryParse(value.trim().replaceAll(',', '.'));
               if (parsed == null || parsed <= 0) {
-                return 'Poids invalide.';
+                return l10n.animalFormWeightInvalid;
               }
               return null;
             },
@@ -171,10 +176,10 @@ class AnimalFormFieldsState extends State<AnimalFormFields> {
           const SizedBox(height: 16),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('Date de naissance (facultatif)'),
+            title: Text(l10n.animalFormBirthDateLabel),
             subtitle: Text(
               _birthDate == null
-                  ? 'Non renseignée'
+                  ? l10n.animalFormBirthDateNotProvided
                   : '${_birthDate!.day}/${_birthDate!.month}/${_birthDate!.year}',
             ),
             trailing: const Icon(Icons.calendar_today),

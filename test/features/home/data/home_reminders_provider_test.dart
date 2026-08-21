@@ -7,8 +7,7 @@ import 'package:memo_patte/core/database/app_database.dart';
 import 'package:memo_patte/core/database/database_provider.dart';
 import 'package:memo_patte/core/notifications/notification_service.dart';
 import 'package:memo_patte/core/notifications/notification_service_provider.dart';
-import 'package:memo_patte/features/animals/data/animal_dao.dart';
-import 'package:memo_patte/features/animals/data/animal_repository.dart';
+import 'package:memo_patte/features/animals/data/animal_repository_provider.dart';
 import 'package:memo_patte/features/animals/domain/animal_species.dart';
 import 'package:memo_patte/features/home/data/home_reminders_provider.dart';
 import 'package:memo_patte/features/home/domain/home_reminder.dart';
@@ -39,6 +38,15 @@ class _NoopNotificationService extends NotificationService {
 
   @override
   Future<void> cancelNotification(int id) async {}
+
+  // `TreatmentRepository._scheduleReminderTimes` interroge cette
+  // méthode pour les traitements à heure(s) fixe(s) (audit du
+  // 2026-08-19, issue #71 point 3.4) — sans cette surcharge, elle
+  // retomberait sur l'implémentation réelle et plante en test
+  // (`LateInitializationError` sur `FlutterLocalNotificationsPlatform`,
+  // jamais initialisée hors d'un vrai appareil).
+  @override
+  Future<bool> canScheduleExactAlarms() async => false;
 }
 
 /// Tests du provider de rappels de l'accueil (ticket 6.1) : sur une base
@@ -67,9 +75,9 @@ void main() {
     addTearDown(database.close);
   });
 
-  Future<int> createAnimal(String name) =>
-      AnimalRepository(AnimalDao(database))
-          .createAnimal(name: name, species: AnimalSpecies.dog);
+  Future<int> createAnimal(String name) => container
+      .read(animalRepositoryProvider)
+      .createAnimal(name: name, species: AnimalSpecies.dog);
 
   /// Attend qu'un provider `Stream`/`AsyncValue` sorte de l'état
   /// `AsyncLoading`, par polling plutôt que `container.read(provider.future)`.
@@ -176,7 +184,6 @@ void main() {
     expect(reminder.animalName, 'Milo');
     expect(reminder.kind, ReminderKind.vaccination);
     expect(reminder.sourceId, vaccinationId);
-    expect(reminder.title, 'Rappel de vaccin');
     expect(reminder.detail, 'Rage');
     expect(reminder.dueDate, dueDate);
     // Les vaccins n'ont pas d'heure de rappel configurable — voir
@@ -218,7 +225,6 @@ void main() {
     expect(reminder.animalName, 'Milo');
     expect(reminder.kind, ReminderKind.treatment);
     expect(reminder.sourceId, treatmentId);
-    expect(reminder.title, 'Rappel de traitement');
     expect(reminder.detail, 'Bravecto');
     // Cycle long : pas d'heure de rappel à afficher (9h par défaut,
     // jamais choisie par l'utilisateur — voir `HomeReminder.reminderTimeLabel`).

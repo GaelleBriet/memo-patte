@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/widgets/error_display.dart';
 import '../../../core/widgets/gradient_app_bar.dart';
 import '../../../core/widgets/surface_card.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../animals/data/animal_provider.dart';
 import '../data/treatment_repository_provider.dart';
 import '../data/treatments_list_provider.dart';
@@ -50,11 +52,14 @@ class _TreatmentsListScreenState extends ConsumerState<TreatmentsListScreen> {
   Widget build(BuildContext context) {
     final treatmentsAsync = ref.watch(treatmentsListProvider(widget.animalId));
     final animal = ref.watch(animalProvider(widget.animalId)).value;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: GradientAppBar(
         title: Text(
-          animal == null ? 'Traitements' : 'Traitements de ${animal.name}',
+          animal == null
+              ? l10n.treatmentsListTitle
+              : l10n.treatmentsListTitleWithName(animal.name),
         ),
       ),
       body: treatmentsAsync.when(
@@ -65,15 +70,18 @@ class _TreatmentsListScreenState extends ConsumerState<TreatmentsListScreen> {
                 treatments: treatments,
               ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) =>
-            Center(child: Text('Erreur de chargement : $error')),
+        error: (error, stackTrace) => ErrorDisplay(
+          error: error,
+          stackTrace: stackTrace,
+          loggerName: 'TreatmentsListScreen',
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.goNamed(
           'createTreatment',
           pathParameters: {'id': widget.animalId.toString()},
         ),
-        tooltip: 'Ajouter un traitement',
+        tooltip: l10n.treatmentsListAddTooltip,
         child: const Icon(Icons.add),
       ),
     );
@@ -126,16 +134,15 @@ class _EmptyState extends StatelessWidget {
             const IconChip(icon: Icons.medication_outlined, size: 56),
             const SizedBox(height: 16),
             Text(
-              'Aucun traitement enregistré',
+              AppLocalizations.of(context)!.treatmentsListEmptyTitle,
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Appuie sur + pour ajouter un vermifuge ou un '
-              'antiparasitaire, même fait il y a longtemps.',
+            Text(
+              AppLocalizations.of(context)!.treatmentsListEmptyMessage,
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.textSecondary),
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
           ],
         ),

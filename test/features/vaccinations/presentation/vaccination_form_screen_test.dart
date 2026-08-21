@@ -9,8 +9,13 @@ import 'package:memo_patte/core/notifications/notification_service_provider.dart
 import 'package:memo_patte/features/animals/data/animal_dao.dart';
 import 'package:memo_patte/features/animals/data/animal_repository.dart';
 import 'package:memo_patte/features/animals/domain/animal_species.dart';
+import 'package:memo_patte/features/treatments/data/treatment_dao.dart';
+import 'package:memo_patte/features/treatments/data/treatment_repository.dart';
 import 'package:memo_patte/features/vaccinations/data/vaccination_dao.dart';
+import 'package:memo_patte/features/vaccinations/data/vaccination_repository.dart';
 import 'package:memo_patte/features/vaccinations/presentation/vaccination_form_screen.dart';
+
+import '../../../support/localized_test_app.dart';
 
 const _primingTitle = 'Ne rate plus jamais un rappel';
 
@@ -47,8 +52,23 @@ void main() {
   setUp(() async {
     database = AppDatabase.forTesting(NativeDatabase.memory());
     notificationService = _FakeNotificationService(granted: false);
-    animalId = await AnimalRepository(AnimalDao(database))
-        .createAnimal(name: 'Milo', species: AnimalSpecies.dog);
+    // `AnimalRepository` a besoin d'un `VaccinationRepository`/
+    // `TreatmentRepository` depuis le 2026-08-21 (audit issue #71 point
+    // 1.2) — jetables ici, juste pour créer l'animal de test ; aucun
+    // test de ce fichier n'exerce `deleteAnimal`.
+    animalId = await AnimalRepository(
+      AnimalDao(database),
+      VaccinationRepository(
+        VaccinationDao(database),
+        AnimalDao(database),
+        notificationService,
+      ),
+      TreatmentRepository(
+        TreatmentDao(database),
+        AnimalDao(database),
+        notificationService,
+      ),
+    ).createAnimal(name: 'Milo', species: AnimalSpecies.dog);
   });
 
   tearDown(() async {
@@ -62,7 +82,7 @@ void main() {
           appDatabaseProvider.overrideWithValue(database),
           notificationServiceProvider.overrideWithValue(notificationService),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           home: Builder(
             builder: (context) => Scaffold(
               body: Center(

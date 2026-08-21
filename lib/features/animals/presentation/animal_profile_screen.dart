@@ -1,12 +1,15 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/widgets/error_display.dart';
 import '../../../core/widgets/light_status_bar.dart';
 import '../../../core/widgets/straddling_hero.dart';
 import '../../../core/widgets/surface_card.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../home/data/home_reminders_provider.dart';
 import '../../treatments/data/treatment_repository_provider.dart';
 import '../../treatments/data/treatments_list_provider.dart';
@@ -50,11 +53,16 @@ class AnimalProfileScreen extends ConsumerWidget {
       child: Scaffold(
         body: animalAsync.when(
           data: (animal) => animal == null
-              ? const Center(child: Text('Animal introuvable.'))
+              ? Center(
+                  child: Text(AppLocalizations.of(context)!.animalNotFound),
+                )
               : _AnimalProfileBody(animalId: animalId, animal: animal),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) =>
-              Center(child: Text('Erreur de chargement : $error')),
+          error: (error, stackTrace) => ErrorDisplay(
+            error: error,
+            stackTrace: stackTrace,
+            loggerName: 'AnimalProfileScreen.animal',
+          ),
         ),
       ),
     );
@@ -109,14 +117,16 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
 
     setState(() => _submitting = true);
     try {
-      final updated = Animal(
-        id: widget.animal.id,
+      // `widget.animal.copyWith(...)` plutôt qu'un `Animal(...)`
+      // reconstruit à la main
+      // `copyWith` ne touche que ce qu'on lui passe explicitement ; les
+      // autres (dont `photoPath`) restent tels quels
+      final updated = widget.animal.copyWith(
         name: values.name,
         species: values.species,
-        breed: values.breed,
-        birthDate: values.birthDate,
-        initialWeightKg: values.initialWeightKg,
-        createdAt: widget.animal.createdAt,
+        breed: Value(values.breed),
+        birthDate: Value(values.birthDate),
+        initialWeightKg: Value(values.initialWeightKg),
       );
       await ref.read(animalRepositoryProvider).updateAnimal(updated);
       ref.invalidate(animalProvider(widget.animalId));
@@ -136,6 +146,7 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
   }
 
   Widget _buildReadMode(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final animal = widget.animal;
     final vaccinationsAsync = ref.watch(
       vaccinationsListProvider(widget.animalId),
@@ -183,22 +194,27 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
           child: SurfaceCard(
             child: Column(
               children: [
-                _ProfileRow(label: 'Espèce', value: animal.species.label),
                 _ProfileRow(
-                  label: 'Race',
-                  value: animal.breed ?? 'Non renseignée',
+                  label: l10n.profileSpeciesLabel,
+                  value: animal.species.label(context),
                 ),
                 _ProfileRow(
-                  label: 'Date de naissance',
+                  label: l10n.profileBreedLabel,
+                  value: animal.breed ?? l10n.commonNotProvidedFeminine,
+                ),
+                _ProfileRow(
+                  label: l10n.profileBirthDateLabel,
                   value: animal.birthDate == null
-                      ? 'Non renseignée'
+                      ? l10n.commonNotProvidedFeminine
                       : '${animal.birthDate!.day}/${animal.birthDate!.month}/${animal.birthDate!.year}',
                 ),
                 _ProfileRow(
-                  label: 'Poids initial',
+                  label: l10n.profileWeightLabel,
                   value: animal.initialWeightKg == null
-                      ? 'Non renseigné'
-                      : '${animal.initialWeightKg} kg',
+                      ? l10n.commonNotProvidedMasculine
+                      : l10n.animalProfileWeightValue(
+                          '${animal.initialWeightKg}',
+                        ),
                 ),
               ],
             ),
@@ -209,13 +225,16 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Vaccins', style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                l10n.vaccinationsSectionTitle,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
               TextButton(
                 onPressed: () => context.goNamed(
                   'vaccinationsList',
                   pathParameters: {'id': widget.animalId.toString()},
                 ),
-                child: const Text('Voir tout'),
+                child: Text(l10n.commonSeeAll),
               ),
             ],
           ),
@@ -247,7 +266,11 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
                     ],
                   ),
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stackTrace) => Text('Erreur de chargement : $error'),
+            error: (error, stackTrace) => ErrorDisplay(
+              error: error,
+              stackTrace: stackTrace,
+              loggerName: 'AnimalProfileScreen.vaccinations',
+            ),
           ),
         ),
         Padding(
@@ -256,7 +279,7 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Traitement en cours',
+                l10n.treatmentsSectionTitle,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               TextButton(
@@ -264,7 +287,7 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
                   'treatmentsList',
                   pathParameters: {'id': widget.animalId.toString()},
                 ),
-                child: const Text('Voir tout'),
+                child: Text(l10n.commonSeeAll),
               ),
             ],
           ),
@@ -296,7 +319,11 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
                     ],
                   ),
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stackTrace) => Text('Erreur de chargement : $error'),
+            error: (error, stackTrace) => ErrorDisplay(
+              error: error,
+              stackTrace: stackTrace,
+              loggerName: 'AnimalProfileScreen.treatments',
+            ),
           ),
         ),
         const SizedBox(height: 24),
@@ -305,6 +332,7 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
   }
 
   Widget _buildEditMode(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final animal = widget.animal;
     return SafeArea(
       child: SingleChildScrollView(
@@ -328,7 +356,7 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
                     onPressed: _submitting
                         ? null
                         : () => setState(() => _editing = false),
-                    child: const Text('Annuler'),
+                    child: Text(l10n.commonCancel),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -341,7 +369,7 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
                             width: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Enregistrer'),
+                        : Text(l10n.commonSave),
                   ),
                 ),
               ],
@@ -446,7 +474,7 @@ class _CarnetHero extends StatelessWidget {
                     ? Navigator.of(context).pop()
                     : context.goNamed('home'),
                 icon: const Icon(Icons.arrow_back, color: Colors.white),
-                tooltip: 'Retour',
+                tooltip: AppLocalizations.of(context)!.commonBack,
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(12, 4, 16, 0),
@@ -474,8 +502,9 @@ class _CarnetHero extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             animal.birthDate == null
-                                ? animal.species.label
-                                : '${animal.species.label} • ${_formatAge(animal.birthDate!)}',
+                                ? animal.species.label(context)
+                                : '${animal.species.label(context)} • '
+                                      '${_formatAge(context, animal.birthDate!)}',
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 13,
@@ -487,7 +516,7 @@ class _CarnetHero extends StatelessWidget {
                     IconButton(
                       onPressed: onEditTap,
                       icon: const Icon(Icons.edit, color: Colors.white),
-                      tooltip: 'Modifier',
+                      tooltip: AppLocalizations.of(context)!.commonEdit,
                     ),
                   ],
                 ),
@@ -523,9 +552,12 @@ class _RemindersStat extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const Text(
-                'rappel(s)',
-                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+              Text(
+                AppLocalizations.of(context)!.remindersCountLabel,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondary,
+                ),
               ),
             ],
           ),
@@ -547,14 +579,14 @@ class _VaccinesEmptyCta extends StatelessWidget {
         'createVaccination',
         pathParameters: {'id': animalId.toString()},
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.add_circle_outline, color: AppTheme.primaryTeal),
-          SizedBox(width: 12),
+          const Icon(Icons.add_circle_outline, color: AppTheme.primaryTeal),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Aucun vaccin enregistré — appuie pour en ajouter un.',
-              style: TextStyle(color: AppTheme.textSecondary),
+              AppLocalizations.of(context)!.vaccinesEmptyCta,
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
           ),
         ],
@@ -575,14 +607,14 @@ class _TreatmentsEmptyCta extends StatelessWidget {
         'createTreatment',
         pathParameters: {'id': animalId.toString()},
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.add_circle_outline, color: AppTheme.primaryTeal),
-          SizedBox(width: 12),
+          const Icon(Icons.add_circle_outline, color: AppTheme.primaryTeal),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Aucun traitement enregistré — appuie pour en ajouter un.',
-              style: TextStyle(color: AppTheme.textSecondary),
+              AppLocalizations.of(context)!.treatmentsEmptyCta,
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
           ),
         ],
@@ -619,15 +651,17 @@ class _ProfileRow extends StatelessWidget {
   }
 }
 
-/// "4 mois" / "1 an" / "3 ans" — pas de dépendance `intl` pour un seul
-/// calcul d'âge, même choix que le reste du code (voir
-/// `home_screen.dart` pour l'en-tête de date).
-String _formatAge(DateTime birthDate) {
+/// "4 mois" / "1 an" / "3 ans" — pluriels gérés par `AppLocalizations`
+/// (ICU, `lib/l10n/app_fr.arb`/`app_en.arb`) depuis la préparation i18n
+/// (audit du 2026-08-19, issue #71 point 3.3) ; avant ça, formaté à la
+/// main sans dépendance `intl` pour un seul calcul d'âge.
+String _formatAge(BuildContext context, DateTime birthDate) {
+  final l10n = AppLocalizations.of(context)!;
   final now = DateTime.now();
   var months = (now.year - birthDate.year) * 12 + (now.month - birthDate.month);
   if (now.day < birthDate.day) months -= 1;
-  if (months < 1) return 'moins d\'un mois';
-  if (months < 12) return '$months mois';
+  if (months < 1) return l10n.animalAgeLessThanMonth;
+  if (months < 12) return l10n.animalAgeMonths(months);
   final years = months ~/ 12;
-  return years > 1 ? '$years ans' : '1 an';
+  return l10n.animalAgeYears(years);
 }

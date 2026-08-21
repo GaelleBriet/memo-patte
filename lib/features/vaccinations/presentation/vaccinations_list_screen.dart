@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/widgets/error_display.dart';
 import '../../../core/widgets/gradient_app_bar.dart';
 import '../../../core/widgets/surface_card.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../animals/data/animal_provider.dart';
 import '../data/vaccination_repository_provider.dart';
 import '../data/vaccinations_list_provider.dart';
@@ -25,25 +27,33 @@ class VaccinationsListScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final vaccinationsAsync = ref.watch(vaccinationsListProvider(animalId));
     final animal = ref.watch(animalProvider(animalId)).value;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: GradientAppBar(
-        title: Text(animal == null ? 'Vaccins' : 'Vaccins de ${animal.name}'),
+        title: Text(
+          animal == null
+              ? l10n.vaccinationsListTitle
+              : l10n.vaccinationsListTitleWithName(animal.name),
+        ),
       ),
       body: vaccinationsAsync.when(
         data: (vaccinations) => vaccinations.isEmpty
             ? const _EmptyState()
             : _VaccinationsList(animalId: animalId, vaccinations: vaccinations),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) =>
-            Center(child: Text('Erreur de chargement : $error')),
+        error: (error, stackTrace) => ErrorDisplay(
+          error: error,
+          stackTrace: stackTrace,
+          loggerName: 'VaccinationsListScreen',
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.goNamed(
           'createVaccination',
           pathParameters: {'id': animalId.toString()},
         ),
-        tooltip: 'Ajouter un vaccin',
+        tooltip: l10n.vaccinationsListAddTooltip,
         child: const Icon(Icons.add),
       ),
     );
@@ -96,16 +106,15 @@ class _EmptyState extends StatelessWidget {
             const IconChip(icon: Icons.vaccines_outlined, size: 56),
             const SizedBox(height: 16),
             Text(
-              'Aucun vaccin enregistré',
+              AppLocalizations.of(context)!.vaccinationsListEmptyTitle,
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Appuie sur + pour ajouter un vaccin, même fait il y a '
-              'longtemps.',
+            Text(
+              AppLocalizations.of(context)!.vaccinationsListEmptyMessage,
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppTheme.textSecondary),
+              style: const TextStyle(color: AppTheme.textSecondary),
             ),
           ],
         ),

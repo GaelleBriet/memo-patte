@@ -1,8 +1,26 @@
+import 'package:flutter/widgets.dart' show BuildContext;
+
 import '../../../core/domain/due_status.dart';
+import '../../../l10n/generated/app_localizations.dart';
 
 /// Source d'un [HomeReminder] — détermine vers quelle route le tap sur
 /// la carte doit naviguer (voir `home_screen.dart`, `_ReminderCard`).
 enum ReminderKind { vaccination, treatment }
+
+/// Libellé générique affiché sur la carte de rappel (ticket 6.2), voir
+/// [HomeReminder.kind] — même principe que `DueStatusLabel`
+/// (`core/domain/due_status.dart`) : calculé à l'affichage plutôt que
+/// stocké sur [HomeReminder], pour ne dépendre de `BuildContext` qu'au
+/// moment où un widget en a réellement besoin.
+extension ReminderKindLabel on ReminderKind {
+  String label(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return switch (this) {
+      ReminderKind.vaccination => l10n.homeReminderVaccinationTitle,
+      ReminderKind.treatment => l10n.homeReminderTreatmentTitle,
+    };
+  }
+}
 
 /// Un rappel affiché dans la section "À faire aujourd'hui" de l'accueil
 /// (ticket 6.2), déjà résolu à un animal et une échéance précis.
@@ -16,7 +34,6 @@ class HomeReminder {
     required this.animalName,
     required this.kind,
     required this.sourceId,
-    required this.title,
     required this.detail,
     required this.dueDate,
     required this.status,
@@ -32,11 +49,6 @@ class HomeReminder {
   /// l'accueil de router directement vers son édition au tap, sans
   /// re-résoudre "quel enregistrement" côté écran.
   final int sourceId;
-
-  /// Ex. "Rappel de vaccin" / "Rappel de traitement" — générique, pas le
-  /// nom du vaccin/traitement lui-même (voir [detail]), pour un gabarit
-  /// visuel cohérent entre les deux [kind].
-  final String title;
 
   /// Ex. "Rage" / "Bravecto" — le détail spécifique à cette échéance.
   final String detail;

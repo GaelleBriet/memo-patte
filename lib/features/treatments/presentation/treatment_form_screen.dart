@@ -4,7 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/widgets/error_display.dart';
 import '../../../core/widgets/gradient_app_bar.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../notifications/data/first_reminder_source.dart';
 import '../../notifications/data/notification_permission_provider.dart';
 import '../../notifications/presentation/notification_priming_screen.dart';
@@ -61,23 +63,26 @@ class TreatmentFormScreen extends ConsumerWidget {
       );
     }
 
+    final l10n = AppLocalizations.of(context)!;
     final treatmentAsync = ref.watch(treatmentProvider(treatmentId));
     return treatmentAsync.when(
       data: (treatment) => treatment == null
           ? Scaffold(
-              appBar: const GradientAppBar(
-                title: Text('Modifier le traitement'),
-              ),
-              body: const Center(child: Text('Traitement introuvable.')),
+              appBar: GradientAppBar(title: Text(l10n.treatmentFormEditTitle)),
+              body: Center(child: Text(l10n.treatmentFormNotFound)),
             )
           : _TreatmentFormScaffold(animalId: animalId, treatment: treatment),
       loading: () => Scaffold(
-        appBar: const GradientAppBar(title: Text('Modifier le traitement')),
+        appBar: GradientAppBar(title: Text(l10n.treatmentFormEditTitle)),
         body: const Center(child: CircularProgressIndicator()),
       ),
       error: (error, stackTrace) => Scaffold(
-        appBar: const GradientAppBar(title: Text('Modifier le traitement')),
-        body: Center(child: Text('Erreur de chargement : $error')),
+        appBar: GradientAppBar(title: Text(l10n.treatmentFormEditTitle)),
+        body: ErrorDisplay(
+          error: error,
+          stackTrace: stackTrace,
+          loggerName: 'TreatmentFormScreen.treatment',
+        ),
       ),
     );
   }
@@ -182,7 +187,11 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     if (_frequency.usesReminderTimes && _reminderTimes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Choisis au moins une heure de rappel.')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.treatmentFormMissingReminderTime,
+          ),
+        ),
       );
       return;
     }
@@ -255,10 +264,11 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: GradientAppBar(
         title: Text(
-          _isEditing ? 'Modifier le traitement' : 'Ajouter un traitement',
+          _isEditing ? l10n.treatmentFormEditTitle : l10n.treatmentFormAddTitle,
         ),
       ),
       body: SingleChildScrollView(
@@ -269,13 +279,13 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nom du traitement *',
-                  hintText: 'Bravecto, Vermifuge...',
+                decoration: InputDecoration(
+                  labelText: l10n.treatmentFormNameLabel,
+                  hintText: l10n.treatmentFormNameHint,
                 ),
                 textCapitalization: TextCapitalization.sentences,
                 validator: (value) => (value == null || value.trim().isEmpty)
-                    ? 'Le nom du traitement est obligatoire.'
+                    ? l10n.treatmentFormNameRequired
                     : null,
               ),
               const SizedBox(height: 16),
@@ -283,8 +293,8 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   _frequency.usesReminderTimes
-                      ? 'Date de début du traitement *'
-                      : 'Date de la dernière administration *',
+                      ? l10n.treatmentFormStartDateLabel
+                      : l10n.treatmentFormLastDoseDateLabel,
                 ),
                 subtitle: Text(_formatDate(_date)),
                 trailing: const Icon(Icons.calendar_today),
@@ -294,7 +304,7 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Fréquence *',
+                  l10n.treatmentFormFrequencyLabel,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
@@ -305,7 +315,7 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
                 children: [
                   for (final frequency in TreatmentFrequency.values)
                     _FrequencyChip(
-                      label: _shortLabel(frequency),
+                      label: _shortLabel(l10n, frequency),
                       selected: _frequency == frequency,
                       onTap: () => setState(() => _frequency = frequency),
                     ),
@@ -317,8 +327,8 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     _frequency == TreatmentFrequency.daily
-                        ? 'Heure de rappel *'
-                        : 'Heures de rappel *',
+                        ? l10n.treatmentFormReminderTimeLabel
+                        : l10n.treatmentFormReminderTimesLabel,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
@@ -328,7 +338,7 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
                     contentPadding: EdgeInsets.zero,
                     title: Text(
                       _reminderTimes.isEmpty
-                          ? 'Choisir une heure'
+                          ? l10n.treatmentFormChooseTime
                           : formatMinuteOfDay(_reminderTimes.first),
                     ),
                     trailing: const Icon(Icons.access_time),
@@ -342,7 +352,7 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
                       title: Text(formatMinuteOfDay(minute)),
                       trailing: IconButton(
                         icon: const Icon(Icons.close),
-                        tooltip: 'Retirer cette heure',
+                        tooltip: l10n.treatmentFormRemoveTimeTooltip,
                         onPressed: () => _removeReminderTime(minute),
                       ),
                     ),
@@ -351,7 +361,7 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
                     child: OutlinedButton.icon(
                       onPressed: _addReminderTime,
                       icon: const Icon(Icons.add),
-                      label: const Text('Ajouter une heure'),
+                      label: Text(l10n.treatmentFormAddTime),
                     ),
                   ),
                 ],
@@ -360,8 +370,12 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Prochain rappel : '
-                      '${describeUpcomingReminder(nextReminderDateTime(_reminderTimes, DateTime.now()), DateTime.now())}',
+                      l10n.treatmentFormNextReminderLabel(
+                        describeUpcomingReminder(
+                          nextReminderDateTime(_reminderTimes, DateTime.now()),
+                          DateTime.now(),
+                        ),
+                      ),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
@@ -371,8 +385,9 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Prochaine échéance : '
-                    '${_formatDate(_frequency.nextOccurrenceAfter(_date))}',
+                    l10n.treatmentFormNextDueDateLabel(
+                      _formatDate(_frequency.nextOccurrenceAfter(_date)),
+                    ),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
@@ -387,7 +402,7 @@ class _TreatmentFormBodyState extends ConsumerState<_TreatmentFormScaffold> {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : Text(
-                        _isEditing ? 'Enregistrer' : 'Ajouter le traitement',
+                        _isEditing ? l10n.commonSave : l10n.treatmentFormSubmit,
                       ),
               ),
             ],
@@ -448,13 +463,15 @@ class _FrequencyChip extends StatelessWidget {
 
 /// Libellés compacts pour les chips de fréquence — [TreatmentFrequencyLabel.label]
 /// reste le libellé complet utilisé en lecture (`TreatmentCard`).
-String _shortLabel(TreatmentFrequency frequency) => switch (frequency) {
-  TreatmentFrequency.monthly => '1 mois',
-  TreatmentFrequency.quarterly => '3 mois',
-  TreatmentFrequency.biannual => '6 mois',
-  TreatmentFrequency.annual => '1 an',
-  TreatmentFrequency.daily => '1×/jour',
-  TreatmentFrequency.severalTimesDaily => 'Plusieurs/jour',
-};
+String _shortLabel(AppLocalizations l10n, TreatmentFrequency frequency) =>
+    switch (frequency) {
+      TreatmentFrequency.monthly => l10n.treatmentFormFrequencyMonthly,
+      TreatmentFrequency.quarterly => l10n.treatmentFormFrequencyQuarterly,
+      TreatmentFrequency.biannual => l10n.treatmentFormFrequencyBiannual,
+      TreatmentFrequency.annual => l10n.treatmentFormFrequencyAnnual,
+      TreatmentFrequency.daily => l10n.treatmentFormFrequencyDaily,
+      TreatmentFrequency.severalTimesDaily =>
+        l10n.treatmentFormFrequencySeveralTimesDaily,
+    };
 
 String _formatDate(DateTime date) => '${date.day}/${date.month}/${date.year}';

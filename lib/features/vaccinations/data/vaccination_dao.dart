@@ -21,6 +21,15 @@ class VaccinationDao extends DatabaseAccessor<AppDatabase>
             ..orderBy([(v) => OrderingTerm.desc(v.date)]))
           .watch();
 
+  /// Lecture ponctuelle (pas un `Stream`) — même principe que
+  /// `TreatmentDao.getForAnimal` : utilisée par
+  /// `VaccinationRepository.getForAnimal`, elle-même consommée par
+  /// `AnimalRepository.deleteAnimal` (annulation des notifications avant
+  /// suppression en cascade, audit du 2026-08-19, issue #71 point 1.2) —
+  /// une consultation ponctuelle, pas un flux à maintenir.
+  Future<List<Vaccination>> getForAnimal(int animalId) =>
+      (select(vaccinations)..where((v) => v.animalId.equals(animalId))).get();
+
   Future<Vaccination?> getById(int id) =>
       (select(vaccinations)..where((v) => v.id.equals(id))).getSingleOrNull();
 

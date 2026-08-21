@@ -1,0 +1,210 @@
+{
+  "@@locale": "fr",
+
+  "homeGreeting": "Bonjour",
+  "@homeGreeting": { "description": "Salutation en tête de l'accueil." },
+
+  "commonCancel": "Annuler",
+  "commonSave": "Enregistrer",
+  "commonBack": "Retour",
+  "commonEdit": "Modifier",
+  "commonSeeAll": "Voir tout",
+  "commonNotProvidedFeminine": "Non renseignée",
+  "@commonNotProvidedFeminine": {
+    "description": "Valeur d'un champ facultatif non renseigné, accord féminin (ex. \"la race\", \"la date de naissance\")."
+  },
+  "commonNotProvidedMasculine": "Non renseigné",
+  "@commonNotProvidedMasculine": {
+    "description": "Valeur d'un champ facultatif non renseigné, accord masculin (ex. \"le poids\")."
+  },
+  "commonRetry": "Réessayer",
+  "commonDelete": "Supprimer",
+
+  "errorDisplayTitle": "Une erreur est survenue",
+
+  "navHome": "Accueil",
+  "navCarnet": "Carnet",
+
+  "homeTodayTitle": "À faire aujourd'hui",
+  "homeNoReminders": "Rien à signaler pour l'instant — tous les rappels sont à jour.",
+  "homeQuickActionsTitle": "Actions rapides",
+  "homeNewTreatmentAction": "Nouveau traitement",
+  "homeVaccinationReminderAction": "Rappel de vaccin",
+  "homeAntiparasiteAction": "Antiparasitaire",
+  "homeEmptyStateTitle": "Bienvenue sur MémoPatte",
+  "homeEmptyStateMessage": "Crée le profil de ton premier compagnon pour commencer à suivre ses rappels.",
+
+  "deleteVaccinationTitle": "Supprimer ce vaccin ?",
+  "deleteVaccinationMessage": "\"{name}\" sera définitivement supprimé, ainsi que son rappel programmé.",
+  "@deleteVaccinationMessage": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "deleteTreatmentTitle": "Supprimer ce traitement ?",
+  "deleteTreatmentMessage": "\"{name}\" sera définitivement supprimé, ainsi que son rappel programmé.",
+  "@deleteTreatmentMessage": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "vaccinationDoneOn": "Fait le {date}",
+  "@vaccinationDoneOn": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "vaccinationDoneOnWithDue": "Fait le {date} — échéance le {dueDate}",
+  "@vaccinationDoneOnWithDue": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "dueDate": { "type": "String" }
+    }
+  },
+
+  "treatmentNextDoseLabel": "Prochaine dose",
+  "treatmentDueToday": "Aujourd'hui",
+  "treatmentDueInDays": "{days, plural, =1{Dans 1 jour} other{Dans {days} jours}}",
+  "@treatmentDueInDays": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "treatmentOverdueDays": "{days, plural, =1{En retard de 1 jour} other{En retard de {days} jours}}",
+  "@treatmentOverdueDays": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+
+  "vaccinationsListTitle": "Vaccins",
+  "vaccinationsListTitleWithName": "Vaccins de {name}",
+  "@vaccinationsListTitleWithName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "vaccinationsListAddTooltip": "Ajouter un vaccin",
+  "vaccinationsListEmptyTitle": "Aucun vaccin enregistré",
+  "vaccinationsListEmptyMessage": "Appuie sur + pour ajouter un vaccin, même fait il y a longtemps.",
+
+  "vaccinationFormAddTitle": "Ajouter un vaccin",
+  "vaccinationFormEditTitle": "Modifier le vaccin",
+  "vaccinationFormNotFound": "Vaccin introuvable.",
+  "vaccinationFormNameLabel": "Nom du vaccin *",
+  "vaccinationFormNameHint": "Rage, CHPPiL...",
+  "vaccinationFormNameRequired": "Le nom du vaccin est obligatoire.",
+  "vaccinationFormDateLabel": "Date du vaccin *",
+  "vaccinationFormNextDueDateLabel": "Prochaine échéance (facultatif)",
+  "vaccinationFormClearDueDateTooltip": "Effacer l'échéance",
+  "vaccinationFormSubmit": "Ajouter le vaccin",
+
+  "treatmentsListTitle": "Traitements",
+  "treatmentsListTitleWithName": "Traitements de {name}",
+  "@treatmentsListTitleWithName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "treatmentsListAddTooltip": "Ajouter un traitement",
+  "treatmentsListEmptyTitle": "Aucun traitement enregistré",
+  "treatmentsListEmptyMessage": "Appuie sur + pour ajouter un vermifuge ou un antiparasitaire, même fait il y a longtemps.",
+
+  "treatmentFormAddTitle": "Ajouter un traitement",
+  "treatmentFormEditTitle": "Modifier le traitement",
+  "treatmentFormNotFound": "Traitement introuvable.",
+  "treatmentFormNameLabel": "Nom du traitement *",
+  "treatmentFormNameHint": "Bravecto, Vermifuge...",
+  "treatmentFormNameRequired": "Le nom du traitement est obligatoire.",
+  "treatmentFormStartDateLabel": "Date de début du traitement *",
+  "treatmentFormLastDoseDateLabel": "Date de la dernière administration *",
+  "treatmentFormFrequencyLabel": "Fréquence *",
+  "treatmentFormReminderTimeLabel": "Heure de rappel *",
+  "treatmentFormReminderTimesLabel": "Heures de rappel *",
+  "treatmentFormChooseTime": "Choisir une heure",
+  "treatmentFormRemoveTimeTooltip": "Retirer cette heure",
+  "treatmentFormAddTime": "Ajouter une heure",
+  "treatmentFormNextReminderLabel": "Prochain rappel : {description}",
+  "@treatmentFormNextReminderLabel": {
+    "placeholders": { "description": { "type": "String" } }
+  },
+  "treatmentFormNextDueDateLabel": "Prochaine échéance : {date}",
+  "@treatmentFormNextDueDateLabel": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "treatmentFormMissingReminderTime": "Choisis au moins une heure de rappel.",
+  "treatmentFormSubmit": "Ajouter le traitement",
+  "treatmentFormFrequencyMonthly": "1 mois",
+  "treatmentFormFrequencyQuarterly": "3 mois",
+  "treatmentFormFrequencyBiannual": "6 mois",
+  "treatmentFormFrequencyAnnual": "1 an",
+  "treatmentFormFrequencyDaily": "1×/jour",
+  "treatmentFormFrequencySeveralTimesDaily": "Plusieurs/jour",
+
+  "notificationPermissionBannerText": "Rappels désactivés — active-les dans les réglages",
+
+  "notificationPrimingTitle": "Activer les rappels",
+  "notificationPrimingHeadline": "Ne rate plus jamais un rappel",
+  "notificationPrimingBody": "MémoPatte peut te prévenir quand un vaccin ou un vermifuge approche de son échéance. Autorise les notifications pour ne rien oublier — tu pourras changer d'avis à tout moment dans les réglages de ton téléphone.",
+  "notificationPrimingActivate": "Activer les rappels",
+  "notificationPrimingLater": "Plus tard",
+
+  "homeReminderVaccinationTitle": "Rappel de vaccin",
+  "homeReminderTreatmentTitle": "Rappel de traitement",
+
+  "notificationFallbackAnimalName": "ton animal",
+  "vaccinationReminderNotificationTitle": "Rappel vaccin",
+  "vaccinationReminderNotificationBody": "Le vaccin {name} de {animalName} arrive à échéance aujourd'hui.",
+  "@vaccinationReminderNotificationBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "animalName": { "type": "String" }
+    }
+  },
+  "treatmentReminderNotificationTitle": "Rappel de traitement",
+  "treatmentReminderDueNotificationBody": "Le traitement {name} de {animalName} arrive à échéance aujourd'hui.",
+  "@treatmentReminderDueNotificationBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "animalName": { "type": "String" }
+    }
+  },
+  "treatmentReminderTimeNotificationBody": "Le traitement {name} de {animalName} est à donner maintenant.",
+  "@treatmentReminderTimeNotificationBody": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "animalName": { "type": "String" }
+    }
+  },
+
+  "dueStatusUpToDate": "À jour",
+  "dueStatusDueSoon": "À venir",
+  "dueStatusOverdue": "En retard",
+
+  "animalSpeciesDog": "Chien",
+  "animalSpeciesCat": "Chat",
+
+  "animalFormNameLabel": "Nom *",
+  "animalFormNameRequired": "Le nom est obligatoire.",
+  "animalFormSpeciesLabel": "Espèce *",
+  "animalFormSpeciesRequired": "Choisis une espèce.",
+  "animalFormBreedLabel": "Race (facultatif)",
+  "animalFormWeightLabel": "Poids initial en kg (facultatif)",
+  "animalFormWeightInvalid": "Poids invalide.",
+  "animalFormBirthDateLabel": "Date de naissance (facultatif)",
+  "animalFormBirthDateNotProvided": "Non renseignée",
+
+  "createAnimalTitle": "Créer un profil animal",
+  "createAnimalSubmit": "Créer le profil",
+
+  "animalNotFound": "Animal introuvable.",
+  "profileSpeciesLabel": "Espèce",
+  "profileBreedLabel": "Race",
+  "profileBirthDateLabel": "Date de naissance",
+  "profileWeightLabel": "Poids initial",
+  "animalProfileWeightValue": "{weight} kg",
+  "@animalProfileWeightValue": {
+    "placeholders": { "weight": { "type": "String" } }
+  },
+  "vaccinationsSectionTitle": "Vaccins",
+  "treatmentsSectionTitle": "Traitement en cours",
+  "remindersCountLabel": "rappel(s)",
+  "vaccinesEmptyCta": "Aucun vaccin enregistré — appuie pour en ajouter un.",
+  "treatmentsEmptyCta": "Aucun traitement enregistré — appuie pour en ajouter un.",
+  "animalAgeLessThanMonth": "moins d'un mois",
+  "animalAgeMonths": "{count, plural, =1{{count} mois} other{{count} mois}}",
+  "@animalAgeMonths": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "animalAgeYears": "{count, plural, =1{1 an} other{{count} ans}}",
+  "@animalAgeYears": {
+    "placeholders": { "count": { "type": "int" } }
+  }
+}

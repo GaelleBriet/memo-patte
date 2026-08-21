@@ -1,20 +1,73 @@
 import 'package:drift/native.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    show AndroidScheduleMode, DateTimeComponents;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memo_patte/core/database/app_database.dart';
+import 'package:memo_patte/core/notifications/notification_service.dart';
 import 'package:memo_patte/features/animals/data/animal_dao.dart';
 import 'package:memo_patte/features/animals/data/animal_repository.dart';
 import 'package:memo_patte/features/animals/domain/animal_species.dart';
+import 'package:memo_patte/features/treatments/data/treatment_dao.dart';
+import 'package:memo_patte/features/treatments/data/treatment_repository.dart';
+import 'package:memo_patte/features/treatments/domain/treatment_frequency.dart';
+import 'package:memo_patte/features/vaccinations/data/vaccination_dao.dart';
+import 'package:memo_patte/features/vaccinations/data/vaccination_repository.dart';
+
+/// Fake muet — capte les annulations pour vérifier le nettoyage en
+/// cascade de `AnimalRepository.deleteAnimal` (audit du 2026-08-19,
+/// issue #71 point 1.2), sans toucher aux vrais canaux de plateforme.
+class _FakeNotificationService extends NotificationService {
+  final List<int> cancelled = [];
+
+  @override
+  Future<void> init() async {}
+
+  @override
+  Future<void> scheduleNotification({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduledDate,
+    String? payload,
+    AndroidScheduleMode androidScheduleMode =
+        AndroidScheduleMode.inexactAllowWhileIdle,
+    DateTimeComponents? matchDateTimeComponents,
+  }) async {}
+
+  @override
+  Future<void> cancelNotification(int id) async {
+    cancelled.add(id);
+  }
+}
 
 /// Tests unitaires du repository `animals` (ticket 1.5) — CRUD complet,
 /// sur une base sqlite en mémoire (`AppDatabase.forTesting`), pas la vraie
 /// base fichier de l'app : rapide, isolé, sans état entre les tests.
 void main() {
   late AppDatabase database;
+  late _FakeNotificationService notificationService;
   late AnimalRepository repository;
+  late VaccinationRepository vaccinationRepository;
+  late TreatmentRepository treatmentRepository;
 
   setUp(() {
     database = AppDatabase.forTesting(NativeDatabase.memory());
-    repository = AnimalRepository(AnimalDao(database));
+    notificationService = _FakeNotificationService();
+    vaccinationRepository = VaccinationRepository(
+      VaccinationDao(database),
+      AnimalDao(database),
+      notificationService,
+    );
+    treatmentRepository = TreatmentRepository(
+      TreatmentDao(database),
+      AnimalDao(database),
+      notificationService,
+    );
+    repository = AnimalRepository(
+      AnimalDao(database),
+      vaccinationRepository,
+      treatmentRepository,
+    );
   });
 
   tearDown(() async {
@@ -131,6 +184,44 @@ void main() {
     test('ne fait rien si l\'id n\'existe pas', () async {
       final deletedCount = await repository.deleteAnimal(999);
       expect(deletedCount, 0);
+    });
+
+    test('annule les notifications des vaccins et traitements liés avant '
+        'la suppression en cascade (audit du 2026-08-19, issue #71 point '
+        '1.2)', () async {
+      final id = await repository.createAnimal(
+        name: 'Milo',
+        species: AnimalSpecies.dog,
+      );
+      final vaccinationId = await vaccinationRepository.createVaccination(
+        animalId: id,
+        name: 'Rage',
+        date: DateTime.now(),
+        nextDueDate: DateTime.now().add(const Duration(days: 5)),
+      );
+      final treatmentId = await treatmentRepository.createTreatment(
+        animalId: id,
+        name: 'Bravecto',
+        date: DateTime.now(),
+        frequency: TreatmentFrequency.monthly,
+      );
+      final vaccination = (await vaccinationRepository.getVaccination(
+        vaccinationId,
+      ))!;
+      final treatment = (await treatmentRepository.getTreatment(treatmentId))!;
+      expect(vaccination.notificationId, isNotNull);
+      expect(treatment.notificationId, isNotNull);
+
+      await repository.deleteAnimal(id);
+
+      expect(notificationService.cancelled, [
+        vaccination.notificationId,
+        treatment.notificationId,
+      ]);
+      // Cascade SQL toujours effective derrière : plus rien en base
+      // pour cet animal.
+      expect(await vaccinationRepository.getVaccination(vaccinationId), isNull);
+      expect(await treatmentRepository.getTreatment(treatmentId), isNull);
     });
   });
 

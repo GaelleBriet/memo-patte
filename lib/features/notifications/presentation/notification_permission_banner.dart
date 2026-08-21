@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/notifications/notification_service_provider.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../data/notification_permission_provider.dart';
 
 /// Bandeau persistant (ticket 2.3) affiché sur l'écran d'accueil quand la
@@ -65,22 +66,26 @@ class _NotificationPermissionBannerState
       child: InkWell(
         onTap: () =>
             ref.read(notificationServiceProvider).openNotificationSettings(),
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              Icon(Icons.notifications_off_outlined, color: AppTheme.alertRed),
-              SizedBox(width: 12),
+              const Icon(
+                Icons.notifications_off_outlined,
+                color: AppTheme.alertRed,
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Rappels désactivés — active-les dans les réglages',
-                  style: TextStyle(
+                  AppLocalizations.of(context)!
+                      .notificationPermissionBannerText,
+                  style: const TextStyle(
                     color: AppTheme.alertRed,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-              Icon(Icons.chevron_right, color: AppTheme.alertRed),
+              const Icon(Icons.chevron_right, color: AppTheme.alertRed),
             ],
           ),
         ),

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nom affiché de l'app (écran d'accueil, gestionnaire d'apps...).
+         Était en dur "memo_patte" (nom de package, pas un nom présentable)
+         dans AndroidManifest.xml — audit du 2026-08-19, issue #71 point
+         1.4. Centralisé ici plutôt qu'en dur dans le manifeste, pratique
+         standard Android pour un nom qui pourrait un jour être traduit. -->
+    <string name="app_name">MémoPatte</string>
+</resources>

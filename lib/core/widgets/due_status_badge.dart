@@ -30,7 +30,7 @@ class DueStatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     if (status == DueStatus.upToDate) {
       return Semantics(
-        label: status.label,
+        label: status.label(context),
         child: const Icon(Icons.check_circle, color: AppTheme.primaryTeal),
       );
     }
@@ -45,7 +45,7 @@ class DueStatusBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
-        status.label,
+        status.label(context),
         style: TextStyle(
           fontSize: 11,
           fontWeight: FontWeight.w700,

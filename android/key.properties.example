@@ -1,0 +1,21 @@
+# Gabarit — copier en `android/key.properties` (déjà gitignoré, jamais
+# commité) une fois le vrai keystore de release généré. Tant que ce
+# fichier n'existe pas sous ce nom, `android/app/build.gradle.kts`
+# continue de signer les builds release avec les clés debug (comme
+# avant), voir son commentaire.
+#
+# Pour générer le keystore lui-même (à faire une seule fois, à
+# conserver précieusement — le perdre empêche toute mise à jour future
+# de l'app sur le Play Store) :
+#
+#   keytool -genkey -v -keystore ~/memo-patte-release.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias memo_patte
+#
+# storeFile : chemin vers le .jks généré ci-dessus. Relatif au dossier
+# `android/app/` (où ce fichier de propriétés est lu), ou un chemin
+# absolu — un chemin absolu HORS du dépôt évite tout risque de le
+# committer par erreur.
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=memo_patte
+storeFile=/chemin/absolu/vers/memo-patte-release.jks

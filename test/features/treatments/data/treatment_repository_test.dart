@@ -12,6 +12,7 @@ import 'package:memo_patte/features/treatments/data/treatment_dao.dart';
 import 'package:memo_patte/features/treatments/data/treatment_repository.dart';
 import 'package:memo_patte/features/treatments/domain/reminder_times.dart';
 import 'package:memo_patte/features/treatments/domain/treatment_frequency.dart';
+import 'package:memo_patte/features/vaccinations/data/vaccination_dao.dart';
 import 'package:memo_patte/features/vaccinations/data/vaccination_repository.dart';
 
 /// Une programmation de notification captée par [_FakeNotificationService].
@@ -21,6 +22,7 @@ typedef _ScheduledCall = ({
   String body,
   DateTime scheduledDate,
   DateTimeComponents? matchDateTimeComponents,
+  AndroidScheduleMode androidScheduleMode,
 });
 
 /// Fake de [NotificationService] — même principe que
@@ -30,8 +32,16 @@ class _FakeNotificationService extends NotificationService {
   final List<_ScheduledCall> scheduled = [];
   final List<int> cancelled = [];
 
+  /// `true` par défaut : le cas "permission accordée" — voir le groupe
+  /// de tests dédié pour le repli sur `inexactAllowWhileIdle` quand
+  /// elle ne l'est pas (audit du 2026-08-19, issue #71 point 3.4).
+  bool exactAlarmsAllowed = true;
+
   @override
   Future<void> init() async {}
+
+  @override
+  Future<bool> canScheduleExactAlarms() async => exactAlarmsAllowed;
 
   @override
   Future<void> scheduleNotification({
@@ -50,6 +60,7 @@ class _FakeNotificationService extends NotificationService {
       body: body,
       scheduledDate: scheduledDate,
       matchDateTimeComponents: matchDateTimeComponents,
+      androidScheduleMode: androidScheduleMode,
     ));
   }
 
@@ -58,6 +69,27 @@ class _FakeNotificationService extends NotificationService {
     cancelled.add(id);
   }
 }
+
+/// `AnimalRepository` a besoin d'un `VaccinationRepository`/
+/// `TreatmentRepository` depuis le 2026-08-21 (audit issue #71 point
+/// 1.2, nettoyage des notifications avant suppression en cascade) —
+/// réutilise le `TreatmentRepository` déjà en jeu dans ce fichier plutôt
+/// que d'en construire un deuxième qui pourrait diverger ; le
+/// `VaccinationRepository` est un jetable, aucun test ici n'exerce les
+/// vaccins.
+AnimalRepository _animalRepository(
+  AppDatabase database,
+  TreatmentRepository treatmentRepository,
+  NotificationService notificationService,
+) => AnimalRepository(
+  AnimalDao(database),
+  VaccinationRepository(
+    VaccinationDao(database),
+    AnimalDao(database),
+    notificationService,
+  ),
+  treatmentRepository,
+);
 
 /// Tests unitaires du repository `treatments` (ticket 4.5) : CRUD +
 /// branchement notification récurrente (ticket 4.4) sur base sqlite en
@@ -79,8 +111,11 @@ void main() {
       AnimalDao(database),
       notificationService,
     );
-    animalId = await AnimalRepository(AnimalDao(database))
-        .createAnimal(name: 'Milo', species: AnimalSpecies.dog);
+    animalId = await _animalRepository(
+      database,
+      repository,
+      notificationService,
+    ).createAnimal(name: 'Milo', species: AnimalSpecies.dog);
   });
 
   tearDown(() async {
@@ -203,6 +238,64 @@ void main() {
         treatment!.reminderNotificationIds,
         '${TreatmentRepository.notificationIdForSlot(id, 0)},'
         '${TreatmentRepository.notificationIdForSlot(id, 1)}',
+      );
+    });
+  });
+
+  group('createTreatment — fréquence quotidienne, mode d\'alarme (audit du '
+      '2026-08-19, issue #71 point 3.4)', () {
+    test('permission SCHEDULE_EXACT_ALARM accordée : alarme exacte', () async {
+      notificationService.exactAlarmsAllowed = true;
+
+      await repository.createTreatment(
+        animalId: animalId,
+        name: 'Antibiotique',
+        date: DateTime.now(),
+        frequency: TreatmentFrequency.daily,
+        reminderTimes: const [8 * 60],
+      );
+
+      expect(
+        notificationService.scheduled.single.androidScheduleMode,
+        AndroidScheduleMode.exactAllowWhileIdle,
+      );
+    });
+
+    test(
+      'permission SCHEDULE_EXACT_ALARM refusée : repli sur '
+      'inexactAllowWhileIdle, la programmation n\'échoue pas pour autant',
+      () async {
+        notificationService.exactAlarmsAllowed = false;
+
+        await repository.createTreatment(
+          animalId: animalId,
+          name: 'Antibiotique',
+          date: DateTime.now(),
+          frequency: TreatmentFrequency.daily,
+          reminderTimes: const [8 * 60],
+        );
+
+        expect(
+          notificationService.scheduled.single.androidScheduleMode,
+          AndroidScheduleMode.inexactAllowWhileIdle,
+        );
+      },
+    );
+
+    test('traitement à cycle long : jamais concerné par le mode exact '
+        '(granularité du jour, comportement inchangé)', () async {
+      notificationService.exactAlarmsAllowed = true;
+
+      await repository.createTreatment(
+        animalId: animalId,
+        name: 'Bravecto',
+        date: DateTime.now(),
+        frequency: TreatmentFrequency.monthly,
+      );
+
+      expect(
+        notificationService.scheduled.single.androidScheduleMode,
+        AndroidScheduleMode.inexactAllowWhileIdle,
       );
     });
   });
@@ -350,8 +443,11 @@ void main() {
     });
 
     test('plusieurs animaux : ne touche que celui demandé', () async {
-      final luna = await AnimalRepository(AnimalDao(database))
-          .createAnimal(name: 'Luna', species: AnimalSpecies.cat);
+      final luna = await _animalRepository(
+        database,
+        repository,
+        notificationService,
+      ).createAnimal(name: 'Luna', species: AnimalSpecies.cat);
       final overdueDate = DateTime.now().subtract(const Duration(days: 60));
 
       await repository.createTreatment(
@@ -412,8 +508,11 @@ void main() {
   group('watchForAnimal', () {
     test('ne retourne que les traitements de l\'animal, du plus récent au '
         'plus ancien', () async {
-      final luna = await AnimalRepository(AnimalDao(database))
-          .createAnimal(name: 'Luna', species: AnimalSpecies.cat);
+      final luna = await _animalRepository(
+        database,
+        repository,
+        notificationService,
+      ).createAnimal(name: 'Luna', species: AnimalSpecies.cat);
       await repository.createTreatment(
         animalId: animalId,
         name: 'Vermifuge',
@@ -465,7 +564,11 @@ void main() {
           frequency: TreatmentFrequency.quarterly,
         );
 
-        await AnimalRepository(AnimalDao(database)).deleteAnimal(animalId);
+        await _animalRepository(
+          database,
+          repository,
+          notificationService,
+        ).deleteAnimal(animalId);
 
         final treatments = await repository.watchForAnimal(animalId).first;
         expect(treatments, isEmpty);

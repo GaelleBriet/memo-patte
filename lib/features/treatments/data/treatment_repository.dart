@@ -1,9 +1,10 @@
 import 'package:drift/drift.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
-    show DateTimeComponents;
+    show AndroidScheduleMode, DateTimeComponents;
 
 import '../../../core/database/app_database.dart';
 import '../../../core/notifications/notification_service.dart';
+import '../../../l10n/app_locale.dart';
 import '../../animals/data/animal_dao.dart';
 import '../domain/reminder_times.dart';
 import '../domain/treatment_frequency.dart';
@@ -55,6 +56,13 @@ class TreatmentRepository {
 
   Stream<List<Treatment>> watchForAnimal(int animalId) =>
       _dao.watchForAnimal(animalId);
+
+  /// Lecture ponctuelle — voir `TreatmentDao.getForAnimal` (déjà
+  /// consommée en interne par [reconcileOverdueTreatments]). Exposée
+  /// publiquement pour `AnimalRepository.deleteAnimal`, qui annule les
+  /// notifications des traitements d'un animal avant sa suppression.
+  Future<List<Treatment>> getForAnimal(int animalId) =>
+      _dao.getForAnimal(animalId);
 
   Future<Treatment?> getTreatment(int id) => _dao.getById(id);
 
@@ -282,13 +290,15 @@ class TreatmentRepository {
     if (!fireAt.isAfter(DateTime.now())) return null;
 
     final animal = await _animalDao.getById(animalId);
+    final l10n = appLocalizations();
     final notificationId = notificationIdFor(treatmentId);
     await _notificationService.scheduleNotification(
       id: notificationId,
-      title: 'Rappel de traitement',
-      body:
-          'Le traitement $name de ${animal?.name ?? 'ton animal'} arrive à '
-          'échéance aujourd\'hui.',
+      title: l10n.treatmentReminderNotificationTitle,
+      body: l10n.treatmentReminderDueNotificationBody(
+        name,
+        animal?.name ?? l10n.notificationFallbackAnimalName,
+      ),
       scheduledDate: fireAt,
     );
     return notificationId;
@@ -311,10 +321,24 @@ class TreatmentRepository {
     if (reminderTimes.isEmpty) return const [];
 
     final animal = await _animalDao.getById(animalId);
+    final l10n = appLocalizations();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final sorted = [...reminderTimes]..sort();
     final ids = <int>[];
+
+    // Alarme exacte si autorisée (audit du 2026-08-19, issue #71 point
+    // 3.4) : contrairement aux vaccins/cycles longs (granularité du
+    // jour, `inexactAllowWhileIdle` largement suffisant), l'heure
+    // précise compte réellement pour un médicament pris à heure(s)
+    // fixe(s) — "vers 8h" plutôt que "à 8h pile" n'a pas le même sens
+    // qu'un rappel de vaccin dans un mois. Repli automatique sur
+    // `inexactAllowWhileIdle` (comportement d'avant) si la permission
+    // `SCHEDULE_EXACT_ALARM` n'est pas accordée, plutôt que de faire
+    // échouer la programmation.
+    final scheduleMode = await _notificationService.canScheduleExactAlarms()
+        ? AndroidScheduleMode.exactAllowWhileIdle
+        : AndroidScheduleMode.inexactAllowWhileIdle;
 
     for (var slot = 0; slot < sorted.length; slot++) {
       var firstFireAt = today.add(Duration(minutes: sorted[slot]));
@@ -324,12 +348,14 @@ class TreatmentRepository {
       final id = notificationIdForSlot(treatmentId, slot);
       await _notificationService.scheduleNotification(
         id: id,
-        title: 'Rappel de traitement',
-        body:
-            'Le traitement $name de ${animal?.name ?? 'ton animal'} est à '
-            'donner maintenant.',
+        title: l10n.treatmentReminderNotificationTitle,
+        body: l10n.treatmentReminderTimeNotificationBody(
+          name,
+          animal?.name ?? l10n.notificationFallbackAnimalName,
+        ),
         scheduledDate: firstFireAt,
         matchDateTimeComponents: DateTimeComponents.time,
+        androidScheduleMode: scheduleMode,
       );
       ids.add(id);
     }

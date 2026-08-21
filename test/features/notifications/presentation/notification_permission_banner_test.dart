@@ -5,6 +5,8 @@ import 'package:memo_patte/core/notifications/notification_service.dart';
 import 'package:memo_patte/core/notifications/notification_service_provider.dart';
 import 'package:memo_patte/features/notifications/presentation/notification_permission_banner.dart';
 
+import '../../../support/localized_test_app.dart';
+
 const _bannerText = 'Rappels désactivés — active-les dans les réglages';
 
 class _FakeNotificationService extends NotificationService {
@@ -26,8 +28,8 @@ class _FakeNotificationService extends NotificationService {
 Widget _wrap(NotificationService service) {
   return ProviderScope(
     overrides: [notificationServiceProvider.overrideWithValue(service)],
-    child: const MaterialApp(
-      home: Scaffold(body: NotificationPermissionBanner()),
+    child: localizedTestApp(
+      home: const Scaffold(body: NotificationPermissionBanner()),
     ),
   );
 }

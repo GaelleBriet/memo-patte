@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/widgets/gradient_app_bar.dart';
 import '../../../core/widgets/surface_card.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../data/notification_permission_provider.dart';
 
 /// Écran de "priming" (ticket 2.2) : explique pourquoi l'app demande la
@@ -41,8 +42,9 @@ class _NotificationPrimingScreenState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: const GradientAppBar(title: Text('Activer les rappels')),
+      appBar: GradientAppBar(title: Text(l10n.notificationPrimingTitle)),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -51,18 +53,12 @@ class _NotificationPrimingScreenState
             const IconChip(icon: Icons.notifications_active_outlined, size: 88),
             const SizedBox(height: 24),
             Text(
-              'Ne rate plus jamais un rappel',
+              l10n.notificationPrimingHeadline,
               style: Theme.of(context).textTheme.headlineMedium,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
-            const Text(
-              'MémoPatte peut te prévenir quand un vaccin ou un '
-              'vermifuge approche de son échéance. Autorise les '
-              'notifications pour ne rien oublier — tu pourras changer '
-              'd\'avis à tout moment dans les réglages de ton téléphone.',
-              textAlign: TextAlign.center,
-            ),
+            Text(l10n.notificationPrimingBody, textAlign: TextAlign.center),
             const SizedBox(height: 32),
             FilledButton(
               onPressed: _requesting ? null : _requestPermission,
@@ -72,14 +68,14 @@ class _NotificationPrimingScreenState
                       width: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Activer les rappels'),
+                  : Text(l10n.notificationPrimingActivate),
             ),
             const SizedBox(height: 8),
             TextButton(
               onPressed: _requesting
                   ? null
                   : () => Navigator.of(context).pop(false),
-              child: const Text('Plus tard'),
+              child: Text(l10n.notificationPrimingLater),
             ),
           ],
         ),

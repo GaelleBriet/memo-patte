@@ -6,9 +6,11 @@ import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/domain/due_status.dart';
 import '../../../core/widgets/delete_confirmation_sheet.dart';
+import '../../../core/widgets/error_display.dart';
 import '../../../core/widgets/light_status_bar.dart';
 import '../../../core/widgets/straddling_hero.dart';
 import '../../../core/widgets/surface_card.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../animals/data/animals_list_provider.dart';
 import '../../animals/data/selected_animal_provider.dart';
 import '../../animals/presentation/animal_chip_selector.dart';
@@ -54,8 +56,11 @@ class HomeScreen extends ConsumerWidget {
               ? const _HomeEmptyState()
               : _HomeContent(animals: animals),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) =>
-              Center(child: Text('Erreur de chargement : $error')),
+          error: (error, stackTrace) => ErrorDisplay(
+            error: error,
+            stackTrace: stackTrace,
+            loggerName: 'HomeScreen.animals',
+          ),
         ),
       ),
     );
@@ -74,6 +79,7 @@ class _HomeContent extends ConsumerWidget {
     // créé", le défaut voulu par la décision du 2026-08-15.
     final selectedId = ref.watch(selectedAnimalIdProvider) ?? animals.first.id;
     final remindersAsync = ref.watch(homeRemindersProvider(selectedId));
+    final l10n = AppLocalizations.of(context)!;
 
     return ListView(
       // `padding: EdgeInsets.zero` explicite : sans ça, `ListView` (via
@@ -101,7 +107,7 @@ class _HomeContent extends ConsumerWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 12),
           child: Text(
-            'À faire aujourd\'hui',
+            l10n.homeTodayTitle,
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
@@ -120,7 +126,11 @@ class _HomeContent extends ConsumerWidget {
                     ],
                   ),
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stackTrace) => Text('Erreur de chargement : $error'),
+            error: (error, stackTrace) => ErrorDisplay(
+              error: error,
+              stackTrace: stackTrace,
+              loggerName: 'HomeScreen.reminders',
+            ),
           ),
         ),
         Padding(
@@ -171,7 +181,7 @@ class _HomeHero extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Bonjour',
+                AppLocalizations.of(context)!.homeGreeting,
                 style: Theme.of(context).textTheme.headlineLarge
                     ?.copyWith(color: Colors.white),
               ),
@@ -215,14 +225,15 @@ class _ReminderCard extends ConsumerWidget {
       // — ajouté le 2026-08-17 pour que le geste soit disponible partout
       // où un rappel apparaît, pas seulement sur ses écrans dédiés.
       onLongPress: () async {
+        final l10n = AppLocalizations.of(context)!;
         final confirmed = await showDeleteConfirmationSheet(
           context,
           title: reminder.kind == ReminderKind.vaccination
-              ? 'Supprimer ce vaccin ?'
-              : 'Supprimer ce traitement ?',
-          message:
-              '"${reminder.detail}" sera définitivement supprimé, ainsi '
-              'que son rappel programmé.',
+              ? l10n.deleteVaccinationTitle
+              : l10n.deleteTreatmentTitle,
+          message: reminder.kind == ReminderKind.vaccination
+              ? l10n.deleteVaccinationMessage(reminder.detail)
+              : l10n.deleteTreatmentMessage(reminder.detail),
         );
         if (!confirmed) return;
         switch (reminder.kind) {
@@ -254,7 +265,7 @@ class _ReminderCard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  reminder.title,
+                  reminder.kind.label(context),
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -324,10 +335,10 @@ class _NoReminders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SurfaceCard(
+    return SurfaceCard(
       child: Text(
-        'Rien à signaler pour l\'instant — tous les rappels sont à jour.',
-        style: TextStyle(color: AppTheme.textSecondary),
+        AppLocalizations.of(context)!.homeNoReminders,
+        style: const TextStyle(color: AppTheme.textSecondary),
       ),
     );
   }
@@ -359,9 +370,12 @@ class _StatsRow extends ConsumerWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const Text(
-                'rappel(s)',
-                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+              Text(
+                AppLocalizations.of(context)!.remindersCountLabel,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondary,
+                ),
               ),
             ],
           ),
@@ -387,10 +401,14 @@ class _QuickActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Actions rapides', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          l10n.homeQuickActionsTitle,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: 12),
         // `IntrinsicHeight` : les 3 cartes doivent faire la même hauteur
         // même si leur libellé ne retourne pas à la ligne au même
@@ -406,7 +424,7 @@ class _QuickActions extends StatelessWidget {
               Expanded(
                 child: _QuickActionCard(
                   icon: Icons.medication_outlined,
-                  label: 'Nouveau traitement',
+                  label: l10n.homeNewTreatmentAction,
                   onTap: () => context.goNamed(
                     'createTreatment',
                     pathParameters: {'id': animalId.toString()},
@@ -417,7 +435,7 @@ class _QuickActions extends StatelessWidget {
               Expanded(
                 child: _QuickActionCard(
                   icon: Icons.vaccines_outlined,
-                  label: 'Rappel de vaccin',
+                  label: l10n.homeVaccinationReminderAction,
                   onTap: () => context.goNamed(
                     'createVaccination',
                     pathParameters: {'id': animalId.toString()},
@@ -428,11 +446,11 @@ class _QuickActions extends StatelessWidget {
               Expanded(
                 child: _QuickActionCard(
                   icon: Icons.pest_control_outlined,
-                  label: 'Antiparasitaire',
+                  label: l10n.homeAntiparasiteAction,
                   onTap: () => context.goNamed(
                     'createTreatment',
                     pathParameters: {'id': animalId.toString()},
-                    queryParameters: const {'name': 'Antiparasitaire'},
+                    queryParameters: {'name': l10n.homeAntiparasiteAction},
                   ),
                 ),
               ),
@@ -483,6 +501,7 @@ class _HomeEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topInset = MediaQuery.paddingOf(context).top;
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       children: [
@@ -490,9 +509,9 @@ class _HomeEmptyState extends StatelessWidget {
           decoration: AppTheme.headerGradient,
           padding: EdgeInsets.fromLTRB(20, topInset + 16, 20, 32),
           width: double.infinity,
-          child: const Text(
-            'Bonjour',
-            style: TextStyle(
+          child: Text(
+            l10n.homeGreeting,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 32,
               fontWeight: FontWeight.w700,
@@ -509,22 +528,21 @@ class _HomeEmptyState extends StatelessWidget {
                   const IconChip(icon: Icons.pets, size: 64),
                   const SizedBox(height: 16),
                   Text(
-                    'Bienvenue sur MémoPatte',
+                    l10n.homeEmptyStateTitle,
                     style: Theme.of(context).textTheme.titleMedium,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Crée le profil de ton premier compagnon pour '
-                    'commencer à suivre ses rappels.',
+                  Text(
+                    l10n.homeEmptyStateMessage,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: AppTheme.textSecondary),
+                    style: const TextStyle(color: AppTheme.textSecondary),
                   ),
                   const SizedBox(height: 24),
                   FilledButton.icon(
                     onPressed: () => context.goNamed('createAnimal'),
                     icon: const Icon(Icons.add),
-                    label: const Text('Créer un profil animal'),
+                    label: Text(l10n.createAnimalTitle),
                   ),
                 ],
               ),
@@ -564,6 +582,14 @@ const _months = [
 /// Pas de dépendance `intl` pour un seul en-tête de date : même choix que
 /// le reste du code (dates formatées à la main, ex.
 /// `vaccination_form_screen.dart`).
+///
+/// PAS ENCORE localisé (audit du 2026-08-19, issue #71 point 3.3,
+/// préparation i18n) — hors scope de cette passe, qui s'est concentrée
+/// sur le texte d'interface plutôt que sur ce formatage de date ad hoc ;
+/// `intl` est désormais une vraie dépendance du projet (via
+/// `flutter_localizations`), donc `DateFormat.EEEE`/`DateFormat.MMMM`
+/// avec la locale courante remplaceraient proprement `_weekdays`/
+/// `_months` le jour où l'anglais est réellement exposé.
 String _formatToday() {
   final now = DateTime.now();
   return '${_weekdays[now.weekday - 1]} ${now.day} ${_months[now.month - 1]}';

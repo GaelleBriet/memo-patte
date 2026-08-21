@@ -8,6 +8,8 @@ import 'package:memo_patte/core/notifications/notification_service.dart';
 import 'package:memo_patte/features/animals/data/animal_dao.dart';
 import 'package:memo_patte/features/animals/data/animal_repository.dart';
 import 'package:memo_patte/features/animals/domain/animal_species.dart';
+import 'package:memo_patte/features/treatments/data/treatment_dao.dart';
+import 'package:memo_patte/features/treatments/data/treatment_repository.dart';
 import 'package:memo_patte/features/vaccinations/data/vaccination_dao.dart';
 import 'package:memo_patte/features/vaccinations/data/vaccination_repository.dart';
 
@@ -55,6 +57,27 @@ class _FakeNotificationService extends NotificationService {
   }
 }
 
+/// `AnimalRepository` a besoin d'un `VaccinationRepository`/
+/// `TreatmentRepository` depuis le 2026-08-21 (audit issue #71 point
+/// 1.2, nettoyage des notifications avant suppression en cascade) —
+/// réutilise le `VaccinationRepository` déjà en jeu dans ce fichier
+/// plutôt que d'en construire un deuxième qui pourrait diverger ; le
+/// `TreatmentRepository` est un jetable, aucun test ici n'exerce les
+/// traitements.
+AnimalRepository _animalRepository(
+  AppDatabase database,
+  VaccinationRepository vaccinationRepository,
+  NotificationService notificationService,
+) => AnimalRepository(
+  AnimalDao(database),
+  vaccinationRepository,
+  TreatmentRepository(
+    TreatmentDao(database),
+    AnimalDao(database),
+    notificationService,
+  ),
+);
+
 /// Tests unitaires du repository `vaccinations` (ticket 3.5) : CRUD sur
 /// base sqlite en mémoire (comme `animal_repository_test.dart`) et
 /// branchement notifications (ticket 3.4) via le fake ci-dessus.
@@ -82,8 +105,11 @@ void main() {
       AnimalDao(database),
       notificationService,
     );
-    animalId = await AnimalRepository(AnimalDao(database))
-        .createAnimal(name: 'Milo', species: AnimalSpecies.dog);
+    animalId = await _animalRepository(
+      database,
+      repository,
+      notificationService,
+    ).createAnimal(name: 'Milo', species: AnimalSpecies.dog);
   });
 
   tearDown(() async {
@@ -259,8 +285,11 @@ void main() {
   group('watchForAnimal', () {
     test('ne retourne que les vaccins de l\'animal, du plus récent au plus '
         'ancien', () async {
-      final otherAnimalId = await AnimalRepository(AnimalDao(database))
-          .createAnimal(name: 'Luna', species: AnimalSpecies.cat);
+      final otherAnimalId = await _animalRepository(
+        database,
+        repository,
+        notificationService,
+      ).createAnimal(name: 'Luna', species: AnimalSpecies.cat);
       await repository.createVaccination(
         animalId: animalId,
         name: 'Rage',
@@ -305,7 +334,11 @@ void main() {
         date: DateTime(2026, 6, 1),
       );
 
-      await AnimalRepository(AnimalDao(database)).deleteAnimal(animalId);
+      await _animalRepository(
+        database,
+        repository,
+        notificationService,
+      ).deleteAnimal(animalId);
 
       final vaccinations = await repository.watchForAnimal(animalId).first;
       expect(vaccinations, isEmpty);

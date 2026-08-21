@@ -5,6 +5,8 @@ import 'package:memo_patte/core/notifications/notification_service.dart';
 import 'package:memo_patte/core/notifications/notification_service_provider.dart';
 import 'package:memo_patte/features/notifications/presentation/notification_priming_screen.dart';
 
+import '../../../support/localized_test_app.dart';
+
 class _FakeNotificationService extends NotificationService {
   bool requestResult = true;
   int requestPermissionCallCount = 0;
@@ -61,7 +63,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [notificationServiceProvider.overrideWithValue(service)],
-        child: MaterialApp(home: _CallerScreen(key: key)),
+        child: localizedTestApp(home: _CallerScreen(key: key)),
       ),
     );
     return key.currentState!;

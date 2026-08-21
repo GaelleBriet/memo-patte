@@ -69,6 +69,16 @@ String formatMinuteOfDay(int minutesOfDay) {
 /// occurrence produite par [nextReminderDateTime]. Partagée entre
 /// `TreatmentFormScreen` (aperçu "Prochain rappel") et `TreatmentCard`
 /// (ligne "Prochaine dose") pour ne pas dupliquer cette mise en forme.
+///
+/// PAS ENCORE localisé (audit du 2026-08-19, issue #71 point 3.3,
+/// préparation i18n) — contrairement aux autres libellés de domaine
+/// (`DueStatusLabel`, `AnimalSpeciesLabel`), volontairement laissé en
+/// fonction pure sans `BuildContext` : `reminder_times_test.dart` la
+/// teste unitairement, sans widget tree, exactement pour cette raison.
+/// Lui ajouter un `BuildContext` casserait cette testabilité pour 3
+/// courtes chaînes ("Aujourd'hui à…"/"Demain à…"/"En retard…") — un
+/// compromis jugé raisonnable plutôt qu'une réécriture disproportionnée
+/// de ces tests pour ce passage.
 String describeUpcomingReminder(DateTime due, DateTime now) {
   final today = DateTime(now.year, now.month, now.day);
   final dueDay = DateTime(due.year, due.month, due.day);
