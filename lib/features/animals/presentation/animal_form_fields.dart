@@ -90,7 +90,9 @@ class AnimalFormFieldsState extends State<AnimalFormFields> {
     if (_species == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.animalFormSpeciesRequired),
+          content: Text(
+            AppLocalizations.of(context)!.animalFormSpeciesRequired,
+          ),
         ),
       );
       return null;
