@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../l10n/generated/app_localizations.dart';
 import '../logging/app_logger.dart';
 
 /// Affichage d'erreur générique et réutilisable — remplace les
@@ -44,6 +45,7 @@ class ErrorDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     AppLogger.error(loggerName, error, stackTrace: stackTrace);
+    final l10n = AppLocalizations.of(context)!;
 
     return Center(
       child: Padding(
@@ -66,7 +68,7 @@ class ErrorDisplay extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Une erreur est survenue',
+              l10n.errorDisplayTitle,
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
@@ -81,7 +83,10 @@ class ErrorDisplay extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              FilledButton(onPressed: onRetry, child: const Text('Réessayer')),
+              FilledButton(
+                onPressed: onRetry,
+                child: Text(l10n.commonRetry),
+              ),
             ],
           ],
         ),
