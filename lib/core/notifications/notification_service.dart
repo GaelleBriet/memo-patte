@@ -132,6 +132,34 @@ class NotificationService {
   /// `treatments`, aux tickets 3.4/4.4, de décider quel identifiant
   /// utiliser, typiquement l'id de la ligne Drift correspondante).
   ///
+  /// **Schéma d'ids, vue d'ensemble** (audit du 2026-08-19, issue #71,
+  /// section sécurité "Schéma d'IDs de notification" — documenté ici
+  /// plutôt qu'éclaté entre les trois repositories, pour avoir la vue
+  /// d'ensemble à un seul endroit) : chaque famille dérive son id de
+  /// celui de la ligne Drift correspondante, avec un décalage propre
+  /// pour ne jamais se chevaucher entre familles :
+  /// - Vaccin : `VaccinationRepository.notificationIdFor` — `id * 10 + 1`.
+  /// - Traitement, cycle long : `TreatmentRepository.notificationIdFor` —
+  ///   `id * 10 + 2`.
+  /// - Traitement, heure(s) fixe(s) (une notification récurrente par
+  ///   heure choisie) : `TreatmentRepository.notificationIdForSlot` —
+  ///   `id * 1000 + slot * 10 + 2`, `slot` étant l'index (0, 1, 2...) de
+  ///   l'heure parmi celles du traitement.
+  ///
+  /// `flutter_local_notifications` transmet cet id à la plateforme sous
+  /// forme d'entier 32 bits signé côté Android (`Integer`, max
+  /// 2 147 483 647) — la formule la plus contraignante des trois
+  /// (`id * 1000 + ...`) reste donc sûre jusqu'à environ 2,1 millions de
+  /// lignes de traitement, très au-delà de ce qu'une app locale
+  /// mono-utilisatrice atteindra jamais en pratique. Non vérifié à
+  /// l'exécution (pas de garde-fou actif) : une limite purement
+  /// théorique, documentée ici pour un futur mainteneur plutôt que
+  /// bloquée par du code mort.
+  ///
+  /// Non-collision entre les trois formules testée dans
+  /// `treatment_repository_test.dart` (groupe `createTreatment`, test
+  /// "l'identifiant de notification ne collisionne pas...").
+  ///
   /// [scheduledDate] est une date/heure "wall clock" dans le fuseau local
   /// de l'appareil (ex. celle saisie par l'utilisateur dans un formulaire) ;
   /// elle est convertie en [tz.TZDateTime] avec le fuseau détecté par

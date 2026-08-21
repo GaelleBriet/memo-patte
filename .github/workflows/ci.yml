@@ -12,9 +12,19 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Lit la version depuis `.fvmrc` plutôt qu'un `channel: stable` en
+      # dur : la CI suivait sa propre résolution du canal "stable",
+      # potentiellement différente de celle utilisée en local via FVM au
+      # même moment — risque de divergence d'analyse/tests (audit du
+      # 2026-08-19, issue #71 point 1.6). `.fvmrc` pointe lui-même
+      # encore sur le canal flottant `"stable"` (pas une version figée,
+      # décision encore en suspens côté Gaelle) : ce changement ne fixe
+      # donc pas la reproductibilité à 100 % tout de suite, mais fait
+      # que la CI suivra automatiquement `.fvmrc` sans reprise si/quand
+      # il est un jour épinglé à une version exacte.
       - uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version-file: .fvmrc
           cache: true
 
       - run: flutter pub get

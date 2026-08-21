@@ -1,7 +1,29 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// Signature de release (audit du 2026-08-19, issue #71 point 1.5 —
+// "release signée avec les clés debug", bloquant Play Store). Lu depuis
+// `android/key.properties`, jamais commité (déjà dans `.gitignore` /
+// `android/.gitignore`) — voir `android/key.properties.example` pour le
+// format attendu et comment générer le keystore. Pas de scaffolding
+// pour le keystore lui-même : c'est un secret réel, à créer et garder
+// en sécurité par Gaelle elle-même, pas par moi (règle du projet — voir
+// CLAUDE.md, "Ne jamais exposer de secrets").
+//
+// Tant qu'`android/key.properties` n'existe pas, le comportement est
+// strictement identique à avant (signature debug) — ce scaffold ne
+// change rien tant qu'il n'est pas activé.
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+val hasReleaseSigning = keystorePropertiesFile.exists()
+if (hasReleaseSigning) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -31,11 +53,29 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Signature dédiée si `android/key.properties` existe
+            // (voir plus haut), sinon repli sur les clés debug comme
+            // avant — pour que `flutter run --release` continue de
+            // fonctionner sans configuration tant que la vraie release
+            // n'est pas encore préparée.
+            signingConfig = if (hasReleaseSigning) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
