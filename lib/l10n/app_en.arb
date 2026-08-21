@@ -1,4 +1,48 @@
 {
   "@@locale": "en",
-  "homeGreeting": "Hello"
+
+  "homeGreeting": "Hello",
+
+  "commonCancel": "Cancel",
+  "commonSave": "Save",
+  "commonBack": "Back",
+  "commonEdit": "Edit",
+  "commonSeeAll": "See all",
+  "commonNotProvidedFeminine": "Not provided",
+  "commonNotProvidedMasculine": "Not provided",
+
+  "dueStatusUpToDate": "Up to date",
+  "dueStatusDueSoon": "Upcoming",
+  "dueStatusOverdue": "Overdue",
+
+  "animalSpeciesDog": "Dog",
+  "animalSpeciesCat": "Cat",
+
+  "animalFormNameLabel": "Name *",
+  "animalFormNameRequired": "Name is required.",
+  "animalFormSpeciesLabel": "Species *",
+  "animalFormSpeciesRequired": "Choose a species.",
+  "animalFormBreedLabel": "Breed (optional)",
+  "animalFormWeightLabel": "Initial weight in kg (optional)",
+  "animalFormWeightInvalid": "Invalid weight.",
+  "animalFormBirthDateLabel": "Date of birth (optional)",
+  "animalFormBirthDateNotProvided": "Not provided",
+
+  "createAnimalTitle": "Create an animal profile",
+  "createAnimalSubmit": "Create profile",
+
+  "animalNotFound": "Animal not found.",
+  "profileSpeciesLabel": "Species",
+  "profileBreedLabel": "Breed",
+  "profileBirthDateLabel": "Date of birth",
+  "profileWeightLabel": "Initial weight",
+  "animalProfileWeightValue": "{weight} kg",
+  "vaccinationsSectionTitle": "Vaccinations",
+  "treatmentsSectionTitle": "Ongoing treatment",
+  "remindersCountLabel": "reminder(s)",
+  "vaccinesEmptyCta": "No vaccinations recorded — tap to add one.",
+  "treatmentsEmptyCta": "No treatments recorded — tap to add one.",
+  "animalAgeLessThanMonth": "less than a month old",
+  "animalAgeMonths": "{count, plural, =1{{count} month} other{{count} months}}",
+  "animalAgeYears": "{count, plural, =1{1 year} other{{count} years}}"
 }
