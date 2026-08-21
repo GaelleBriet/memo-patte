@@ -1,0 +1,7 @@
+{
+  "@@locale": "fr",
+  "homeGreeting": "Bonjour",
+  "@homeGreeting": {
+    "description": "Salutation en tête de l'accueil."
+  }
+}
