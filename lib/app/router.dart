@@ -9,6 +9,30 @@ import '../features/vaccinations/presentation/vaccination_form_screen.dart';
 import '../features/vaccinations/presentation/vaccinations_list_screen.dart';
 import 'app_shell.dart';
 
+/// Parse tolérant d'un id de route — id invalide/absent (deep link
+/// cassé, URL modifiée à la main...) → `null`, jamais d'exception.
+/// `int.parse(...)!` non protégé levait `FormatException` sur un id
+/// malformé (écran noir, audit du 2026-08-19, issue #71 point 1.3).
+int? _tryParseId(GoRouterState state, String key) =>
+    int.tryParse(state.pathParameters[key] ?? '');
+
+/// Redirige vers l'accueil si [key] ne parse pas en entier — posé sur
+/// chaque route qui introduit un nouveau paramètre d'id, en plus du
+/// filet de sécurité `_parseIdOrFallback` dans les builders eux-mêmes
+/// (défense en profondeur : un id invalide ne doit jamais atteindre un
+/// écran, mais si jamais ce garde-fou était contourné, le fallback des
+/// builders évite quand même le crash).
+String? _requireValidId(GoRouterState state, String key) =>
+    _tryParseId(state, key) == null ? '/' : null;
+
+/// Id à utiliser dans un builder si jamais un id invalide arrivait
+/// jusque-là malgré [_requireValidId] : `-1` n'existera jamais en base,
+/// ce qui retombe naturellement sur les écrans "introuvable" déjà
+/// prévus pour un id valide mais absent (`AnimalProfileScreen`,
+/// `TreatmentFormScreen`...) — pas besoin d'un chemin d'erreur séparé.
+int _parseIdOrFallback(GoRouterState state, String key) =>
+    _tryParseId(state, key) ?? -1;
+
 /// Router de l'app, avec coquille de navigation persistante (ticket 6.0,
 /// `StatefulShellRoute.indexedStack` de go_router) : 2 onglets — Accueil,
 /// Carnet — voir `app_shell.dart` pour pourquoi pas les 4 de la maquette
@@ -57,22 +81,23 @@ final appRouter = GoRouter(
               // l'absence de racine `/animals` commune.
               path: '/animals/:id',
               name: 'animalProfile',
+              redirect: (context, state) => _requireValidId(state, 'id'),
               builder: (context, state) => AnimalProfileScreen(
-                animalId: int.parse(state.pathParameters['id']!),
+                animalId: _parseIdOrFallback(state, 'id'),
               ),
               routes: [
                 GoRoute(
                   path: 'vaccinations',
                   name: 'vaccinationsList',
                   builder: (context, state) => VaccinationsListScreen(
-                    animalId: int.parse(state.pathParameters['id']!),
+                    animalId: _parseIdOrFallback(state, 'id'),
                   ),
                   routes: [
                     GoRoute(
                       path: 'new',
                       name: 'createVaccination',
                       builder: (context, state) => VaccinationFormScreen(
-                        animalId: int.parse(state.pathParameters['id']!),
+                        animalId: _parseIdOrFallback(state, 'id'),
                       ),
                     ),
                     GoRoute(
@@ -80,10 +105,13 @@ final appRouter = GoRouter(
                       // pour /animals ci-dessus.
                       path: ':vaccinationId',
                       name: 'editVaccination',
+                      redirect: (context, state) =>
+                          _requireValidId(state, 'vaccinationId'),
                       builder: (context, state) => VaccinationFormScreen(
-                        animalId: int.parse(state.pathParameters['id']!),
-                        vaccinationId: int.parse(
-                          state.pathParameters['vaccinationId']!,
+                        animalId: _parseIdOrFallback(state, 'id'),
+                        vaccinationId: _parseIdOrFallback(
+                          state,
+                          'vaccinationId',
                         ),
                       ),
                     ),
@@ -95,14 +123,14 @@ final appRouter = GoRouter(
                   path: 'treatments',
                   name: 'treatmentsList',
                   builder: (context, state) => TreatmentsListScreen(
-                    animalId: int.parse(state.pathParameters['id']!),
+                    animalId: _parseIdOrFallback(state, 'id'),
                   ),
                   routes: [
                     GoRoute(
                       path: 'new',
                       name: 'createTreatment',
                       builder: (context, state) => TreatmentFormScreen(
-                        animalId: int.parse(state.pathParameters['id']!),
+                        animalId: _parseIdOrFallback(state, 'id'),
                         // Raccourci "Antiparasitaire" de l'accueil
                         // (ticket 6.2/4.2) : préremplit le nom via un
                         // paramètre de requête plutôt qu'un flag dédié,
@@ -116,11 +144,11 @@ final appRouter = GoRouter(
                       // pour /animals ci-dessus.
                       path: ':treatmentId',
                       name: 'editTreatment',
+                      redirect: (context, state) =>
+                          _requireValidId(state, 'treatmentId'),
                       builder: (context, state) => TreatmentFormScreen(
-                        animalId: int.parse(state.pathParameters['id']!),
-                        treatmentId: int.parse(
-                          state.pathParameters['treatmentId']!,
-                        ),
+                        animalId: _parseIdOrFallback(state, 'id'),
+                        treatmentId: _parseIdOrFallback(state, 'treatmentId'),
                       ),
                     ),
                   ],
