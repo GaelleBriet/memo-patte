@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -109,14 +110,16 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
 
     setState(() => _submitting = true);
     try {
-      final updated = Animal(
-        id: widget.animal.id,
+      // `widget.animal.copyWith(...)` plutôt qu'un `Animal(...)`
+      // reconstruit à la main
+      // `copyWith` ne touche que ce qu'on lui passe explicitement ; les
+      // autres (dont `photoPath`) restent tels quels
+      final updated = widget.animal.copyWith(
         name: values.name,
         species: values.species,
-        breed: values.breed,
-        birthDate: values.birthDate,
-        initialWeightKg: values.initialWeightKg,
-        createdAt: widget.animal.createdAt,
+        breed: Value(values.breed),
+        birthDate: Value(values.birthDate),
+        initialWeightKg: Value(values.initialWeightKg),
       );
       await ref.read(animalRepositoryProvider).updateAnimal(updated);
       ref.invalidate(animalProvider(widget.animalId));
