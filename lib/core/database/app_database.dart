@@ -39,14 +39,33 @@ class AppDatabase extends _$AppDatabase {
     // migration), plus lourd mais sûr.
     onUpgrade: (m, from, to) async {
       if (from < 2) {
+        // `createTable` génère `CREATE TABLE IF NOT EXISTS` (voir Drift,
+        // `Migrator._writeCreateTable`) : déjà sûr à rejouer.
         await m.createTable(vaccinations);
       }
       if (from < 3) {
         await m.createTable(treatments);
       }
       if (from < 4) {
-        await m.addColumn(treatments, treatments.reminderTimes);
-        await m.addColumn(treatments, treatments.reminderNotificationIds);
+        // `addColumn`, lui, génère un simple `ALTER TABLE ADD COLUMN`
+        // sans garde — le rejouer sur une colonne déjà présente plante
+        // avec `duplicate column name`. Ça peut arriver si une
+        // migration précédente a été interrompue *après* l'`ALTER
+        // TABLE` mais *avant* que Drift n'enregistre la nouvelle
+        // version du schéma (ex. app tuée en arrière-plan pendant la
+        // migration) : au lancement suivant, Drift croit devoir migrer
+        // à nouveau depuis la version d'avant, plante, et l'app entière
+        // reste bloquée dessus (bug constaté sur le téléphone de
+        // Gaelle le 2026-08-21, écran d'accueil en erreur). D'où la
+        // vérification défensive via `_hasColumn` plutôt qu'un appel
+        // direct — l'ajout devient idempotent, la base se répare toute
+        // seule au prochain lancement sans perte de données.
+        if (!await _hasColumn('treatments', 'reminder_times')) {
+          await m.addColumn(treatments, treatments.reminderTimes);
+        }
+        if (!await _hasColumn('treatments', 'reminder_notification_ids')) {
+          await m.addColumn(treatments, treatments.reminderNotificationIds);
+        }
       }
     },
     // Sqlite n'applique PAS les clés étrangères par défaut : sans ce
@@ -56,6 +75,16 @@ class AppDatabase extends _$AppDatabase {
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );
+
+  /// `true` si [table] a déjà une colonne nommée [column] — via
+  /// `PRAGMA table_info`, la façon standard sqlite d'inspecter le
+  /// schéma réel d'une table (pas ce que le code Dart *déclare*, ce qui
+  /// est *effectivement en base*). Les noms sont ceux générés par Drift
+  /// (snake_case), pas les noms Dart des colonnes.
+  Future<bool> _hasColumn(String table, String column) async {
+    final rows = await customSelect('PRAGMA table_info($table)').get();
+    return rows.any((row) => row.data['name'] == column);
+  }
 
   // Connexion sqlite native (Android/iOS/desktop), fichier stocké dans le
   // dossier "application support" du système. `drift_flutter` est
