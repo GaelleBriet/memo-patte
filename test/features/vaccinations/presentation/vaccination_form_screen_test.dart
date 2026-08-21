@@ -15,6 +15,8 @@ import 'package:memo_patte/features/vaccinations/data/vaccination_dao.dart';
 import 'package:memo_patte/features/vaccinations/data/vaccination_repository.dart';
 import 'package:memo_patte/features/vaccinations/presentation/vaccination_form_screen.dart';
 
+import '../../../support/localized_test_app.dart';
+
 const _primingTitle = 'Ne rate plus jamais un rappel';
 
 class _FakeNotificationService extends NotificationService {
@@ -80,7 +82,7 @@ void main() {
           appDatabaseProvider.overrideWithValue(database),
           notificationServiceProvider.overrideWithValue(notificationService),
         ],
-        child: MaterialApp(
+        child: localizedTestApp(
           home: Builder(
             builder: (context) => Scaffold(
               body: Center(

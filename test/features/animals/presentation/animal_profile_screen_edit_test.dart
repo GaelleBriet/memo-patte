@@ -18,6 +18,8 @@ import 'package:memo_patte/features/treatments/data/treatment_repository.dart';
 import 'package:memo_patte/features/vaccinations/data/vaccination_dao.dart';
 import 'package:memo_patte/features/vaccinations/data/vaccination_repository.dart';
 
+import '../../../support/localized_test_app.dart';
+
 /// Fake muet — `AnimalProfileScreen` réconcilie les traitements en retard
 /// dans `initState` (ticket 4.4), qui a besoin d'un `NotificationService`
 /// utilisable même quand ce test ne crée ni vaccin ni traitement.
@@ -94,7 +96,7 @@ void main() {
             _NoopNotificationService(),
           ),
         ],
-        child: MaterialApp(home: AnimalProfileScreen(animalId: id)),
+        child: localizedTestApp(home: AnimalProfileScreen(animalId: id)),
       ),
     );
     await tester.pumpAndSettle();
