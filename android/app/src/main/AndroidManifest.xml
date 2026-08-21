@@ -57,6 +57,20 @@
          programmées à chaque reboot, ce receiver les remet en place. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
+    <!-- Alarmes exactes pour les traitements à heure(s) de rappel fixe(s)
+         (`TreatmentFrequency.daily`/`severalTimesDaily`) — audit du 2026-08-19,
+         issue #71 point 3.4. `SCHEDULE_EXACT_ALARM` (pas `USE_EXACT_ALARM`,
+         réservé aux apps de type alarme/minuteur au sens strict des règles
+         Play Store) : demande explicite à l'utilisateur via les réglages
+         système (voir `NotificationService.requestExactAlarmPermission`),
+         pas accordée automatiquement. Repli sur `inexactAllowWhileIdle`
+         (comportement d'avant) tant qu'elle ne l'est pas — voir
+         `TreatmentRepository._scheduleReminderTimes`. Nécessite de
+         documenter le "core use case" auprès de Google Play au moment de
+         la soumission (issue #71, "avec justification Play Store") —
+         hors de ce que je peux faire ici, à prévoir avec le ticket #48. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
          https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
