@@ -279,6 +279,22 @@ class AppLocalizationsFr extends AppLocalizations {
       'Rappels désactivés — active-les dans les réglages';
 
   @override
+  String get notificationPrimingTitle => 'Activer les rappels';
+
+  @override
+  String get notificationPrimingHeadline => 'Ne rate plus jamais un rappel';
+
+  @override
+  String get notificationPrimingBody =>
+      'MémoPatte peut te prévenir quand un vaccin ou un vermifuge approche de son échéance. Autorise les notifications pour ne rien oublier — tu pourras changer d\'avis à tout moment dans les réglages de ton téléphone.';
+
+  @override
+  String get notificationPrimingActivate => 'Activer les rappels';
+
+  @override
+  String get notificationPrimingLater => 'Plus tard';
+
+  @override
   String get dueStatusUpToDate => 'À jour';
 
   @override

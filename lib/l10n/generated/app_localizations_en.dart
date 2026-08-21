@@ -276,6 +276,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Reminders are off — enable them in settings';
 
   @override
+  String get notificationPrimingTitle => 'Enable reminders';
+
+  @override
+  String get notificationPrimingHeadline => 'Never miss a reminder again';
+
+  @override
+  String get notificationPrimingBody =>
+      'MémoPatte can let you know when a vaccination or a dewormer treatment is coming due. Allow notifications so nothing slips through the cracks — you can change your mind anytime in your phone\'s settings.';
+
+  @override
+  String get notificationPrimingActivate => 'Enable reminders';
+
+  @override
+  String get notificationPrimingLater => 'Later';
+
+  @override
   String get dueStatusUpToDate => 'Up to date';
 
   @override

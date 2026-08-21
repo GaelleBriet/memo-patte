@@ -554,6 +554,36 @@ abstract class AppLocalizations {
   /// **'Rappels désactivés — active-les dans les réglages'**
   String get notificationPermissionBannerText;
 
+  /// No description provided for @notificationPrimingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer les rappels'**
+  String get notificationPrimingTitle;
+
+  /// No description provided for @notificationPrimingHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne rate plus jamais un rappel'**
+  String get notificationPrimingHeadline;
+
+  /// No description provided for @notificationPrimingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MémoPatte peut te prévenir quand un vaccin ou un vermifuge approche de son échéance. Autorise les notifications pour ne rien oublier — tu pourras changer d\'avis à tout moment dans les réglages de ton téléphone.'**
+  String get notificationPrimingBody;
+
+  /// No description provided for @notificationPrimingActivate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer les rappels'**
+  String get notificationPrimingActivate;
+
+  /// No description provided for @notificationPrimingLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get notificationPrimingLater;
+
   /// No description provided for @dueStatusUpToDate.
   ///
   /// In fr, this message translates to:
