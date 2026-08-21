@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/widgets/error_display.dart';
 import '../../../core/widgets/gradient_app_bar.dart';
 import '../../../core/widgets/surface_card.dart';
 import '../../animals/data/animal_provider.dart';
@@ -65,8 +66,11 @@ class _TreatmentsListScreenState extends ConsumerState<TreatmentsListScreen> {
                 treatments: treatments,
               ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) =>
-            Center(child: Text('Erreur de chargement : $error')),
+        error: (error, stackTrace) => ErrorDisplay(
+          error: error,
+          stackTrace: stackTrace,
+          loggerName: 'TreatmentsListScreen',
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.goNamed(

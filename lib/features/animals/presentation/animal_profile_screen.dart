@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/widgets/error_display.dart';
 import '../../../core/widgets/light_status_bar.dart';
 import '../../../core/widgets/straddling_hero.dart';
 import '../../../core/widgets/surface_card.dart';
@@ -54,8 +55,11 @@ class AnimalProfileScreen extends ConsumerWidget {
               ? const Center(child: Text('Animal introuvable.'))
               : _AnimalProfileBody(animalId: animalId, animal: animal),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) =>
-              Center(child: Text('Erreur de chargement : $error')),
+          error: (error, stackTrace) => ErrorDisplay(
+            error: error,
+            stackTrace: stackTrace,
+            loggerName: 'AnimalProfileScreen.animal',
+          ),
         ),
       ),
     );
@@ -250,7 +254,11 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
                     ],
                   ),
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stackTrace) => Text('Erreur de chargement : $error'),
+            error: (error, stackTrace) => ErrorDisplay(
+              error: error,
+              stackTrace: stackTrace,
+              loggerName: 'AnimalProfileScreen.vaccinations',
+            ),
           ),
         ),
         Padding(
@@ -299,7 +307,11 @@ class _AnimalProfileBodyState extends ConsumerState<_AnimalProfileBody> {
                     ],
                   ),
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stackTrace) => Text('Erreur de chargement : $error'),
+            error: (error, stackTrace) => ErrorDisplay(
+              error: error,
+              stackTrace: stackTrace,
+              loggerName: 'AnimalProfileScreen.treatments',
+            ),
           ),
         ),
         const SizedBox(height: 24),

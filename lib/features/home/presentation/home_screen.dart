@@ -6,6 +6,7 @@ import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/domain/due_status.dart';
 import '../../../core/widgets/delete_confirmation_sheet.dart';
+import '../../../core/widgets/error_display.dart';
 import '../../../core/widgets/light_status_bar.dart';
 import '../../../core/widgets/straddling_hero.dart';
 import '../../../core/widgets/surface_card.dart';
@@ -54,8 +55,11 @@ class HomeScreen extends ConsumerWidget {
               ? const _HomeEmptyState()
               : _HomeContent(animals: animals),
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) =>
-              Center(child: Text('Erreur de chargement : $error')),
+          error: (error, stackTrace) => ErrorDisplay(
+            error: error,
+            stackTrace: stackTrace,
+            loggerName: 'HomeScreen.animals',
+          ),
         ),
       ),
     );
@@ -120,7 +124,11 @@ class _HomeContent extends ConsumerWidget {
                     ],
                   ),
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stackTrace) => Text('Erreur de chargement : $error'),
+            error: (error, stackTrace) => ErrorDisplay(
+              error: error,
+              stackTrace: stackTrace,
+              loggerName: 'HomeScreen.reminders',
+            ),
           ),
         ),
         Padding(

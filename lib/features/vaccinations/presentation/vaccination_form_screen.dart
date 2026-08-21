@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/widgets/error_display.dart';
 import '../../../core/widgets/gradient_app_bar.dart';
 import '../../notifications/data/first_reminder_source.dart';
 import '../../notifications/data/notification_permission_provider.dart';
@@ -57,7 +58,11 @@ class VaccinationFormScreen extends ConsumerWidget {
       ),
       error: (error, stackTrace) => Scaffold(
         appBar: const GradientAppBar(title: Text('Modifier le vaccin')),
-        body: Center(child: Text('Erreur de chargement : $error')),
+        body: ErrorDisplay(
+          error: error,
+          stackTrace: stackTrace,
+          loggerName: 'VaccinationFormScreen.vaccination',
+        ),
       ),
     );
   }

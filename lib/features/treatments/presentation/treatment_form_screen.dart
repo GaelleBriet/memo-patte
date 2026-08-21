@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/widgets/error_display.dart';
 import '../../../core/widgets/gradient_app_bar.dart';
 import '../../notifications/data/first_reminder_source.dart';
 import '../../notifications/data/notification_permission_provider.dart';
@@ -77,7 +78,11 @@ class TreatmentFormScreen extends ConsumerWidget {
       ),
       error: (error, stackTrace) => Scaffold(
         appBar: const GradientAppBar(title: Text('Modifier le traitement')),
-        body: Center(child: Text('Erreur de chargement : $error')),
+        body: ErrorDisplay(
+          error: error,
+          stackTrace: stackTrace,
+          loggerName: 'TreatmentFormScreen.treatment',
+        ),
       ),
     );
   }
