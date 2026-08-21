@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../app/theme.dart';
+import '../../l10n/generated/app_localizations.dart';
 
 /// Feuille de confirmation de suppression, déclenchée par un appui long
 /// sur une ligne de carnet (vaccin, traitement...) — pattern partagé pour
@@ -95,7 +96,7 @@ class _DeleteConfirmationSheet extends StatelessWidget {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Annuler'),
+                      child: Text(AppLocalizations.of(context)!.commonCancel),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -105,7 +106,9 @@ class _DeleteConfirmationSheet extends StatelessWidget {
                         backgroundColor: AppTheme.alertRed,
                       ),
                       onPressed: () => Navigator.of(context).pop(true),
-                      child: const Text('Supprimer'),
+                      child: Text(
+                        AppLocalizations.of(context)!.commonDelete,
+                      ),
                     ),
                   ),
                 ],
