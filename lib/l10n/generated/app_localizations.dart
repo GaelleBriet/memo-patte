@@ -146,6 +146,108 @@ abstract class AppLocalizations {
   /// **'Non renseigné'**
   String get commonNotProvidedMasculine;
 
+  /// No description provided for @commonRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get commonRetry;
+
+  /// No description provided for @commonDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get commonDelete;
+
+  /// No description provided for @errorDisplayTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une erreur est survenue'**
+  String get errorDisplayTitle;
+
+  /// No description provided for @navHome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accueil'**
+  String get navHome;
+
+  /// No description provided for @navCarnet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carnet'**
+  String get navCarnet;
+
+  /// No description provided for @homeTodayTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À faire aujourd\'hui'**
+  String get homeTodayTitle;
+
+  /// No description provided for @homeNoReminders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien à signaler pour l\'instant — tous les rappels sont à jour.'**
+  String get homeNoReminders;
+
+  /// No description provided for @homeQuickActionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actions rapides'**
+  String get homeQuickActionsTitle;
+
+  /// No description provided for @homeNewTreatmentAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau traitement'**
+  String get homeNewTreatmentAction;
+
+  /// No description provided for @homeVaccinationReminderAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel de vaccin'**
+  String get homeVaccinationReminderAction;
+
+  /// No description provided for @homeAntiparasiteAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Antiparasitaire'**
+  String get homeAntiparasiteAction;
+
+  /// No description provided for @homeEmptyStateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue sur MémoPatte'**
+  String get homeEmptyStateTitle;
+
+  /// No description provided for @homeEmptyStateMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crée le profil de ton premier compagnon pour commencer à suivre ses rappels.'**
+  String get homeEmptyStateMessage;
+
+  /// No description provided for @deleteVaccinationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer ce vaccin ?'**
+  String get deleteVaccinationTitle;
+
+  /// No description provided for @deleteVaccinationMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'\"{name}\" sera définitivement supprimé, ainsi que son rappel programmé.'**
+  String deleteVaccinationMessage(String name);
+
+  /// No description provided for @deleteTreatmentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer ce traitement ?'**
+  String get deleteTreatmentTitle;
+
+  /// No description provided for @deleteTreatmentMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'\"{name}\" sera définitivement supprimé, ainsi que son rappel programmé.'**
+  String deleteTreatmentMessage(String name);
+
   /// No description provided for @dueStatusUpToDate.
   ///
   /// In fr, this message translates to:

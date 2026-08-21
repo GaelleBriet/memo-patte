@@ -34,6 +34,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonNotProvidedMasculine => 'Not provided';
 
   @override
+  String get commonRetry => 'Retry';
+
+  @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get errorDisplayTitle => 'An error occurred';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navCarnet => 'Records';
+
+  @override
+  String get homeTodayTitle => 'To do today';
+
+  @override
+  String get homeNoReminders =>
+      'Nothing to report right now — all reminders are up to date.';
+
+  @override
+  String get homeQuickActionsTitle => 'Quick actions';
+
+  @override
+  String get homeNewTreatmentAction => 'New treatment';
+
+  @override
+  String get homeVaccinationReminderAction => 'Vaccination reminder';
+
+  @override
+  String get homeAntiparasiteAction => 'Pest control';
+
+  @override
+  String get homeEmptyStateTitle => 'Welcome to MémoPatte';
+
+  @override
+  String get homeEmptyStateMessage =>
+      'Create your first companion\'s profile to start tracking their reminders.';
+
+  @override
+  String get deleteVaccinationTitle => 'Delete this vaccination?';
+
+  @override
+  String deleteVaccinationMessage(String name) {
+    return '\"$name\" will be permanently deleted, along with its scheduled reminder.';
+  }
+
+  @override
+  String get deleteTreatmentTitle => 'Delete this treatment?';
+
+  @override
+  String deleteTreatmentMessage(String name) {
+    return '\"$name\" will be permanently deleted, along with its scheduled reminder.';
+  }
+
+  @override
   String get dueStatusUpToDate => 'Up to date';
 
   @override

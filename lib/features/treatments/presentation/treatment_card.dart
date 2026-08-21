@@ -6,6 +6,7 @@ import '../../../core/domain/due_status.dart';
 import '../../../core/widgets/delete_confirmation_sheet.dart';
 import '../../../core/widgets/due_status_badge.dart';
 import '../../../core/widgets/surface_card.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../domain/reminder_times.dart';
 
 /// Carte d'un traitement, style "Traitement en cours" de
@@ -44,12 +45,11 @@ class TreatmentCard extends StatelessWidget {
       onLongPress: onDelete == null
           ? null
           : () async {
+              final l10n = AppLocalizations.of(context)!;
               final confirmed = await showDeleteConfirmationSheet(
                 context,
-                title: 'Supprimer ce traitement ?',
-                message:
-                    '"${treatment.name}" sera définitivement supprimé, '
-                    'ainsi que son rappel programmé.',
+                title: l10n.deleteTreatmentTitle,
+                message: l10n.deleteTreatmentMessage(treatment.name),
               );
               if (confirmed) await onDelete!();
             },
@@ -76,12 +76,15 @@ class TreatmentCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Prochaine dose',
-                style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+              Text(
+                AppLocalizations.of(context)!.treatmentNextDoseLabel,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondary,
+                ),
               ),
               Text(
-                _dueInLabel(treatment, now),
+                _dueInLabel(context, treatment, now),
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,

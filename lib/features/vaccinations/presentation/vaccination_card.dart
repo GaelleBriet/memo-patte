@@ -5,6 +5,7 @@ import '../../../core/database/app_database.dart';
 import '../../../core/widgets/delete_confirmation_sheet.dart';
 import '../../../core/widgets/due_status_badge.dart';
 import '../../../core/widgets/surface_card.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../domain/vaccination_status.dart';
 
 /// Carte d'un vaccin, style "Carnet de santé" de
@@ -48,12 +49,11 @@ class VaccinationCard extends StatelessWidget {
       onLongPress: onDelete == null
           ? null
           : () async {
+              final l10n = AppLocalizations.of(context)!;
               final confirmed = await showDeleteConfirmationSheet(
                 context,
-                title: 'Supprimer ce vaccin ?',
-                message:
-                    '"${vaccination.name}" sera définitivement supprimé, '
-                    'ainsi que son rappel programmé.',
+                title: l10n.deleteVaccinationTitle,
+                message: l10n.deleteVaccinationMessage(vaccination.name),
               );
               if (confirmed) await onDelete!();
             },
@@ -82,10 +82,13 @@ class VaccinationCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   vaccination.nextDueDate == null
-                      ? 'Fait le ${_formatDate(vaccination.date)}'
-                      : 'Fait le ${_formatDate(vaccination.date)} — '
-                            'échéance le '
-                            '${_formatDate(vaccination.nextDueDate!)}',
+                      ? AppLocalizations.of(
+                          context,
+                        )!.vaccinationDoneOn(_formatDate(vaccination.date))
+                      : AppLocalizations.of(context)!.vaccinationDoneOnWithDue(
+                          _formatDate(vaccination.date),
+                          _formatDate(vaccination.nextDueDate!),
+                        ),
                   style: const TextStyle(
                     fontSize: 12,
                     color: AppTheme.textSecondary,
