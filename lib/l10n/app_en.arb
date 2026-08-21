@@ -32,6 +32,26 @@
   "deleteTreatmentTitle": "Delete this treatment?",
   "deleteTreatmentMessage": "\"{name}\" will be permanently deleted, along with its scheduled reminder.",
 
+  "vaccinationDoneOn": "Given on {date}",
+  "vaccinationDoneOnWithDue": "Given on {date} — due on {dueDate}",
+
+  "treatmentNextDoseLabel": "Next dose",
+  "treatmentDueToday": "Today",
+  "treatmentDueInDays": "{days, plural, =1{In 1 day} other{In {days} days}}",
+  "treatmentOverdueDays": "{days, plural, =1{1 day overdue} other{{days} days overdue}}",
+
+  "vaccinationsListTitle": "Vaccinations",
+  "vaccinationsListTitleWithName": "{name}'s vaccinations",
+  "vaccinationsListAddTooltip": "Add a vaccination",
+  "vaccinationsListEmptyTitle": "No vaccinations recorded",
+  "vaccinationsListEmptyMessage": "Tap + to add a vaccination, even one given a while ago.",
+
+  "treatmentsListTitle": "Treatments",
+  "treatmentsListTitleWithName": "{name}'s treatments",
+  "treatmentsListAddTooltip": "Add a treatment",
+  "treatmentsListEmptyTitle": "No treatments recorded",
+  "treatmentsListEmptyMessage": "Tap + to add a dewormer or pest control treatment, even one given a while ago.",
+
   "dueStatusUpToDate": "Up to date",
   "dueStatusDueSoon": "Upcoming",
   "dueStatusOverdue": "Overdue",

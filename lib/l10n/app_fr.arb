@@ -45,6 +45,47 @@
     "placeholders": { "name": { "type": "String" } }
   },
 
+  "vaccinationDoneOn": "Fait le {date}",
+  "@vaccinationDoneOn": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "vaccinationDoneOnWithDue": "Fait le {date} — échéance le {dueDate}",
+  "@vaccinationDoneOnWithDue": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "dueDate": { "type": "String" }
+    }
+  },
+
+  "treatmentNextDoseLabel": "Prochaine dose",
+  "treatmentDueToday": "Aujourd'hui",
+  "treatmentDueInDays": "{days, plural, =1{Dans 1 jour} other{Dans {days} jours}}",
+  "@treatmentDueInDays": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+  "treatmentOverdueDays": "{days, plural, =1{En retard de 1 jour} other{En retard de {days} jours}}",
+  "@treatmentOverdueDays": {
+    "placeholders": { "days": { "type": "int" } }
+  },
+
+  "vaccinationsListTitle": "Vaccins",
+  "vaccinationsListTitleWithName": "Vaccins de {name}",
+  "@vaccinationsListTitleWithName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "vaccinationsListAddTooltip": "Ajouter un vaccin",
+  "vaccinationsListEmptyTitle": "Aucun vaccin enregistré",
+  "vaccinationsListEmptyMessage": "Appuie sur + pour ajouter un vaccin, même fait il y a longtemps.",
+
+  "treatmentsListTitle": "Traitements",
+  "treatmentsListTitleWithName": "Traitements de {name}",
+  "@treatmentsListTitleWithName": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "treatmentsListAddTooltip": "Ajouter un traitement",
+  "treatmentsListEmptyTitle": "Aucun traitement enregistré",
+  "treatmentsListEmptyMessage": "Appuie sur + pour ajouter un vermifuge ou un antiparasitaire, même fait il y a longtemps.",
+
   "dueStatusUpToDate": "À jour",
   "dueStatusDueSoon": "À venir",
   "dueStatusOverdue": "En retard",
