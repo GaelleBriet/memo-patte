@@ -40,6 +40,14 @@ jobs:
           dart run build_runner build --delete-conflicting-outputs
           git diff --exit-code -- '*.g.dart'
 
+      # Même principe pour les traductions générées (`flutter gen-l10n`,
+      # audit du 2026-08-19 issue #71 point 3.3) — `flutter pub get`
+      # ci-dessus les régénère déjà (`generate: true` dans pubspec.yaml),
+      # cette étape vérifie juste qu'un `.arb` modifié n'a pas été
+      # committé sans régénérer `lib/l10n/generated/`.
+      - name: Traductions générées à jour
+        run: git diff --exit-code -- 'lib/l10n/generated/*.dart'
+
       - name: Vérifier le formatage
         run: dart format --output=none --set-exit-if-changed .
 
