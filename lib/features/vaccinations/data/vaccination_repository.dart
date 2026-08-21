@@ -34,6 +34,12 @@ class VaccinationRepository {
   Stream<List<Vaccination>> watchForAnimal(int animalId) =>
       _dao.watchForAnimal(animalId);
 
+  /// Lecture ponctuelle — voir `VaccinationDao.getForAnimal`. Consommée
+  /// par `AnimalRepository.deleteAnimal` pour annuler les notifications
+  /// des vaccins d'un animal avant sa suppression.
+  Future<List<Vaccination>> getForAnimal(int animalId) =>
+      _dao.getForAnimal(animalId);
+
   Future<Vaccination?> getVaccination(int id) => _dao.getById(id);
 
   /// Voir [VaccinationDao.hasAny] — détection du "premier vaccin" pour

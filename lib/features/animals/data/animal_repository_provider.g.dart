@@ -11,6 +11,10 @@ part of 'animal_repository_provider.dart';
 /// Même durée de vie que [appDatabaseProvider] : le repository ne fait
 /// qu'envelopper le DAO, pas de raison qu'il soit recréé indépendamment de
 /// la connexion à la base.
+///
+/// Dépend aussi de [vaccinationRepositoryProvider]/
+/// [treatmentRepositoryProvider] depuis le 2026-08-21 (audit issue #71
+/// point 1.2) — voir le commentaire de classe d'[AnimalRepository].
 
 @ProviderFor(animalRepository)
 final animalRepositoryProvider = AnimalRepositoryProvider._();
@@ -18,6 +22,10 @@ final animalRepositoryProvider = AnimalRepositoryProvider._();
 /// Même durée de vie que [appDatabaseProvider] : le repository ne fait
 /// qu'envelopper le DAO, pas de raison qu'il soit recréé indépendamment de
 /// la connexion à la base.
+///
+/// Dépend aussi de [vaccinationRepositoryProvider]/
+/// [treatmentRepositoryProvider] depuis le 2026-08-21 (audit issue #71
+/// point 1.2) — voir le commentaire de classe d'[AnimalRepository].
 
 final class AnimalRepositoryProvider
     extends
@@ -30,6 +38,10 @@ final class AnimalRepositoryProvider
   /// Même durée de vie que [appDatabaseProvider] : le repository ne fait
   /// qu'envelopper le DAO, pas de raison qu'il soit recréé indépendamment de
   /// la connexion à la base.
+  ///
+  /// Dépend aussi de [vaccinationRepositoryProvider]/
+  /// [treatmentRepositoryProvider] depuis le 2026-08-21 (audit issue #71
+  /// point 1.2) — voir le commentaire de classe d'[AnimalRepository].
   AnimalRepositoryProvider._()
     : super(
         from: null,
@@ -63,4 +75,4 @@ final class AnimalRepositoryProvider
   }
 }
 
-String _$animalRepositoryHash() => r'd73c0315264d21fa052b5a377fabc58311d183f1';
+String _$animalRepositoryHash() => r'7f7ec6991d2fad564342b3752ff2cf4797684b78';

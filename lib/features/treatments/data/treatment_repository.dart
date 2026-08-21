@@ -56,6 +56,13 @@ class TreatmentRepository {
   Stream<List<Treatment>> watchForAnimal(int animalId) =>
       _dao.watchForAnimal(animalId);
 
+  /// Lecture ponctuelle — voir `TreatmentDao.getForAnimal` (déjà
+  /// consommée en interne par [reconcileOverdueTreatments]). Exposée
+  /// publiquement pour `AnimalRepository.deleteAnimal`, qui annule les
+  /// notifications des traitements d'un animal avant sa suppression.
+  Future<List<Treatment>> getForAnimal(int animalId) =>
+      _dao.getForAnimal(animalId);
+
   Future<Treatment?> getTreatment(int id) => _dao.getById(id);
 
   /// Voir `VaccinationRepository.hasAnyVaccinations` — détection du
