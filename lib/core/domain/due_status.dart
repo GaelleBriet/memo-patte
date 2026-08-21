@@ -1,3 +1,7 @@
+import 'package:flutter/widgets.dart' show BuildContext;
+
+import '../../l10n/generated/app_localizations.dart';
+
 /// Statut d'une échéance par rapport à aujourd'hui (à jour / à venir /
 /// en retard).
 ///
@@ -45,13 +49,22 @@ enum DueStatus {
   }
 }
 
-/// Libellé français affiché à l'écran — centralisé ici comme
-/// [AnimalSpeciesLabel] pour `animals`, pour éviter que chaque écran ne
-/// code sa propre traduction.
+/// Libellé affiché à l'écran — centralisé ici comme [AnimalSpeciesLabel]
+/// pour `animals`, pour éviter que chaque écran ne code sa propre
+/// traduction. Méthode plutôt que getter depuis la préparation i18n
+/// (audit du 2026-08-19, issue #71 point 3.3, `AppLocalizations` a
+/// besoin d'un `BuildContext`) — `import` direct du fichier généré
+/// plutôt que passé en paramètre : ce fichier ne dépend déjà de rien
+/// côté Flutter, autant garder l'appel simple (`status.label(context)`)
+/// pour les call sites plutôt que de leur faire porter l'instance
+/// `AppLocalizations` elle-même.
 extension DueStatusLabel on DueStatus {
-  String get label => switch (this) {
-    DueStatus.upToDate => 'À jour',
-    DueStatus.dueSoon => 'À venir',
-    DueStatus.overdue => 'En retard',
-  };
+  String label(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return switch (this) {
+      DueStatus.upToDate => l10n.dueStatusUpToDate,
+      DueStatus.dueSoon => l10n.dueStatusDueSoon,
+      DueStatus.overdue => l10n.dueStatusOverdue,
+    };
+  }
 }
