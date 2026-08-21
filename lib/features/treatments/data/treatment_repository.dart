@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
 
 import '../../../core/database/app_database.dart';
 import '../../../core/notifications/notification_service.dart';
+import '../../../l10n/app_locale.dart';
 import '../../animals/data/animal_dao.dart';
 import '../domain/reminder_times.dart';
 import '../domain/treatment_frequency.dart';
@@ -289,13 +290,15 @@ class TreatmentRepository {
     if (!fireAt.isAfter(DateTime.now())) return null;
 
     final animal = await _animalDao.getById(animalId);
+    final l10n = appLocalizations();
     final notificationId = notificationIdFor(treatmentId);
     await _notificationService.scheduleNotification(
       id: notificationId,
-      title: 'Rappel de traitement',
-      body:
-          'Le traitement $name de ${animal?.name ?? 'ton animal'} arrive à '
-          'échéance aujourd\'hui.',
+      title: l10n.treatmentReminderNotificationTitle,
+      body: l10n.treatmentReminderDueNotificationBody(
+        name,
+        animal?.name ?? l10n.notificationFallbackAnimalName,
+      ),
       scheduledDate: fireAt,
     );
     return notificationId;
@@ -318,6 +321,7 @@ class TreatmentRepository {
     if (reminderTimes.isEmpty) return const [];
 
     final animal = await _animalDao.getById(animalId);
+    final l10n = appLocalizations();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final sorted = [...reminderTimes]..sort();
@@ -344,10 +348,11 @@ class TreatmentRepository {
       final id = notificationIdForSlot(treatmentId, slot);
       await _notificationService.scheduleNotification(
         id: id,
-        title: 'Rappel de traitement',
-        body:
-            'Le traitement $name de ${animal?.name ?? 'ton animal'} est à '
-            'donner maintenant.',
+        title: l10n.treatmentReminderNotificationTitle,
+        body: l10n.treatmentReminderTimeNotificationBody(
+          name,
+          animal?.name ?? l10n.notificationFallbackAnimalName,
+        ),
         scheduledDate: firstFireAt,
         matchDateTimeComponents: DateTimeComponents.time,
         androidScheduleMode: scheduleMode,
