@@ -7,6 +7,9 @@ import 'package:memo_patte/core/database/app_database.dart';
 import 'package:memo_patte/core/database/database_provider.dart';
 import 'package:memo_patte/features/animals/data/animal_dao.dart';
 import 'package:memo_patte/features/animals/presentation/create_animal_screen.dart';
+import 'package:memo_patte/l10n/generated/app_localizations.dart';
+
+import '../../../support/localized_test_app.dart';
 
 void main() {
   late AppDatabase database;
@@ -43,7 +46,12 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [appDatabaseProvider.overrideWithValue(database)],
-          child: MaterialApp.router(routerConfig: router),
+          child: MaterialApp.router(
+            routerConfig: router,
+            locale: testLocale,
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: testLocalizationsDelegates,
+          ),
         ),
       );
 
