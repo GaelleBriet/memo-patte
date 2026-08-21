@@ -42,31 +42,24 @@ class VaccinationFormScreen extends ConsumerWidget {
       return _VaccinationFormScaffold(animalId: animalId, vaccination: null);
     }
 
+    final l10n = AppLocalizations.of(context)!;
     final vaccinationAsync = ref.watch(vaccinationProvider(vaccinationId));
     return vaccinationAsync.when(
       data: (vaccination) => vaccination == null
           ? Scaffold(
-              appBar: GradientAppBar(
-                title: Text(AppLocalizations.of(context)!.vaccinationFormEditTitle),
-              ),
-              body: Center(
-                child: Text(AppLocalizations.of(context)!.vaccinationFormNotFound),
-              ),
+              appBar: GradientAppBar(title: Text(l10n.vaccinationFormEditTitle)),
+              body: Center(child: Text(l10n.vaccinationFormNotFound)),
             )
           : _VaccinationFormScaffold(
               animalId: animalId,
               vaccination: vaccination,
             ),
       loading: () => Scaffold(
-        appBar: GradientAppBar(
-          title: Text(AppLocalizations.of(context)!.vaccinationFormEditTitle),
-        ),
+        appBar: GradientAppBar(title: Text(l10n.vaccinationFormEditTitle)),
         body: const Center(child: CircularProgressIndicator()),
       ),
       error: (error, stackTrace) => Scaffold(
-        appBar: GradientAppBar(
-          title: Text(AppLocalizations.of(context)!.vaccinationFormEditTitle),
-        ),
+        appBar: GradientAppBar(title: Text(l10n.vaccinationFormEditTitle)),
         body: ErrorDisplay(
           error: error,
           stackTrace: stackTrace,
