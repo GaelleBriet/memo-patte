@@ -295,6 +295,36 @@ class AppLocalizationsFr extends AppLocalizations {
   String get notificationPrimingLater => 'Plus tard';
 
   @override
+  String get homeReminderVaccinationTitle => 'Rappel de vaccin';
+
+  @override
+  String get homeReminderTreatmentTitle => 'Rappel de traitement';
+
+  @override
+  String get notificationFallbackAnimalName => 'ton animal';
+
+  @override
+  String get vaccinationReminderNotificationTitle => 'Rappel vaccin';
+
+  @override
+  String vaccinationReminderNotificationBody(String name, String animalName) {
+    return 'Le vaccin $name de $animalName arrive à échéance aujourd\'hui.';
+  }
+
+  @override
+  String get treatmentReminderNotificationTitle => 'Rappel de traitement';
+
+  @override
+  String treatmentReminderDueNotificationBody(String name, String animalName) {
+    return 'Le traitement $name de $animalName arrive à échéance aujourd\'hui.';
+  }
+
+  @override
+  String treatmentReminderTimeNotificationBody(String name, String animalName) {
+    return 'Le traitement $name de $animalName est à donner maintenant.';
+  }
+
+  @override
   String get dueStatusUpToDate => 'À jour';
 
   @override

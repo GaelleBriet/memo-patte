@@ -584,6 +584,54 @@ abstract class AppLocalizations {
   /// **'Plus tard'**
   String get notificationPrimingLater;
 
+  /// No description provided for @homeReminderVaccinationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel de vaccin'**
+  String get homeReminderVaccinationTitle;
+
+  /// No description provided for @homeReminderTreatmentTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel de traitement'**
+  String get homeReminderTreatmentTitle;
+
+  /// No description provided for @notificationFallbackAnimalName.
+  ///
+  /// In fr, this message translates to:
+  /// **'ton animal'**
+  String get notificationFallbackAnimalName;
+
+  /// No description provided for @vaccinationReminderNotificationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel vaccin'**
+  String get vaccinationReminderNotificationTitle;
+
+  /// No description provided for @vaccinationReminderNotificationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le vaccin {name} de {animalName} arrive à échéance aujourd\'hui.'**
+  String vaccinationReminderNotificationBody(String name, String animalName);
+
+  /// No description provided for @treatmentReminderNotificationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel de traitement'**
+  String get treatmentReminderNotificationTitle;
+
+  /// No description provided for @treatmentReminderDueNotificationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le traitement {name} de {animalName} arrive à échéance aujourd\'hui.'**
+  String treatmentReminderDueNotificationBody(String name, String animalName);
+
+  /// No description provided for @treatmentReminderTimeNotificationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le traitement {name} de {animalName} est à donner maintenant.'**
+  String treatmentReminderTimeNotificationBody(String name, String animalName);
+
   /// No description provided for @dueStatusUpToDate.
   ///
   /// In fr, this message translates to:
