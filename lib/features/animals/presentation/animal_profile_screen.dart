@@ -651,15 +651,17 @@ class _ProfileRow extends StatelessWidget {
   }
 }
 
-/// "4 mois" / "1 an" / "3 ans" — pas de dépendance `intl` pour un seul
-/// calcul d'âge, même choix que le reste du code (voir
-/// `home_screen.dart` pour l'en-tête de date).
-String _formatAge(DateTime birthDate) {
+/// "4 mois" / "1 an" / "3 ans" — pluriels gérés par `AppLocalizations`
+/// (ICU, `lib/l10n/app_fr.arb`/`app_en.arb`) depuis la préparation i18n
+/// (audit du 2026-08-19, issue #71 point 3.3) ; avant ça, formaté à la
+/// main sans dépendance `intl` pour un seul calcul d'âge.
+String _formatAge(BuildContext context, DateTime birthDate) {
+  final l10n = AppLocalizations.of(context)!;
   final now = DateTime.now();
   var months = (now.year - birthDate.year) * 12 + (now.month - birthDate.month);
   if (now.day < birthDate.day) months -= 1;
-  if (months < 1) return 'moins d\'un mois';
-  if (months < 12) return '$months mois';
+  if (months < 1) return l10n.animalAgeLessThanMonth;
+  if (months < 12) return l10n.animalAgeMonths(months);
   final years = months ~/ 12;
-  return years > 1 ? '$years ans' : '1 an';
+  return l10n.animalAgeYears(years);
 }
