@@ -76,6 +76,17 @@ android {
             } else {
                 signingConfigs.getByName("debug")
             }
+            // Règles prêtes pour flutter_local_notifications (voir
+            // `proguard-rules.pro`) — `isMinifyEnabled` volontairement
+            // pas activé ici (décision séparée, pas couverte par
+            // l'audit du 2026-08-19 issue #71 point 3.11 : juste
+            // "vérifier que les plugins ne seraient pas strippés" le
+            // jour où la minification est activée, pas l'activer
+            // maintenant).
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 }
