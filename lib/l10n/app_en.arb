@@ -10,6 +10,27 @@
   "commonSeeAll": "See all",
   "commonNotProvidedFeminine": "Not provided",
   "commonNotProvidedMasculine": "Not provided",
+  "commonRetry": "Retry",
+  "commonDelete": "Delete",
+
+  "errorDisplayTitle": "An error occurred",
+
+  "navHome": "Home",
+  "navCarnet": "Records",
+
+  "homeTodayTitle": "To do today",
+  "homeNoReminders": "Nothing to report right now — all reminders are up to date.",
+  "homeQuickActionsTitle": "Quick actions",
+  "homeNewTreatmentAction": "New treatment",
+  "homeVaccinationReminderAction": "Vaccination reminder",
+  "homeAntiparasiteAction": "Pest control",
+  "homeEmptyStateTitle": "Welcome to MémoPatte",
+  "homeEmptyStateMessage": "Create your first companion's profile to start tracking their reminders.",
+
+  "deleteVaccinationTitle": "Delete this vaccination?",
+  "deleteVaccinationMessage": "\"{name}\" will be permanently deleted, along with its scheduled reminder.",
+  "deleteTreatmentTitle": "Delete this treatment?",
+  "deleteTreatmentMessage": "\"{name}\" will be permanently deleted, along with its scheduled reminder.",
 
   "dueStatusUpToDate": "Up to date",
   "dueStatusDueSoon": "Upcoming",
