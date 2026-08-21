@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/animals/data/animals_list_provider.dart';
 import '../features/animals/data/selected_animal_provider.dart';
+import '../l10n/generated/app_localizations.dart';
 import 'theme.dart';
 
 /// Coquille de navigation persistante (ticket 6.0) : la barre du bas de
@@ -59,6 +60,7 @@ class AppShell extends ConsumerWidget {
     // veut une marge *en plus* de l'inset système, systématiquement :
     // padding = inset système + marge fixe, additionnés, pas maximisés.
     final bottomInset = MediaQuery.paddingOf(context).bottom;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: navigationShell,
@@ -76,7 +78,7 @@ class AppShell extends ConsumerWidget {
             children: [
               _NavIcon(
                 icon: Icons.home_rounded,
-                label: 'Accueil',
+                label: l10n.navHome,
                 selected: navigationShell.currentIndex == 0,
                 // `initialLocation: true` en retapant l'onglet déjà
                 // actif : revient à sa route racine plutôt que de ne
@@ -88,7 +90,7 @@ class AppShell extends ConsumerWidget {
               ),
               _NavIcon(
                 icon: Icons.pets_rounded,
-                label: 'Carnet',
+                label: l10n.navCarnet,
                 selected: navigationShell.currentIndex == 1,
                 onTap: () => _onCarnetTap(context, ref),
               ),
