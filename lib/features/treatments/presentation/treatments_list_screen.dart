@@ -7,6 +7,7 @@ import '../../../core/database/app_database.dart';
 import '../../../core/widgets/error_display.dart';
 import '../../../core/widgets/gradient_app_bar.dart';
 import '../../../core/widgets/surface_card.dart';
+import '../../../l10n/generated/app_localizations.dart';
 import '../../animals/data/animal_provider.dart';
 import '../data/treatment_repository_provider.dart';
 import '../data/treatments_list_provider.dart';
@@ -51,11 +52,14 @@ class _TreatmentsListScreenState extends ConsumerState<TreatmentsListScreen> {
   Widget build(BuildContext context) {
     final treatmentsAsync = ref.watch(treatmentsListProvider(widget.animalId));
     final animal = ref.watch(animalProvider(widget.animalId)).value;
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: GradientAppBar(
         title: Text(
-          animal == null ? 'Traitements' : 'Traitements de ${animal.name}',
+          animal == null
+              ? l10n.treatmentsListTitle
+              : l10n.treatmentsListTitleWithName(animal.name),
         ),
       ),
       body: treatmentsAsync.when(
@@ -77,7 +81,7 @@ class _TreatmentsListScreenState extends ConsumerState<TreatmentsListScreen> {
           'createTreatment',
           pathParameters: {'id': widget.animalId.toString()},
         ),
-        tooltip: 'Ajouter un traitement',
+        tooltip: l10n.treatmentsListAddTooltip,
         child: const Icon(Icons.add),
       ),
     );
