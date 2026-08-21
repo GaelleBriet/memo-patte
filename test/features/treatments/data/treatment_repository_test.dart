@@ -101,8 +101,11 @@ void main() {
       AnimalDao(database),
       notificationService,
     );
-    animalId = await _animalRepository(database, repository, notificationService)
-        .createAnimal(name: 'Milo', species: AnimalSpecies.dog);
+    animalId = await _animalRepository(
+      database,
+      repository,
+      notificationService,
+    ).createAnimal(name: 'Milo', species: AnimalSpecies.dog);
   });
 
   tearDown(() async {
@@ -372,8 +375,11 @@ void main() {
     });
 
     test('plusieurs animaux : ne touche que celui demandé', () async {
-      final luna = await _animalRepository(database, repository, notificationService)
-          .createAnimal(name: 'Luna', species: AnimalSpecies.cat);
+      final luna = await _animalRepository(
+        database,
+        repository,
+        notificationService,
+      ).createAnimal(name: 'Luna', species: AnimalSpecies.cat);
       final overdueDate = DateTime.now().subtract(const Duration(days: 60));
 
       await repository.createTreatment(
@@ -434,8 +440,11 @@ void main() {
   group('watchForAnimal', () {
     test('ne retourne que les traitements de l\'animal, du plus récent au '
         'plus ancien', () async {
-      final luna = await _animalRepository(database, repository, notificationService)
-          .createAnimal(name: 'Luna', species: AnimalSpecies.cat);
+      final luna = await _animalRepository(
+        database,
+        repository,
+        notificationService,
+      ).createAnimal(name: 'Luna', species: AnimalSpecies.cat);
       await repository.createTreatment(
         animalId: animalId,
         name: 'Vermifuge',
@@ -487,7 +496,11 @@ void main() {
           frequency: TreatmentFrequency.quarterly,
         );
 
-        await _animalRepository(database, repository, notificationService).deleteAnimal(animalId);
+        await _animalRepository(
+          database,
+          repository,
+          notificationService,
+        ).deleteAnimal(animalId);
 
         final treatments = await repository.watchForAnimal(animalId).first;
         expect(treatments, isEmpty);

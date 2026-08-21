@@ -186,48 +186,43 @@ void main() {
       expect(deletedCount, 0);
     });
 
-    test(
-      'annule les notifications des vaccins et traitements liés avant '
-      'la suppression en cascade (audit du 2026-08-19, issue #71 point '
-      '1.2)',
-      () async {
-        final id = await repository.createAnimal(
-          name: 'Milo',
-          species: AnimalSpecies.dog,
-        );
-        final vaccinationId = await vaccinationRepository.createVaccination(
-          animalId: id,
-          name: 'Rage',
-          date: DateTime.now(),
-          nextDueDate: DateTime.now().add(const Duration(days: 5)),
-        );
-        final treatmentId = await treatmentRepository.createTreatment(
-          animalId: id,
-          name: 'Bravecto',
-          date: DateTime.now(),
-          frequency: TreatmentFrequency.monthly,
-        );
-        final vaccination = (await vaccinationRepository.getVaccination(
-          vaccinationId,
-        ))!;
-        final treatment = (await treatmentRepository.getTreatment(
-          treatmentId,
-        ))!;
-        expect(vaccination.notificationId, isNotNull);
-        expect(treatment.notificationId, isNotNull);
+    test('annule les notifications des vaccins et traitements liés avant '
+        'la suppression en cascade (audit du 2026-08-19, issue #71 point '
+        '1.2)', () async {
+      final id = await repository.createAnimal(
+        name: 'Milo',
+        species: AnimalSpecies.dog,
+      );
+      final vaccinationId = await vaccinationRepository.createVaccination(
+        animalId: id,
+        name: 'Rage',
+        date: DateTime.now(),
+        nextDueDate: DateTime.now().add(const Duration(days: 5)),
+      );
+      final treatmentId = await treatmentRepository.createTreatment(
+        animalId: id,
+        name: 'Bravecto',
+        date: DateTime.now(),
+        frequency: TreatmentFrequency.monthly,
+      );
+      final vaccination = (await vaccinationRepository.getVaccination(
+        vaccinationId,
+      ))!;
+      final treatment = (await treatmentRepository.getTreatment(treatmentId))!;
+      expect(vaccination.notificationId, isNotNull);
+      expect(treatment.notificationId, isNotNull);
 
-        await repository.deleteAnimal(id);
+      await repository.deleteAnimal(id);
 
-        expect(notificationService.cancelled, [
-          vaccination.notificationId,
-          treatment.notificationId,
-        ]);
-        // Cascade SQL toujours effective derrière : plus rien en base
-        // pour cet animal.
-        expect(await vaccinationRepository.getVaccination(vaccinationId), isNull);
-        expect(await treatmentRepository.getTreatment(treatmentId), isNull);
-      },
-    );
+      expect(notificationService.cancelled, [
+        vaccination.notificationId,
+        treatment.notificationId,
+      ]);
+      // Cascade SQL toujours effective derrière : plus rien en base
+      // pour cet animal.
+      expect(await vaccinationRepository.getVaccination(vaccinationId), isNull);
+      expect(await treatmentRepository.getTreatment(treatmentId), isNull);
+    });
   });
 
   group('watchAnimals', () {

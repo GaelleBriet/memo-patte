@@ -62,70 +62,64 @@ void main() {
     await database.close();
   });
 
-  testWidgets(
-    'éditer un animal préserve les champs absents du formulaire '
-    '(photoPath en particulier)',
-    (tester) async {
-      final notificationService = _NoopNotificationService();
-      // `AnimalRepository` a besoin d'un `VaccinationRepository`/
-      // `TreatmentRepository` depuis le 2026-08-21 (audit issue #71
-      // point 1.2) — jetables ici, ce test n'exerce pas `deleteAnimal`.
-      final id = await AnimalRepository(
+  testWidgets('éditer un animal préserve les champs absents du formulaire '
+      '(photoPath en particulier)', (tester) async {
+    final notificationService = _NoopNotificationService();
+    // `AnimalRepository` a besoin d'un `VaccinationRepository`/
+    // `TreatmentRepository` depuis le 2026-08-21 (audit issue #71
+    // point 1.2) — jetables ici, ce test n'exerce pas `deleteAnimal`.
+    final id = await AnimalRepository(
+      AnimalDao(database),
+      VaccinationRepository(
+        VaccinationDao(database),
         AnimalDao(database),
-        VaccinationRepository(
-          VaccinationDao(database),
-          AnimalDao(database),
-          notificationService,
-        ),
-        TreatmentRepository(
-          TreatmentDao(database),
-          AnimalDao(database),
-          notificationService,
-        ),
-      ).createAnimal(name: 'Milo', species: AnimalSpecies.dog);
-      // `photoPath` posé directement en base : aucun écran ne sait
-      // encore le saisir (cf. commentaire de classe).
-      await (database.update(
-        database.animals,
-      )..where((a) => a.id.equals(id))).write(
-        const AnimalsCompanion(photoPath: Value('/fake/path/milo.jpg')),
-      );
+        notificationService,
+      ),
+      TreatmentRepository(
+        TreatmentDao(database),
+        AnimalDao(database),
+        notificationService,
+      ),
+    ).createAnimal(name: 'Milo', species: AnimalSpecies.dog);
+    // `photoPath` posé directement en base : aucun écran ne sait
+    // encore le saisir (cf. commentaire de classe).
+    await (database.update(database.animals)..where((a) => a.id.equals(id)))
+        .write(const AnimalsCompanion(photoPath: Value('/fake/path/milo.jpg')));
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            appDatabaseProvider.overrideWithValue(database),
-            notificationServiceProvider.overrideWithValue(
-              _NoopNotificationService(),
-            ),
-          ],
-          child: MaterialApp(home: AnimalProfileScreen(animalId: id)),
-        ),
-      );
-      await tester.pumpAndSettle();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(database),
+          notificationServiceProvider.overrideWithValue(
+            _NoopNotificationService(),
+          ),
+        ],
+        child: MaterialApp(home: AnimalProfileScreen(animalId: id)),
+      ),
+    );
+    await tester.pumpAndSettle();
 
-      await tester.tap(find.byTooltip('Modifier'));
-      await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Modifier'));
+    await tester.pumpAndSettle();
 
-      // Un seul champ effectivement modifié par le formulaire — le
-      // reste (dont `photoPath`, invisible ici) ne doit pas bouger.
-      await tester.enterText(find.byType(TextFormField).first, 'Milo Junior');
-      await tester.tap(find.text('Enregistrer'));
-      await tester.pumpAndSettle();
+    // Un seul champ effectivement modifié par le formulaire — le
+    // reste (dont `photoPath`, invisible ici) ne doit pas bouger.
+    await tester.enterText(find.byType(TextFormField).first, 'Milo Junior');
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
 
-      final updated = await AnimalDao(database).getById(id);
-      expect(updated!.name, 'Milo Junior');
-      expect(updated.photoPath, '/fake/path/milo.jpg');
+    final updated = await AnimalDao(database).getById(id);
+    expect(updated!.name, 'Milo Junior');
+    expect(updated.photoPath, '/fake/path/milo.jpg');
 
-      // Démontage explicite avant la fin du test : voir le commentaire
-      // équivalent dans `widget_test.dart` — sans ça, un timer interne
-      // de Drift (`StreamQueryStore.markAsClosed`, déclenché par les
-      // `.watch()` de cet écran) traîne encore quand `flutter_test`
-      // vérifie qu'aucun timer n'est en attente, et le test échoue sur
-      // cette vérification plutôt que sur son contenu réel.
-      await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pump(const Duration(milliseconds: 1));
-      await tester.pump(const Duration(milliseconds: 1));
-    },
-  );
+    // Démontage explicite avant la fin du test : voir le commentaire
+    // équivalent dans `widget_test.dart` — sans ça, un timer interne
+    // de Drift (`StreamQueryStore.markAsClosed`, déclenché par les
+    // `.watch()` de cet écran) traîne encore quand `flutter_test`
+    // vérifie qu'aucun timer n'est en attente, et le test échoue sur
+    // cette vérification plutôt que sur son contenu réel.
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(milliseconds: 1));
+    await tester.pump(const Duration(milliseconds: 1));
+  });
 }

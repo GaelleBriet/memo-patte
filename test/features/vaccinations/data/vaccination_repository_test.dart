@@ -105,8 +105,11 @@ void main() {
       AnimalDao(database),
       notificationService,
     );
-    animalId = await _animalRepository(database, repository, notificationService)
-        .createAnimal(name: 'Milo', species: AnimalSpecies.dog);
+    animalId = await _animalRepository(
+      database,
+      repository,
+      notificationService,
+    ).createAnimal(name: 'Milo', species: AnimalSpecies.dog);
   });
 
   tearDown(() async {
@@ -282,8 +285,11 @@ void main() {
   group('watchForAnimal', () {
     test('ne retourne que les vaccins de l\'animal, du plus récent au plus '
         'ancien', () async {
-      final otherAnimalId = await _animalRepository(database, repository, notificationService)
-          .createAnimal(name: 'Luna', species: AnimalSpecies.cat);
+      final otherAnimalId = await _animalRepository(
+        database,
+        repository,
+        notificationService,
+      ).createAnimal(name: 'Luna', species: AnimalSpecies.cat);
       await repository.createVaccination(
         animalId: animalId,
         name: 'Rage',
@@ -328,7 +334,11 @@ void main() {
         date: DateTime(2026, 6, 1),
       );
 
-      await _animalRepository(database, repository, notificationService).deleteAnimal(animalId);
+      await _animalRepository(
+        database,
+        repository,
+        notificationService,
+      ).deleteAnimal(animalId);
 
       final vaccinations = await repository.watchForAnimal(animalId).first;
       expect(vaccinations, isEmpty);
